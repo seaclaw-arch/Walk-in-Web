@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Walk-in Frozen & Chiller | Cloud</title>
+    <title>Walk-in Frozen & Chiller | Cloud v2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -52,6 +52,7 @@
         .chip-list { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
         .chip { background:#e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.85rem; display:flex; align-items:center; gap:6px; }
         .baris-label { font-size:0.75rem; font-weight:600; color:#64748b; margin-top:8px; margin-bottom:4px; }
+        .filter-row { display:flex; gap:8px; margin-bottom:12px; }
     </style>
 </head>
 <body>
@@ -115,6 +116,9 @@
         };
         let currentTab = 'dashboard';
         let unsubscribe = null;
+        let historyFilter = 'all'; // 'all', 'monthly', 'yearly'
+        let historyMonth = new Date().toISOString().slice(0,7);
+        let historyYear = new Date().getFullYear().toString();
 
         // Default sections dengan struktur BARIS (maks 5 keranjang per baris)
         const defaultFrozenSections = {
@@ -128,7 +132,6 @@
             'RDQ':  { 'A': [5,15,19,20,44,48,49,52] },
             'MTPP': { 'A': [11,12,27,34,40,50,53,61,64,74] },
             'MI':   { 'A': [3,13,14,16,25,37,39,47,51,59,63] }
-            // QA dihapus
         };
 
         const defaultChillerSections = {
@@ -138,7 +141,7 @@
             'NPL':     { 'A': [] },
             'MTPP':    { 'A': [] },
             'MI':      { 'A': [] },
-            'RDQ':     { 'A': [] }   // QA diganti RDQ
+            'RDQ':     { 'A': [] }
         };
 
         function getDefaultSections(area) {
@@ -146,7 +149,6 @@
                    JSON.parse(JSON.stringify(defaultChillerSections));
         }
 
-        // Konversi data lama (array) ke format baris baru
         function convertSectionsToNewFormat(sections) {
             const converted = {};
             for (const [sec, val] of Object.entries(sections)) {
@@ -159,7 +161,6 @@
             return converted;
         }
 
-        // Auth
         function login() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
@@ -187,14 +188,10 @@
                     const data = doc.data();
                     let frozenData = data.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
                     let chillerData = data.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
-
-                    // Konversi jika masih format lama
-                    if (frozenData.sections) frozenData.sections = convertSectionsToNewFormat(frozenData.sections);
-                    if (chillerData.sections) chillerData.sections = convertSectionsToNewFormat(chillerData.sections);
-
+                    frozenData.sections = convertSectionsToNewFormat(frozenData.sections);
+                    chillerData.sections = convertSectionsToNewFormat(chillerData.sections);
                     appData.frozen = frozenData;
                     appData.chiller = chillerData;
-
                     syncBasketsWithSections('frozen');
                     syncBasketsWithSections('chiller');
                     if (!data.frozen) saveToFirestore();
@@ -242,7 +239,6 @@
             renderCurrentTab();
         }
 
-        // Helpers
         function stackCount(no) { return (currentBaskets()[no]?.items || []).length; }
         function basketStatus(no) {
             const c = stackCount(no);
@@ -281,11 +277,10 @@
                 detail,
                 user: auth.currentUser?.email || 'unknown'
             });
-            if (currentTransactions().length > 200) currentTransactions().pop();
+            if (currentTransactions().length > 500) currentTransactions().pop();
             saveToFirestore();
         }
 
-        // Render
         const container = document.getElementById('appContainer');
         function renderCurrentTab() {
             switch(currentTab) {
@@ -329,13 +324,10 @@
                     sectionCards += `${barisLabel}<div class="basket-grid">${cards}</div>`;
                 }
                 if (sectionCards) {
-                    html += `<div class="card">
-                        <div class="section-header"><h3>📍 ${section}</h3></div>
-                        ${sectionCards}
-                    </div>`;
+                    html += `<div class="card"><div class="section-header"><h3>📍 ${section}</h3></div>${sectionCards}</div>`;
                 }
             }
-            container.innerHTML = html || '<div class="empty-state">Belum ada keranjang</div>';
+            container.innerHTML = html || '<div class="card"><div class="empty-state">Belum ada keranjang</div></div>';
         }
 
         function showBasketDetail(no) {
@@ -485,17 +477,37 @@
         }
 
         function renderHistory() {
-            const list = currentTransactions().slice(0,50).map(t => {
+            let transactions = currentTransactions();
+            if (historyFilter === 'monthly') {
+                transactions = transactions.filter(t => t.timestamp.startsWith(historyMonth));
+            } else if (historyFilter === 'yearly') {
+                transactions = transactions.filter(t => t.timestamp.startsWith(historyYear));
+            }
+
+            const filterHtml = `
+                <div class="filter-row">
+                    <select id="historyFilter" onchange="historyFilter=this.value; renderHistory();">
+                        <option value="all" ${historyFilter==='all'?'selected':''}>Semua</option>
+                        <option value="monthly" ${historyFilter==='monthly'?'selected':''}>Bulanan</option>
+                        <option value="yearly" ${historyFilter==='yearly'?'selected':''}>Tahunan</option>
+                    </select>
+                    ${historyFilter==='monthly' ? `<input type="month" id="historyMonth" value="${historyMonth}" onchange="historyMonth=this.value; renderHistory();">` : ''}
+                    ${historyFilter==='yearly' ? `<input type="number" id="historyYear" value="${historyYear}" min="2020" max="2030" onchange="historyYear=this.value; renderHistory();">` : ''}
+                </div>`;
+
+            const list = transactions.slice(0,50).map(t => {
                 const icon = t.type==='in'?'📥':'📤';
                 return `<div class="item-row"><div>${icon} <strong>${t.detail.nama}</strong> (${t.detail.qty})<br><small>${new Date(t.timestamp).toLocaleString('id-ID')} | ${t.user}</small></div></div>`;
             }).join('');
+
             container.innerHTML = `
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <h3>📋 Riwayat</h3>
                         <button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button>
                     </div>
-                    ${list||'<div class="empty-state">Belum ada aktivitas</div>'}
+                    ${filterHtml}
+                    ${list||'<div class="empty-state">Tidak ada transaksi</div>'}
                 </div>`;
         }
 
@@ -531,7 +543,6 @@
             if(!input) return;
             const no = parseInt(input.value);
             if(isNaN(no)||no<=0) return showToast('Nomor tidak valid');
-            // Cek duplikat di semua section
             for (const [sec, barisObj] of Object.entries(currentSections())) {
                 for (const nums of Object.values(barisObj)) {
                     if (nums.includes(no)) return showToast(`Nomor ${no} sudah ada di section ${sec}`);
@@ -565,13 +576,18 @@
         }
 
         function downloadExcel() {
-            const transactions = currentTransactions();
+            let transactions = currentTransactions();
+            if (historyFilter === 'monthly') {
+                transactions = transactions.filter(t => t.timestamp.startsWith(historyMonth));
+            } else if (historyFilter === 'yearly') {
+                transactions = transactions.filter(t => t.timestamp.startsWith(historyYear));
+            }
             if (transactions.length === 0) return showToast('Tidak ada data untuk diunduh');
             
             let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
             <head><meta charset="UTF-8"><title>Rekap Transaksi Walk-in ${currentArea.toUpperCase()}</title></head>
             <body>
-            <h2>Rekap Transaksi - Area ${currentArea.toUpperCase()}</h2>
+            <h2>Rekap Transaksi - Area ${currentArea.toUpperCase()} ${historyFilter!=='all' ? '('+historyFilter+': '+ (historyFilter==='monthly'?historyMonth:historyYear)+')' : ''}</h2>
             <table border="1">
                 <tr style="background:#2563eb; color:white;">
                     <th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th><th>Jenis Brg</th><th>Keranjang</th><th>Section</th><th>User</th>
@@ -602,7 +618,6 @@
             link.click();
         }
 
-        // Tab navigation
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
