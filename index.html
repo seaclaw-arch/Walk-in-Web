@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Walk-in Frozen & Chiller | Cloud</title>
+    <title>Walk-in Frozen & Chiller | Cloud v3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -43,7 +43,6 @@
             margin-bottom:10px; text-align:center; letter-spacing:0.5px;
         }
 
-        /* Section box (the orange shelf unit) */
         .fp-sec {
             background:var(--sec-bg);
             border:2px solid var(--sec-border);
@@ -66,7 +65,6 @@
             margin-top:3px; margin-bottom:2px;
         }
 
-        /* Compact basket card for floor plan */
         .fp-basket {
             background:#fff;
             border:2px solid #cbd5e1;
@@ -97,7 +95,6 @@
             font-size:0.5rem; font-weight:bold;
         }
 
-        /* ── FROZEN LAYOUT ── */
         .frozen-plan {
             display:flex; flex-direction:column; gap:8px;
             min-width:420px;
@@ -124,20 +121,6 @@
         .fp-body-right {
             width:70px; min-width:70px; display:flex; flex-direction:column;
         }
-        .fp-sec-vert {
-            flex:1;
-            writing-mode:horizontal-tb;
-            display:flex; flex-direction:column;
-        }
-        .fp-sec-vert .fp-sec-name {
-            writing-mode:vertical-rl;
-            text-orientation:mixed;
-            transform:rotate(180deg);
-            align-self:center;
-            margin-bottom:0; margin-left:0;
-            font-size:0.75rem;
-        }
-        /* MI vertical section */
         .fp-mi-wrap {
             flex:1; background:var(--sec-bg); border:2px solid var(--sec-border);
             border-radius:8px; display:flex; flex-direction:column;
@@ -150,7 +133,6 @@
         }
         .fp-mi-baskets { display:flex; flex-direction:column; gap:4px; align-items:center; }
 
-        /* ── CHILLER LAYOUT ── */
         .chiller-plan {
             display:flex; gap:10px;
             min-width:340px;
@@ -178,7 +160,6 @@
             writing-mode:vertical-rl; transform:rotate(180deg);
         }
 
-        /* ── LEGEND ── */
         .fp-legend {
             display:flex; gap:12px; flex-wrap:wrap;
             padding:8px 12px; background:#f8fafc;
@@ -190,7 +171,6 @@
         .fp-dot.y { background:#fffbeb; border-color:#f59e0b; }
         .fp-dot.r { background:#fef2f2; border-color:#ef4444; }
 
-        /* ── ANIMATIONS ── */
         @keyframes softPulse   { 0%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)} 50%{box-shadow:0 0 0 5px rgba(245,158,11,0.1)} 100%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)} }
         @keyframes strongPulse { 0%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)}  50%{box-shadow:0 0 0 7px rgba(239,68,68,0.15)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} }
 
@@ -213,7 +193,6 @@
         .baris-label { font-size:0.75rem; font-weight:700; color:#475569; margin-top:10px; margin-bottom:4px; background:#e2e8f0; display:inline-block; padding:2px 10px; border-radius:20px; }
         .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
 
-        /* Rekap */
         .rekap-tabs { display:flex; gap:8px; margin-bottom:16px; }
         .rekap-tab { padding:8px 20px; border-radius:20px; border:1px solid #cbd5e1; background:#f8fafc; font-weight:600; cursor:pointer; font-size:0.85rem; }
         .rekap-tab.active { background:var(--primary); color:white; border-color:var(--primary); }
@@ -231,6 +210,25 @@
         .section-badge { background:#dbeafe; color:#1d4ed8; border-radius:20px; padding:2px 8px; font-size:0.75rem; font-weight:600; margin:2px; display:inline-block; }
         .filter-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
         .filter-row select { width:auto; padding:8px 12px; font-size:0.85rem; }
+        .reset-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: 2px solid #ef4444;
+            padding: 10px 20px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .reset-btn:disabled { opacity:0.5; cursor:not-allowed; }
+        .google-btn {
+            background:#fff; color:#333; border:1px solid #ddd;
+            display:flex; align-items:center; justify-content:center;
+            gap:8px; padding:12px; border-radius:12px;
+            cursor:pointer; font-weight:500; margin-top:10px; width:100%;
+        }
+        .google-btn:hover { background:#f1f1f1; }
     </style>
 </head>
 <body>
@@ -240,9 +238,12 @@
         <div class="card" style="text-align:center">
             <h2>🔐 Masuk Walk-in</h2>
             <p style="color:#64748b;margin-bottom:16px;">Gunakan akun tim</p>
-            <div class="form-group"><input type="email"     id="loginEmail"    value="tim@walkin.com"></div>
-            <div class="form-group"><input type="password"  id="loginPassword" value="frozen2024"></div>
+            <div class="form-group"><input type="email" id="loginEmail" value="tim@walkin.com"></div>
+            <div class="form-group"><input type="password" id="loginPassword" value="frozen2024"></div>
             <button class="btn btn-primary" style="width:100%" onclick="login()">Masuk</button>
+            <button class="google-btn" onclick="loginWithGoogle()">
+                <i class="fab fa-google"></i> Login dengan Google
+            </button>
             <p id="loginError" style="color:red;margin-top:10px;"></p>
         </div>
     </div>
@@ -305,9 +306,12 @@
     let unsubscribe = null;
 
     // ═══════════════════════════════════════════
+    //  ADMIN CONFIG (Reset hanya untuk email ini)
+    // ═══════════════════════════════════════════
+    const ADMIN_EMAILS = ['slardar.men@gmail.com'];
+
+    // ═══════════════════════════════════════════
     //  DEFAULT SECTIONS
-    //  Frozen : multi-baris, maks 5 keranjang/baris, tanpa QA
-    //  Chiller: 1 baris/section maks 5, QA → RDQ
     // ═══════════════════════════════════════════
     const defaultFrozenSections = {
         'IMP': {
@@ -370,6 +374,11 @@
         const pass  = document.getElementById('loginPassword').value.trim();
         auth.signInWithEmailAndPassword(email, pass)
             .catch(e => document.getElementById('loginError').textContent = 'Gagal: ' + e.message);
+    }
+    function loginWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+            .catch(e => document.getElementById('loginError').textContent = 'Google login gagal.'));
     }
     function logout() { auth.signOut(); }
 
@@ -479,6 +488,40 @@
     }
 
     // ═══════════════════════════════════════════
+    //  ADMIN RESET
+    // ═══════════════════════════════════════════
+    function isAdmin() {
+        const user = auth.currentUser;
+        if (!user) return false;
+        return user.providerData.some(p => p.providerId === 'google.com') &&
+               ADMIN_EMAILS.includes(user.email);
+    }
+
+    async function resetAllData() {
+        if (!isAdmin()) {
+            showToast('⚠️ Hanya admin (login Google) yang bisa mereset data.');
+            return;
+        }
+        if (!confirm('PERINGATAN! Semua data akan dihapus dan dikembalikan ke default. Lanjutkan?')) return;
+        if (!confirm('Terakhir: data akan hilang total. Yakin?')) return;
+
+        const defaultData = {
+            frozen: {
+                sections: getDefaultSections('frozen'),
+                baskets: {},
+                transactions: []
+            },
+            chiller: {
+                sections: getDefaultSections('chiller'),
+                baskets: {},
+                transactions: []
+            }
+        };
+        await db.collection('shared').doc('data').set(defaultData);
+        showToast('✅ Data berhasil direset ke default.');
+    }
+
+    // ═══════════════════════════════════════════
     //  RENDER ROUTER
     // ═══════════════════════════════════════════
     const container = document.getElementById('appContainer');
@@ -495,7 +538,6 @@
 
     // ═══════════════════════════════════════════
     //  COMPACT BASKET CARD (untuk floor plan)
-    //  — tidak ada teks 0/5
     // ═══════════════════════════════════════════
     function buildBasketCard(no) {
         const status  = basketStatus(no);
@@ -521,14 +563,12 @@
         </div>`;
     }
 
-    // Render semua baris dalam sebuah section
     function buildSectionRows(secName) {
         const barisObj  = currentSections()[secName] || {};
         const multiRow  = Object.keys(barisObj).length > 1;
         let html = '';
         for (const [baris, nums] of Object.entries(barisObj)) {
             if (nums.length === 0) {
-                // Tampilkan placeholder kosong agar section tetap kelihatan
                 html += `<div class="fp-baris">
                     <div class="fp-basket empty" title="Kosong"><span class="fp-bnum">—</span><div class="fp-bars"></div></div>
                 </div>`;
@@ -544,13 +584,6 @@
 
     // ═══════════════════════════════════════════
     //  TAB 1a — DENAH FROZEN
-    //  Layout (tampak atas):
-    //    ┌─[IMP rows A-D]──────────────┬─────┐
-    //    │                             │ ░░░ │
-    //    ├─[RTL rows A-B]──────────────┤     │
-    //    ├─[NPL rows A-C]──────────────┤─────┤
-    //    ├─[RDQ]─┬─[MTPP]─────────────│ MI  │
-    //    └────────┴────────────────────┴─────┘
     // ═══════════════════════════════════════════
     function renderFrozenPlan() {
         const legend = `<div class="fp-legend">
@@ -566,7 +599,6 @@
             <div class="fp-room" style="background:#e8f4f8;">
                 <div class="frozen-plan">
 
-                    <!-- Baris atas: IMP + sudut pintu -->
                     <div class="fp-top-row">
                         <div class="fp-sec" style="flex:1;">
                             <div class="fp-sec-name">IMPROVEMENT</div>
@@ -575,7 +607,6 @@
                         <div class="fp-corner-gray" title="Sudut / Akses">🚪</div>
                     </div>
 
-                    <!-- Badan: kiri (RTL, NPL, RDQ+MTPP) + kanan (MI) -->
                     <div class="fp-body">
                         <div class="fp-body-left">
 
@@ -602,7 +633,6 @@
 
                         </div>
 
-                        <!-- MI: dinding kanan, vertikal -->
                         <div class="fp-body-right">
                             <div class="fp-mi-wrap">
                                 <div class="fp-mi-label">MI</div>
@@ -622,25 +652,14 @@
                             </div>
                         </div>
 
-                    </div><!-- /fp-body -->
-                </div><!-- /frozen-plan -->
-            </div><!-- /fp-room -->
+                    </div>
+                </div>
+            </div>
             ${legend}
+            ${renderResetButton()}
         </div>`;
     }
 
-    // ═══════════════════════════════════════════
-    //  TAB 1b — DENAH CHILLER
-    //  Layout (tampak atas):
-    //    ┌──────────┬──────────────────┐
-    //    │ IMP      │  Stock Keranjang │
-    //    │ RTL      ├──────────────────┤
-    //    │ NPL      │                  │
-    //    │ MTPP     │    THAWING       │
-    //    │ RDQ      │    (vertikal)    │
-    //    │ MI       │                  │
-    //    └──────────┴──────────────────┘
-    // ═══════════════════════════════════════════
     function renderChillerPlan() {
         const legend = `<div class="fp-legend">
             <span style="font-weight:700;color:#475569;">Keterangan:</span>
@@ -657,7 +676,6 @@
             <div class="fp-room" style="background:#f0fdf4;">
                 <div class="chiller-plan">
 
-                    <!-- Kiri: section tersusun vertikal -->
                     <div class="fp-chiller-left">
                         ${leftSections.map(sec => `
                             <div class="fp-sec">
@@ -666,7 +684,6 @@
                             </div>`).join('')}
                     </div>
 
-                    <!-- Kanan: Stock Keranjang + THAWING -->
                     <div class="fp-chiller-right">
                         <div class="fp-stock-box">📦<br>Stock<br>Keranjang</div>
                         <div class="fp-thawing-wrap">
@@ -683,10 +700,18 @@
                         </div>
                     </div>
 
-                </div><!-- /chiller-plan -->
-            </div><!-- /fp-room -->
+                </div>
+            </div>
             ${legend}
+            ${renderResetButton()}
         </div>`;
+    }
+
+    function renderResetButton() {
+        const disabled = !isAdmin();
+        return `<button class="reset-btn" ${disabled ? 'disabled' : ''} onclick="resetAllData()">
+            <i class="fas fa-exclamation-triangle"></i> Reset Semua Data (Admin Only)
+        </button>`;
     }
 
     function renderDashboard() {
