@@ -51,6 +51,7 @@
         .toast.show { opacity:1; transform:translateY(0); }
         .chip-list { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
         .chip { background:#e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.85rem; display:flex; align-items:center; gap:6px; }
+        .baris-label { font-size:0.75rem; font-weight:600; color:#64748b; margin-top:8px; margin-bottom:4px; }
     </style>
 </head>
 <body>
@@ -92,7 +93,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Konfigurasi Firebase (SUDAH DIPASANG PERMANEN)
+        // Konfigurasi Firebase (PERMANEN)
         const firebaseConfig = {
             apiKey: "AIzaSyA1K3kQ93LSz1yKpBa2cMCRD045alTm6cs",
             authDomain: "walk-in-web.firebaseapp.com",
@@ -115,23 +116,29 @@
         let currentTab = 'dashboard';
         let unsubscribe = null;
 
+        // Default sections dengan struktur BARIS (maks 5 keranjang per baris)
         const defaultFrozenSections = {
-            'RTL': [1,2,17,21,23,31,32,33,36],
-            'IMP': [6,7,8,10,18,19,30,38,46,55,62,63,66,68,69,70,71,73],
-            'NPL': [20,23,24,26,28,29,35,41,42,43,54,58,65,67,75],
-            'RDQ': [5,15,19,20,44,48,49,52],
-            'MTPP': [11,12,27,34,40,50,53,61,64,74],
-            'MI': [3,13,14,16,25,37,39,47,51,59,63],
-            'QA': [4,57,72]
+            'RTL':  { 'A': [1,2,17,21,23,31,32,33,36] },
+            'IMP':  { 'A': [6,7,8,10,18,19,30,38,46,55,62,63,66,68,69,70,71,73] },
+            'NPL':  {
+                'A': [20,23,24,26,28],
+                'B': [29,35,41,42],
+                'C': [43,54,58,65,67,75]
+            },
+            'RDQ':  { 'A': [5,15,19,20,44,48,49,52] },
+            'MTPP': { 'A': [11,12,27,34,40,50,53,61,64,74] },
+            'MI':   { 'A': [3,13,14,16,25,37,39,47,51,59,63] }
+            // QA dihapus
         };
+
         const defaultChillerSections = {
-            'THAWING': [],
-            'IMP': [],
-            'RTL': [],
-            'NPL': [],
-            'MTPP': [],
-            'MI': [],
-            'QA': []
+            'THAWING': { 'A': [] },
+            'IMP':     { 'A': [] },
+            'RTL':     { 'A': [] },
+            'NPL':     { 'A': [] },
+            'MTPP':    { 'A': [] },
+            'MI':      { 'A': [] },
+            'RDQ':     { 'A': [] }   // QA diganti RDQ
         };
 
         function getDefaultSections(area) {
@@ -139,6 +146,20 @@
                    JSON.parse(JSON.stringify(defaultChillerSections));
         }
 
+        // Konversi data lama (array) ke format baris baru
+        function convertSectionsToNewFormat(sections) {
+            const converted = {};
+            for (const [sec, val] of Object.entries(sections)) {
+                if (Array.isArray(val)) {
+                    converted[sec] = { 'A': val };
+                } else {
+                    converted[sec] = val;
+                }
+            }
+            return converted;
+        }
+
+        // Auth
         function login() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
@@ -164,8 +185,16 @@
             unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => {
                 if (doc.exists) {
                     const data = doc.data();
-                    appData.frozen = data.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
-                    appData.chiller = data.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+                    let frozenData = data.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
+                    let chillerData = data.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+
+                    // Konversi jika masih format lama
+                    if (frozenData.sections) frozenData.sections = convertSectionsToNewFormat(frozenData.sections);
+                    if (chillerData.sections) chillerData.sections = convertSectionsToNewFormat(chillerData.sections);
+
+                    appData.frozen = frozenData;
+                    appData.chiller = chillerData;
+
                     syncBasketsWithSections('frozen');
                     syncBasketsWithSections('chiller');
                     if (!data.frozen) saveToFirestore();
@@ -190,11 +219,16 @@
         function syncBasketsWithSections(area) {
             const sections = appData[area].sections;
             const baskets = appData[area].baskets;
-            for (const [sec, nums] of Object.entries(sections)) {
-                nums.forEach(no => {
-                    if (!baskets[no]) baskets[no] = { section: sec, items: [] };
-                    else baskets[no].section = sec;
-                });
+            for (const [sec, barisObj] of Object.entries(sections)) {
+                for (const [baris, nums] of Object.entries(barisObj)) {
+                    nums.forEach(no => {
+                        if (!baskets[no]) baskets[no] = { section: sec, baris: baris, items: [] };
+                        else {
+                            baskets[no].section = sec;
+                            baskets[no].baris = baris;
+                        }
+                    });
+                }
             }
         }
 
@@ -232,8 +266,12 @@
             setTimeout(() => t.classList.remove('show'), 2500);
         }
         function getAvailableBasket(section) {
-            const nums = currentSections()[section] || [];
-            return nums.find(n => stackCount(n) < 5) || null;
+            const barisObj = currentSections()[section] || {};
+            for (const nums of Object.values(barisObj)) {
+                const available = nums.find(n => stackCount(n) < 5);
+                if (available) return available;
+            }
+            return null;
         }
         function logTransaction(type, detail) {
             currentTransactions().unshift({
@@ -261,32 +299,43 @@
 
         function renderDashboard() {
             let html = '';
-            for (const [section, keranjang] of Object.entries(currentSections())) {
-                const cards = keranjang.sort((a,b)=>a-b).map(no => {
-                    const status = basketStatus(no);
-                    const count = stackCount(no);
-                    const expired = hasExpiredItems(no);
-                    let bars = '';
-                    for (let i=0; i<5; i++) {
-                        let cls = 'stack-bar';
-                        if (i < count) {
-                            cls += ' filled';
-                            if (count >=5) cls += ' danger';
-                            else if (count >=3) cls += ' warning';
+            for (const [section, barisObj] of Object.entries(currentSections())) {
+                let sectionCards = '';
+                for (const [baris, nums] of Object.entries(barisObj)) {
+                    if (nums.length === 0) continue;
+                    const cards = nums.sort((a,b)=>a-b).map(no => {
+                        const status = basketStatus(no);
+                        const count = stackCount(no);
+                        const expired = hasExpiredItems(no);
+                        let bars = '';
+                        for (let i=0; i<5; i++) {
+                            let cls = 'stack-bar';
+                            if (i < count) {
+                                cls += ' filled';
+                                if (count >=5) cls += ' danger';
+                                else if (count >=3) cls += ' warning';
+                            }
+                            bars += `<div class="${cls}"></div>`;
                         }
-                        bars += `<div class="${cls}"></div>`;
-                    }
-                    const alertBadge = expired ? '<span class="badge-alert">!</span>' : '';
-                    return `<div class="basket-card ${status}" onclick="showBasketDetail(${no})" title="Keranjang ${no} - ${count}/5 ${expired ? '(EXP/EST LEWAT)' : ''}">
-                        <span class="basket-number">${no}</span>
-                        <div class="stack-visual">${bars}</div>
-                        <span class="stack-label">${count}/5</span>
-                        ${alertBadge}
+                        const alertBadge = expired ? '<span class="badge-alert">!</span>' : '';
+                        return `<div class="basket-card ${status}" onclick="showBasketDetail(${no})" title="Keranjang ${no} - ${count}/5 ${expired ? '(EXP/EST LEWAT)' : ''}">
+                            <span class="basket-number">${no}</span>
+                            <div class="stack-visual">${bars}</div>
+                            <span class="stack-label">${count}/5</span>
+                            ${alertBadge}
+                        </div>`;
+                    }).join('');
+                    const barisLabel = Object.keys(barisObj).length > 1 ? `<div class="baris-label">📌 Baris ${baris}</div>` : '';
+                    sectionCards += `${barisLabel}<div class="basket-grid">${cards}</div>`;
+                }
+                if (sectionCards) {
+                    html += `<div class="card">
+                        <div class="section-header"><h3>📍 ${section}</h3></div>
+                        ${sectionCards}
                     </div>`;
-                }).join('');
-                html += `<div class="card"><div class="section-header"><h3>📍 ${section}</h3><small>${keranjang.length} keranjang</small></div><div class="basket-grid">${cards}</div></div>`;
+                }
             }
-            container.innerHTML = html;
+            container.innerHTML = html || '<div class="empty-state">Belum ada keranjang</div>';
         }
 
         function showBasketDetail(no) {
@@ -319,7 +368,7 @@
             container.innerHTML = `
                 <div class="card">
                     <div style="display:flex; justify-content:space-between;">
-                        <h3>Keranjang ${no}</h3>
+                        <h3>Keranjang ${no} ${basket ? '(Baris '+basket.baris+')' : ''}</h3>
                         <button class="btn btn-outline" onclick="renderDashboard()">← Kembali</button>
                     </div>
                     <p>Status: ${status==='red'?'🔴 Penuh':status==='yellow'?'🟡 Hampir Penuh':'🟢 Tersedia'} | Tumpukan: ${count}/5</p>
@@ -366,10 +415,20 @@
             if(!select) return;
             select.innerHTML = '<option value="">-- Otomatis --</option>';
             if(section) {
-                (currentSections()[section]||[]).sort((a,b)=>a-b).forEach(no => {
-                    const c = stackCount(no);
-                    select.innerHTML += `<option value="${no}" ${c>=5?'disabled':''}>${no} (${c}/5)${c>=5?' PENUH':''}</option>`;
-                });
+                const barisObj = currentSections()[section] || {};
+                for (const [baris, nums] of Object.entries(barisObj)) {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = `Baris ${baris}`;
+                    nums.sort((a,b)=>a-b).forEach(no => {
+                        const c = stackCount(no);
+                        const option = document.createElement('option');
+                        option.value = no;
+                        option.textContent = `${no} (${c}/5)${c>=5 ? ' PENUH' : ''}`;
+                        if (c >= 5) option.disabled = true;
+                        optgroup.appendChild(option);
+                    });
+                    select.appendChild(optgroup);
+                }
             }
         }
 
@@ -442,43 +501,64 @@
 
         function renderManageBaskets() {
             let html = '<div class="card"><h3>⚙️ Atur Nomor Keranjang</h3>';
-            for(const [section, nums] of Object.entries(currentSections())) {
-                const chips = nums.sort((a,b)=>a-b).map(no => {
-                    const count = stackCount(no);
-                    const canDel = count===0;
-                    return `<span class="chip">${no} <span style="cursor:pointer" onclick="${canDel?`removeBasket('${section}',${no})`:'showToast(\'Keranjang berisi\')'}">${canDel?'🗑️':'🔒'}</span></span>`;
-                }).join('');
-                html += `<div style="margin-bottom:16px"><strong>📍 ${section}</strong><div class="chip-list">${chips}</div>
-                    <input type="number" id="new_${section}" placeholder="Nomor baru" style="width:100px;">
-                    <button class="btn btn-primary btn-sm" onclick="addBasket('${section}')">+ Tambah</button></div>`;
+            for (const [section, barisObj] of Object.entries(currentSections())) {
+                html += `<div style="margin-bottom:20px"><strong>📍 ${section}</strong>`;
+                for (const [baris, nums] of Object.entries(barisObj)) {
+                    const chips = nums.sort((a,b)=>a-b).map(no => {
+                        const count = stackCount(no);
+                        const canDel = count===0;
+                        return `<span class="chip">${no} <span style="cursor:pointer" onclick="${canDel?`removeBasket('${section}','${baris}',${no})`:'showToast(\'Keranjang berisi\')'}">${canDel?'🗑️':'🔒'}</span></span>`;
+                    }).join('');
+                    html += `<div style="margin-left:8px; margin-bottom:12px;">
+                        <span class="baris-label">📌 Baris ${baris} (${nums.length}/5)</span>
+                        <div class="chip-list">${chips}</div>`;
+                    if (nums.length < 5) {
+                        html += `<div style="display:flex; gap:6px; margin-top:4px;">
+                            <input type="number" id="new_${section}_${baris}" placeholder="No baru" style="width:100px;">
+                            <button class="btn btn-sm btn-primary" onclick="addBasket('${section}','${baris}')">+ Tambah</button>
+                        </div>`;
+                    }
+                    html += `</div>`;
+                }
+                html += `</div>`;
             }
             html += '</div>';
             container.innerHTML = html;
         }
 
-        function addBasket(section) {
-            const input = document.getElementById(`new_${section}`);
+        function addBasket(section, baris) {
+            const input = document.getElementById(`new_${section}_${baris}`);
             if(!input) return;
             const no = parseInt(input.value);
             if(isNaN(no)||no<=0) return showToast('Nomor tidak valid');
-            for(const [sec, nums] of Object.entries(currentSections())) {
-                if(nums.includes(no)) return showToast(`Nomor ${no} sudah ada di ${sec}`);
+            // Cek duplikat di semua section
+            for (const [sec, barisObj] of Object.entries(currentSections())) {
+                for (const nums of Object.values(barisObj)) {
+                    if (nums.includes(no)) return showToast(`Nomor ${no} sudah ada di section ${sec}`);
+                }
             }
-            currentSections()[section].push(no);
-            if(!currentBaskets()[no]) currentBaskets()[no] = { section, items:[] };
-            else currentBaskets()[no].section = section;
+            const barisData = currentSections()[section][baris];
+            if (!barisData) return showToast('Baris tidak ditemukan');
+            if (barisData.length >= 5) return showToast(`Baris ${baris} sudah penuh (5 keranjang)`);
+            barisData.push(no);
+            if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, items: [] };
+            else {
+                currentBaskets()[no].section = section;
+                currentBaskets()[no].baris = baris;
+            }
             saveToFirestore();
             input.value = '';
             renderManageBaskets();
-            showToast(`✅ ${no} ditambahkan ke ${section}`);
+            showToast(`✅ ${no} ditambahkan ke ${section} baris ${baris}`);
         }
 
-        function removeBasket(section, no) {
+        function removeBasket(section, baris, no) {
             if(stackCount(no)>0) return showToast('Keranjang masih berisi');
-            if(!confirm(`Hapus keranjang ${no}?`)) return;
-            const idx = currentSections()[section].indexOf(no);
-            if(idx>-1) currentSections()[section].splice(idx,1);
-            if(currentBaskets()[no]?.items.length===0) delete currentBaskets()[no];
+            if(!confirm(`Hapus keranjang ${no} dari ${section} baris ${baris}?`)) return;
+            const arr = currentSections()[section][baris];
+            const idx = arr.indexOf(no);
+            if(idx>-1) arr.splice(idx,1);
+            if(currentBaskets()[no] && currentBaskets()[no].items.length===0) delete currentBaskets()[no];
             saveToFirestore();
             renderManageBaskets();
             showToast('✅ Dihapus');
