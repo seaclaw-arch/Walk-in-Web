@@ -24,7 +24,7 @@
         .card { background:var(--card); border-radius:var(--radius); padding:18px 16px; box-shadow:var(--shadow); }
         .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
         .basket-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(58px,1fr)); gap:10px; }
-        .basket-card { background:#f8fafc; border-radius:18px; padding:8px 4px; display:flex; flex-direction:column; align-items:center; cursor:pointer; border:2px solid transparent; box-shadow:0 2px 6px rgba(0,0,0,0.04); }
+        .basket-card { background:#f8fafc; border-radius:18px; padding:8px 4px; display:flex; flex-direction:column; align-items:center; cursor:pointer; border:2px solid transparent; position:relative; }
         .basket-card:active { transform:scale(0.96); }
         .basket-card.green { border-color:var(--success); background:#ecfdf5; }
         .basket-card.yellow { border-color:var(--warning); background:#fffbeb; animation:softPulse 1.8s infinite; }
@@ -38,11 +38,14 @@
         .stack-bar.filled.warning { background:#f59e0b; }
         .stack-bar.filled.danger { background:#ef4444; }
         .stack-label { font-size:0.65rem; font-weight:600; color:#475569; }
+        .badge-alert { position:absolute; top:-6px; right:-6px; background:var(--danger); color:white; border-radius:50%; width:18px; height:18px; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:bold; animation:strongPulse 0.8s infinite; }
         .form-group { margin-bottom:14px; } label { font-weight:600; font-size:0.8rem; display:block; margin-bottom:4px; }
         input,select { width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:14px; font-size:0.95rem; background:#f8fafc; }
         .btn { padding:12px 18px; border-radius:14px; border:none; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; }
         .btn-primary { background:var(--primary); color:white; } .btn-danger { background:var(--danger); color:white; } .btn-outline { background:transparent; border:1px solid #cbd5e1; }
+        .btn-sm { padding:8px 14px; font-size:0.8rem; }
         .item-row { display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f1f5f9; border-radius:12px; margin-bottom:6px; }
+        .item-row.expired { background:#fee2e2; border:1px solid #ef4444; }
         .empty-state { color:#94a3b8; text-align:center; padding:20px; }
         .toast { position:fixed; bottom:20px; left:20px; right:20px; background:#1e293b; color:white; padding:14px; border-radius:14px; text-align:center; opacity:0; transform:translateY(20px); transition:0.3s; z-index:200; }
         .toast.show { opacity:1; transform:translateY(0); }
@@ -89,7 +92,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // 🔥 GANTI DENGAN KONFIGURASI FIREBASE ANDA
+        // Konfigurasi Firebase (SUDAH DIPASANG PERMANEN)
         const firebaseConfig = {
             apiKey: "AIzaSyA1K3kQ93LSz1yKpBa2cMCRD045alTm6cs",
             authDomain: "walk-in-web.firebaseapp.com",
@@ -104,7 +107,7 @@
         const db = firebase.firestore();
 
         // State
-        let currentArea = 'frozen';  // 'frozen' atau 'chiller'
+        let currentArea = 'frozen';
         let appData = {
             frozen: { sections: {}, baskets: {}, transactions: [] },
             chiller: { sections: {}, baskets: {}, transactions: [] }
@@ -112,7 +115,6 @@
         let currentTab = 'dashboard';
         let unsubscribe = null;
 
-        // Default sections
         const defaultFrozenSections = {
             'RTL': [1,2,17,21,23,31,32,33,36],
             'IMP': [6,7,8,10,18,19,30,38,46,55,62,63,66,68,69,70,71,73],
@@ -123,7 +125,7 @@
             'QA': [4,57,72]
         };
         const defaultChillerSections = {
-            'THAWING': [],   // isi manual lewat Atur
+            'THAWING': [],
             'IMP': [],
             'RTL': [],
             'NPL': [],
@@ -137,7 +139,6 @@
                    JSON.parse(JSON.stringify(defaultChillerSections));
         }
 
-        // Auth
         function login() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
@@ -159,7 +160,6 @@
             }
         });
 
-        // Firestore
         function listenToFirestore() {
             unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => {
                 if (doc.exists) {
@@ -168,10 +168,9 @@
                     appData.chiller = data.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
                     syncBasketsWithSections('frozen');
                     syncBasketsWithSections('chiller');
-                    if (!data.frozen) saveToFirestore(); // simpan default pertama kali
+                    if (!data.frozen) saveToFirestore();
                     renderCurrentTab();
                 } else {
-                    // inisialisasi
                     appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
                     appData.chiller = { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
                     syncBasketsWithSections('frozen');
@@ -217,6 +216,15 @@
             if (c >= 3) return 'yellow';
             return 'green';
         }
+        function hasExpiredItems(basketNo) {
+            const items = currentBaskets()[basketNo]?.items || [];
+            const now = new Date();
+            return items.some(item => {
+                if (item.expDate && new Date(item.expDate) < now) return true;
+                if (item.estOutDate && new Date(item.estOutDate) < now) return true;
+                return false;
+            });
+        }
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.textContent = msg;
@@ -257,6 +265,7 @@
                 const cards = keranjang.sort((a,b)=>a-b).map(no => {
                     const status = basketStatus(no);
                     const count = stackCount(no);
+                    const expired = hasExpiredItems(no);
                     let bars = '';
                     for (let i=0; i<5; i++) {
                         let cls = 'stack-bar';
@@ -267,10 +276,12 @@
                         }
                         bars += `<div class="${cls}"></div>`;
                     }
-                    return `<div class="basket-card ${status}" onclick="showBasketDetail(${no})" title="Keranjang ${no} - ${count}/5">
+                    const alertBadge = expired ? '<span class="badge-alert">!</span>' : '';
+                    return `<div class="basket-card ${status}" onclick="showBasketDetail(${no})" title="Keranjang ${no} - ${count}/5 ${expired ? '(EXP/EST LEWAT)' : ''}">
                         <span class="basket-number">${no}</span>
                         <div class="stack-visual">${bars}</div>
                         <span class="stack-label">${count}/5</span>
+                        ${alertBadge}
                     </div>`;
                 }).join('');
                 html += `<div class="card"><div class="section-header"><h3>📍 ${section}</h3><small>${keranjang.length} keranjang</small></div><div class="basket-grid">${cards}</div></div>`;
@@ -282,11 +293,29 @@
             const basket = currentBaskets()[no];
             const count = stackCount(no);
             const status = basketStatus(no);
-            let itemsHtml = basket && basket.items.length ? basket.items.map((item, idx) => `
-                <div class="item-row">
-                    <div><strong>${item.nama}</strong> (${item.qty})<br><small>${item.jenis || ''}</small></div>
-                    <button class="btn btn-outline" onclick="keluarkanItem(${no}, ${idx})">Keluar</button>
-                </div>`).join('') : '<div class="empty-state">Keranjang kosong</div>';
+            const now = new Date();
+            let itemsHtml = basket && basket.items.length ? basket.items.map((item, idx) => {
+                let expiredClass = '';
+                let expLabel = '';
+                if (item.expDate && new Date(item.expDate) < now) {
+                    expiredClass = 'expired';
+                    expLabel = ' ⚠️ EXP';
+                } else if (item.estOutDate && new Date(item.estOutDate) < now) {
+                    expiredClass = 'expired';
+                    expLabel = ' ⚠️ EST LEWAT';
+                }
+                return `
+                    <div class="item-row ${expiredClass}">
+                        <div>
+                            <strong>${item.nama}</strong> (${item.qty}) ${expLabel}
+                            <br><small>${item.jenis || ''} | Masuk: ${item.tglMasuk ? new Date(item.tglMasuk).toLocaleDateString('id-ID') : '-'}
+                            ${item.expDate ? ' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID') : ''}
+                            ${item.estOutDate ? ' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID') : ''}
+                            </small>
+                        </div>
+                        <button class="btn btn-outline" onclick="keluarkanItem(${no}, ${idx})">Keluar</button>
+                    </div>`;
+            }).join('') : '<div class="empty-state">Keranjang kosong</div>';
             container.innerHTML = `
                 <div class="card">
                     <div style="display:flex; justify-content:space-between;">
@@ -320,6 +349,8 @@
                         <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
                         <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="3 Pack" required></div>
                         <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
+                        <div class="form-group"><label>Tanggal Exp (opsional)</label><input type="date" id="inExpDate"></div>
+                        <div class="form-group"><label>Estimasi Keluar (opsional)</label><input type="date" id="inEstOutDate"></div>
                         <div class="form-group"><label>Section</label><select id="inSection" onchange="updateKeranjangSelect()">${sectionOpt}</select></div>
                         <div class="form-group"><label>No Keranjang</label><select id="inKeranjang"><option value="">-- Otomatis --</option></select></div>
                         <button type="submit" class="btn btn-primary" style="width:100%">Simpan</button>
@@ -353,8 +384,11 @@
             const nama = document.getElementById('inNama').value.trim();
             const qty = document.getElementById('inQty').value.trim();
             const jenis = document.getElementById('inJenis').value;
+            const expDate = document.getElementById('inExpDate').value;
+            const estOutDate = document.getElementById('inEstOutDate').value;
             const section = document.getElementById('inSection').value;
             let keranjang = document.getElementById('inKeranjang').value;
+
             if(!nama||!qty) return showToast('Lengkapi data!');
             if(!keranjang) {
                 const auto = getAvailableBasket(section);
@@ -364,8 +398,11 @@
             const no = parseInt(keranjang);
             if(stackCount(no)>=5) return showToast('Keranjang penuh!');
             if(!currentBaskets()[no]) currentBaskets()[no] = { section, items:[] };
-            currentBaskets()[no].items.push({ nama, qty, jenis, tglMasuk: new Date().toISOString() });
-            logTransaction('in', { nama, qty, jenis, keranjang:no, section });
+            const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
+            if (expDate) item.expDate = expDate;
+            if (estOutDate) item.estOutDate = estOutDate;
+            currentBaskets()[no].items.push(item);
+            logTransaction('in', { nama, qty, jenis, keranjang:no, section, expDate, estOutDate });
             saveToFirestore();
             showToast('✅ Barang masuk');
             renderInputForm();
@@ -393,7 +430,14 @@
                 const icon = t.type==='in'?'📥':'📤';
                 return `<div class="item-row"><div>${icon} <strong>${t.detail.nama}</strong> (${t.detail.qty})<br><small>${new Date(t.timestamp).toLocaleString('id-ID')} | ${t.user}</small></div></div>`;
             }).join('');
-            container.innerHTML = `<div class="card"><h3>📋 Riwayat</h3>${list||'<div class="empty-state">Belum ada aktivitas</div>'}</div>`;
+            container.innerHTML = `
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3>📋 Riwayat</h3>
+                        <button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button>
+                    </div>
+                    ${list||'<div class="empty-state">Belum ada aktivitas</div>'}
+                </div>`;
         }
 
         function renderManageBaskets() {
@@ -440,6 +484,44 @@
             showToast('✅ Dihapus');
         }
 
+        function downloadExcel() {
+            const transactions = currentTransactions();
+            if (transactions.length === 0) return showToast('Tidak ada data untuk diunduh');
+            
+            let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head><meta charset="UTF-8"><title>Rekap Transaksi Walk-in ${currentArea.toUpperCase()}</title></head>
+            <body>
+            <h2>Rekap Transaksi - Area ${currentArea.toUpperCase()}</h2>
+            <table border="1">
+                <tr style="background:#2563eb; color:white;">
+                    <th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th><th>Jenis Brg</th><th>Keranjang</th><th>Section</th><th>User</th>
+                    <th>Exp Date</th><th>Est Out</th>
+                </tr>`;
+            
+            transactions.forEach(t => {
+                const d = t.detail;
+                html += `<tr>
+                    <td>${new Date(t.timestamp).toLocaleString('id-ID')}</td>
+                    <td>${t.type==='in'?'Masuk':'Keluar'}</td>
+                    <td>${d.nama || ''}</td>
+                    <td>${d.qty || ''}</td>
+                    <td>${d.jenis || ''}</td>
+                    <td>${d.keranjang || ''}</td>
+                    <td>${d.section || ''}</td>
+                    <td>${t.user}</td>
+                    <td>${d.expDate || ''}</td>
+                    <td>${d.estOutDate || ''}</td>
+                </tr>`;
+            });
+            html += '</table></body></html>';
+            
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `rekap_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`;
+            link.click();
+        }
+
         // Tab navigation
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -450,7 +532,6 @@
             });
         });
 
-        // Initial
         document.getElementById('areaSelect').value = currentArea;
     </script>
 </body>
