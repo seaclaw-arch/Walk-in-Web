@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Walk-in Frozen & Chiller | Cloud v11</title>
+    <title>Walk-in Frozen & Chiller | Cloud v9</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -28,54 +28,12 @@
         .btn-primary { background:var(--primary); color:white; } .btn-danger { background:var(--danger); color:white; } .btn-outline { background:transparent; border:1px solid #cbd5e1; }
         .btn-sm { padding:6px 12px; font-size:0.75rem; }
         .item-row { display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f1f5f9; border-radius:12px; margin-bottom:6px; }
-        .item-row.in { background:#d1fae5; } .item-row.out { background:#fee2e2; } .item-row.move { background:#dbeafe; }
         .item-row.expired { background:#fee2e2; border:1px solid #ef4444; }
         .empty-state { color:#94a3b8; text-align:center; padding:20px; }
         .toast { position:fixed; bottom:20px; left:20px; right:20px; background:#1e293b; color:white; padding:14px; border-radius:14px; text-align:center; opacity:0; transform:translateY(20px); transition:0.3s; z-index:200; }
         .toast.show { opacity:1; transform:translateY(0); }
-
-        /* Denah */
-        .fp-room { border:3px solid #1e293b; border-radius:10px; padding:10px; overflow-x:auto; }
-        .fp-room-title { font-weight:800; font-size:0.95rem; color:#1e293b; margin-bottom:10px; text-align:center; }
-        .fp-legend { display:flex; gap:16px; flex-wrap:wrap; padding:8px 4px; font-size:0.8rem; font-weight:600; margin-top:10px; }
-
-        .baris-wrapper { display:flex; flex-direction:column; align-items:center; gap:4px; }
-        .baris-label { font-size:0.65rem; font-weight:800; color:#92400e; text-align:center; white-space:nowrap; }
-        .baris-box { width:120px; height:120px; background:#fde68a; border:2.5px solid #d97706; border-radius:10px; padding:4px; display:flex; flex-direction:column; flex-shrink:0; }
-        .baris-slots { display:flex; flex-direction:column-reverse; gap:1px; flex:1; }
-
-        .basket-slot { flex:1; border-radius:4px; background:#fff; border:1.5px solid #cbd5e1; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; position:relative; transition:transform 0.1s; overflow:hidden; min-height:0; }
-        .basket-slot:active { transform:scale(0.95); }
-        .basket-slot.green { border-color:var(--success); background:#ecfdf5; }
-        .basket-slot.orange { border-color:var(--orange); background:#fff7ed; animation:softPulse 1.8s infinite; }
-        .basket-slot.red { border-color:var(--danger); background:#fef2f2; animation:strongPulse 0.9s infinite; }
-        .basket-slot.slot-empty { background:#f8fafc; border:1.5px dashed #d1d5db; cursor:default; }
-        .slot-num { font-weight:800; font-size:0.55rem; line-height:1; color:#1e293b; }
-        .slot-count { font-size:0.45rem; color:#64748b; }
-        .slot-alert { position:absolute; top:-3px; right:-3px; background:var(--danger); color:white; border-radius:50%; width:11px; height:11px; display:flex; align-items:center; justify-content:center; font-size:0.4rem; font-weight:bold; z-index:5; }
-
-        .stock-box { width:120px; height:120px; background:#e0e7ff; border:2.5px solid #6366f1; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
-        .stock-box .baris-label { color:#4338ca; font-size:0.7rem; white-space:normal; text-align:center; line-height:1.3; }
-        .stock-icon { font-size:1.8rem; }
-
-        .spacer { min-height:40px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.75rem; flex:1; }
-        .spacer-box { width:120px; height:120px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.85rem; flex-shrink:0; }
-
-        .frz-plan { display:flex; flex-direction:column; gap:8px; min-width:820px; }
-        .frz-body { display:flex; gap:8px; align-items:flex-start; }
-        .frz-left { display:flex; flex-direction:column; gap:8px; flex:1; }
-        .frz-right { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
-        .frz-bot { display:flex; gap:8px; align-items:flex-start; }
-        .boxes-row { display:flex; gap:8px; }
-
-        .chl-plan { display:flex; flex-direction:column; gap:8px; min-width:840px; }
-        .chl-top { display:flex; gap:8px; align-items:flex-start; }
-        .chl-space { min-height:80px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.75rem; }
-        .chl-bot { display:flex; gap:8px; flex-wrap:wrap; }
-
-        .move-form { background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:8px; margin-top:6px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
-        .move-form select { width:auto; padding:6px; }
-
+        .chip { background:#e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; margin:2px; }
+        .baris-label { font-size:0.75rem; font-weight:700; color:#475569; margin-top:10px; margin-bottom:4px; background:#e2e8f0; display:inline-block; padding:2px 10px; border-radius:20px; }
         .rekap-tabs { display:flex; gap:8px; margin-bottom:16px; }
         .rekap-tab { padding:8px 20px; border-radius:20px; border:1px solid #cbd5e1; background:#f8fafc; font-weight:600; cursor:pointer; font-size:0.85rem; }
         .rekap-tab.active { background:var(--primary); color:white; border-color:var(--primary); }
@@ -92,6 +50,47 @@
         .filter-row select { width:auto; padding:8px 12px; font-size:0.85rem; }
         .reset-btn { background:#fee2e2; color:#ef4444; border:2px solid #ef4444; padding:10px 20px; border-radius:14px; cursor:pointer; font-weight:600; margin-top:20px; width:100%; }
         .google-btn { background:#fff; color:#333; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px; cursor:pointer; font-weight:500; margin-top:10px; width:100%; }
+
+        /* Denah */
+        .fp-room { border:3px solid #1e293b; border-radius:10px; padding:10px; overflow-x:auto; }
+        .fp-room-title { font-weight:800; font-size:0.95rem; color:#1e293b; margin-bottom:10px; text-align:center; }
+        .fp-legend { display:flex; gap:16px; flex-wrap:wrap; padding:8px 4px; font-size:0.8rem; font-weight:600; margin-top:10px; }
+
+        .baris-box { width:120px; height:140px; background:#fde68a; border:2.5px solid #d97706; border-radius:10px; padding:6px; display:flex; flex-direction:column; flex-shrink:0; }
+        .baris-box-lbl { font-size:0.65rem; font-weight:800; color:#92400e; text-align:center; line-height:1.2; margin-bottom:4px; white-space:nowrap; overflow:hidden; }
+        .baris-slots { display:flex; flex-direction:column-reverse; gap:2px; flex:1; }
+
+        .basket-slot { flex:1; border-radius:5px; background:#fff; border:1.5px solid #cbd5e1; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; position:relative; transition:transform 0.1s; overflow:hidden; min-height:0; }
+        .basket-slot:active { transform:scale(0.95); }
+        .basket-slot.green { border-color:var(--success); background:#ecfdf5; }
+        .basket-slot.orange { border-color:var(--orange); background:#fff7ed; animation:softPulse 1.8s infinite; }
+        .basket-slot.red { border-color:var(--danger); background:#fef2f2; animation:strongPulse 0.9s infinite; }
+        .basket-slot.slot-empty { background:#f8fafc; border:1.5px dashed #d1d5db; cursor:default; }
+        .slot-num { font-weight:800; font-size:0.65rem; line-height:1; color:#1e293b; }
+        .slot-count { font-size:0.55rem; color:#64748b; }
+        .slot-alert { position:absolute; top:-3px; right:-3px; background:var(--danger); color:white; border-radius:50%; width:11px; height:11px; display:flex; align-items:center; justify-content:center; font-size:0.4rem; font-weight:bold; z-index:5; }
+
+        .baris-box.stock-box { background:#e0e7ff; border-color:#6366f1; justify-content:center; align-items:center; gap:4px; }
+        .baris-box.stock-box .baris-box-lbl { color:#4338ca; font-size:0.58rem; white-space:normal; text-align:center; line-height:1.3; margin:0; }
+        .stock-icon { font-size:1.8rem; }
+
+        .spacer { min-height:40px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.75rem; flex:1; }
+        .spacer-box { width:120px; height:140px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.85rem; flex-shrink:0; }
+
+        .frz-plan { display:flex; flex-direction:column; gap:8px; min-width:820px; }
+        .frz-body { display:flex; gap:8px; align-items:flex-start; }
+        .frz-left { display:flex; flex-direction:column; gap:8px; flex:1; }
+        .frz-right { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
+        .frz-bot { display:flex; gap:8px; align-items:flex-start; }
+        .boxes-row { display:flex; gap:8px; }
+
+        .chl-plan { display:flex; flex-direction:column; gap:8px; min-width:840px; }
+        .chl-top { display:flex; gap:8px; align-items:flex-start; }
+        .chl-space { min-height:80px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.75rem; }
+        .chl-bot { display:flex; gap:8px; flex-wrap:wrap; }
+
+        .move-form { background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:8px; margin-top:6px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+        .move-form select { width:auto; padding:6px; }
 
         @keyframes softPulse { 0%{box-shadow:0 0 0 0 rgba(249,115,22,0.3)} 50%{box-shadow:0 0 0 5px rgba(249,115,22,0.1)} 100%{box-shadow:0 0 0 0 rgba(249,115,22,0.3)} }
         @keyframes strongPulse { 0%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 50%{box-shadow:0 0 0 7px rgba(239,68,68,0.15)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} }
@@ -127,6 +126,7 @@
         <button class="tab-btn" data-tab="in">📥 Masuk</button>
         <button class="tab-btn" data-tab="history">📋 Riwayat</button>
         <button class="tab-btn" data-tab="rekap">📊 Rekap</button>
+        <button class="tab-btn" data-tab="manage">⚙️ Atur</button>
     </div>
     <div class="container" id="appContainer"></div>
 </div>
@@ -152,27 +152,39 @@ let rekapMode  = 'bulanan';
 let unsubscribe = null;
 const ADMIN_EMAILS = ['slardar.men@gmail.com'];
 
-// Default sections dengan slot kosong (null)
 const defaultFrozenSections = {
-    'IMP': { A: Array(5).fill(null), B: Array(5).fill(null), C: Array(5).fill(null), D: Array(5).fill(null), E: Array(5).fill(null) },
-    'RTL': { A: Array(5).fill(null), B: Array(5).fill(null), C: Array(5).fill(null) },
-    'NPL': { A: Array(5).fill(null), B: Array(5).fill(null), C: Array(5).fill(null) },
-    'RDQ': { A: Array(5).fill(null) },
-    'MTPP': { A: Array(5).fill(null), B: Array(5).fill(null) },
-    'MI':   { A: Array(5).fill(null), B: Array(5).fill(null), C: Array(5).fill(null) }
+    'IMP': { A: [6,7,8,10,18], B: [19,30,38,46,55], C: [62,63,66,68,69], D: [70,71,73,null,null], E: [null,null,null,null,null] },
+    'RTL': { A: [1,2,17,21,23], B: [31,32,33,36,null], C: [null,null,null,null,null] },
+    'NPL': { A: [20,24,26,28,29], B: [35,41,42,43,54], C: [58,65,67,75,null] },
+    'RDQ': { A: [5,15,44,48,49] },
+    'MTPP': { A: [11,12,27,34,40], B: [50,53,61,64,74] },
+    'MI':   { A: [3,13,14,16,25], B: [37,39,47,51,59], C: [60,null,null,null,null] }
 };
 const defaultChillerSections = {
-    'IMP': { A: Array(5).fill(null) },
-    'RTL': { A: Array(5).fill(null) },
-    'NPL': { A: Array(5).fill(null) },
-    'MTPP': { A: Array(5).fill(null) },
-    'RDQ': { A: Array(5).fill(null) },
-    'MI': { A: Array(5).fill(null) },
-    'THAWING': { A: Array(5).fill(null), B: Array(5).fill(null) }
+    'IMP': { A: [null,null,null,null,null] }, 'RTL': { A: [null,null,null,null,null] }, 'NPL': { A: [null,null,null,null,null] },
+    'MTPP': { A: [null,null,null,null,null] }, 'RDQ': { A: [null,null,null,null,null] }, 'MI': { A: [null,null,null,null,null] },
+    'THAWING': { A: [null,null,null,null,null], B: [null,null,null,null,null] }
 };
 
 function getDefaultSections(area) {
     return area === 'frozen' ? JSON.parse(JSON.stringify(defaultFrozenSections)) : JSON.parse(JSON.stringify(defaultChillerSections));
+}
+function upgradeBarisToSlots(barisData) {
+    if (!barisData || !Array.isArray(barisData)) return [null,null,null,null,null];
+    const slots = [null,null,null,null,null];
+    barisData.forEach((no,i) => { if(i<5 && no!==null && no!==undefined) slots[i] = no; });
+    return slots;
+}
+function convertSectionsToSlotFormat(sections) {
+    const out = {};
+    for (const [sec, barisObj] of Object.entries(sections)) {
+        const converted = {};
+        for (const [b, val] of Object.entries(barisObj)) {
+            converted[b] = (Array.isArray(val) && val.length===5 && val.every(v=>v===null||typeof v==='number')) ? val : upgradeBarisToSlots(val);
+        }
+        out[sec] = converted;
+    }
+    return out;
 }
 
 function login() {
@@ -206,9 +218,8 @@ function listenToFirestore() {
             const data = doc.data();
             let fData = data.frozen  || { sections: getDefaultSections('frozen'),  baskets:{}, transactions:[] };
             let cData = data.chiller || { sections: getDefaultSections('chiller'), baskets:{}, transactions:[] };
-            // Pastikan struktur sections sesuai default jika ada yang hilang
-            fData.sections = { ...getDefaultSections('frozen'), ...(fData.sections || {}) };
-            cData.sections = { ...getDefaultSections('chiller'), ...(cData.sections || {}) };
+            fData.sections = convertSectionsToSlotFormat(fData.sections || {});
+            cData.sections = convertSectionsToSlotFormat(cData.sections || {});
             appData.frozen  = fData; appData.chiller = cData;
             syncBasketsWithSections('frozen'); syncBasketsWithSections('chiller');
             if (!data.frozen) saveToFirestore();
@@ -262,6 +273,17 @@ function showToast(msg) {
     t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2500);
 }
+function getAvailableBasketInSection(section) {
+    let bestNo = null, bestCount = Infinity;
+    const sec = currentSections()[section] || {};
+    for (const slots of Object.values(sec))
+        for (const no of slots) {
+            if (no === null) continue;
+            const c = itemCount(no);
+            if (c < 5 && c < bestCount) { bestCount = c; bestNo = no; }
+        }
+    return bestNo;
+}
 function logTransaction(type, detail) {
     currentTransactions().unshift({ id: Date.now(), timestamp: new Date().toISOString(), type, detail, user: auth.currentUser?.email || 'unknown' });
     if (currentTransactions().length > 500) currentTransactions().pop();
@@ -283,14 +305,6 @@ async function resetAllData() {
     showToast('✅ Data berhasil direset.');
 }
 
-// Cari slot kosong di section dan baris tertentu
-function findEmptySlot(section, baris) {
-    const slots = currentSections()[section]?.[baris];
-    if (!slots) return null;
-    const idx = slots.findIndex(no => no === null);
-    return idx !== -1 ? { idx, slot: idx+1 } : null;
-}
-
 const container = document.getElementById('appContainer');
 function renderCurrentTab() {
     try {
@@ -299,12 +313,12 @@ function renderCurrentTab() {
             case 'in': renderInputForm(); break;
             case 'history': renderHistory(); break;
             case 'rekap': renderRekap(); break;
+            case 'manage': renderManageBaskets(); break;
         }
     } catch(e) { console.error(e); container.innerHTML = '<div class="card"><div class="empty-state">Error. Refresh halaman.</div></div>'; }
 }
 
-// Slot kecil, label di luar
-function buildBasketSlot(no) {
+function buildBasketSlot(no, slotIdx) {
     if (no === null) return `<div class="basket-slot slot-empty"></div>`;
     const count = itemCount(no);
     const expired = hasExpiredItems(no);
@@ -326,13 +340,11 @@ function buildBarisBox(secName, barisIdx, slots) {
     const lbl = `${secName} ${num}`;
     let slotElements = '';
     for (let i = 0; i < 5; i++) {
-        slotElements += buildBasketSlot(slots[i]);
+        slotElements += buildBasketSlot(slots[i], i);
     }
-    return `<div class="baris-wrapper">
-        <div class="baris-label">${lbl}</div>
-        <div class="baris-box">
-            <div class="baris-slots">${slotElements}</div>
-        </div>
+    return `<div class="baris-box">
+        <div class="baris-box-lbl">${lbl}</div>
+        <div class="baris-slots">${slotElements}</div>
     </div>`;
 }
 
@@ -378,7 +390,7 @@ function renderFrozenPlan() {
 }
 
 function renderChillerPlan() {
-    const stockBox = `<div class="baris-wrapper"><div class="baris-label">📦 Stock Keranjang</div><div class="stock-box"><div class="stock-icon">🧺</div></div></div>`;
+    const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
     const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> Reset Semua Data (Admin Only)</button>` : '';
     const bottomSecs = ['IMP','RTL','NPL','MTPP','RDQ','MI'];
     container.innerHTML = `
@@ -514,7 +526,7 @@ function keluarkanItem(no, idx) {
     }
 }
 
-// ─── INPUT BARANG (dengan nomor keranjang bebas) ───
+// ─── INPUT BARANG ───
 function renderInputForm() {
     const sectionOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
     container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3>
@@ -525,8 +537,8 @@ function renderInputForm() {
             <div class="form-group"><label>Tanggal Exp (opsional)</label><input type="date" id="inExpDate"></div>
             <div class="form-group"><label>Estimasi Keluar (opsional)</label><input type="date" id="inEstOutDate"></div>
             <div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select></div>
-            <div class="form-group"><label>Baris</label><select id="inBaris"><option value="">-- Pilih --</option></select></div>
-            <div class="form-group"><label>Nomor Keranjang</label><input type="number" id="inKeranjang" placeholder="Masukkan nomor keranjang" required></div>
+            <div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateKeranjangSelect()"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Keranjang</label><select id="inKeranjang"><option value="">-- Otomatis --</option></select></div>
             <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
         </form></div>`;
     updateBarisSelect();
@@ -544,7 +556,30 @@ function updateBarisSelect() {
             const label = `${section} ${String(idx+1).padStart(2,'0')}`;
             barisSelect.innerHTML += `<option value="${baris}">${label}</option>`;
         });
-        if (Object.keys(barisObj).length > 0) barisSelect.value = Object.keys(barisObj)[0];
+        if (Object.keys(barisObj).length > 0) {
+            barisSelect.value = Object.keys(barisObj)[0];
+            updateKeranjangSelect();
+        }
+    } else {
+        document.getElementById('inKeranjang').innerHTML = '<option value="">-- Otomatis --</option>';
+    }
+}
+
+function updateKeranjangSelect() {
+    const section = document.getElementById('inSection')?.value;
+    const baris = document.getElementById('inBaris')?.value;
+    const select = document.getElementById('inKeranjang');
+    if (!select) return;
+    select.innerHTML = '<option value="">-- Otomatis --</option>';
+    if (section && baris) {
+        const slots = currentSections()[section][baris];
+        if (slots) {
+            slots.forEach((no, idx) => {
+                if (no === null) return;
+                const c = itemCount(no);
+                select.innerHTML += `<option value="${no}" ${c>=5?'disabled':''}>Slot ${idx+1} - ${no} (${c}/5)${c>=5?' PENUH':''}</option>`;
+            });
+        }
     }
 }
 
@@ -557,70 +592,43 @@ function updateNamaDatalist() {
 
 function submitIn(e) {
     e.preventDefault();
-    const nama = document.getElementById('inNama').value.trim();
-    const qty = document.getElementById('inQty').value.trim();
-    const jenis = document.getElementById('inJenis').value;
-    const expDate = document.getElementById('inExpDate').value;
-    const estOutDate = document.getElementById('inEstOutDate').value;
-    const section = document.getElementById('inSection').value;
-    const baris = document.getElementById('inBaris').value;
-    const noKeranjang = parseInt(document.getElementById('inKeranjang').value);
-
-    if (!nama || !qty) return showToast('Lengkapi data!');
+    const nama=document.getElementById('inNama').value.trim(), qty=document.getElementById('inQty').value.trim();
+    const jenis=document.getElementById('inJenis').value, expDate=document.getElementById('inExpDate').value;
+    const estOutDate=document.getElementById('inEstOutDate').value, section=document.getElementById('inSection').value;
+    const baris=document.getElementById('inBaris').value;
+    let keranjang=document.getElementById('inKeranjang').value;
+    if (!nama||!qty) return showToast('Lengkapi data!');
     if (!baris) return showToast('Pilih Baris terlebih dahulu.');
-    if (isNaN(noKeranjang) || noKeranjang <= 0) return showToast('Masukkan nomor keranjang yang valid.');
-
-    // Cek apakah keranjang sudah ada di slot
-    const existingBasket = currentBaskets()[noKeranjang];
-    if (existingBasket) {
-        // Keranjang sudah ada, cek apakah penuh
-        if (itemCount(noKeranjang) >= 5) return showToast('Keranjang sudah penuh (5 item).');
-        // Tambahkan item ke keranjang tersebut
-        const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
-        if (expDate) item.expDate = expDate;
-        if (estOutDate) item.estOutDate = estOutDate;
-        existingBasket.items.push(item);
-        logTransaction('in', { nama, qty, jenis, keranjang: noKeranjang, section: existingBasket.section, baris: existingBasket.baris, expDate, estOutDate });
-        saveToFirestore();
-        showToast('✅ Barang ditambahkan ke keranjang yang sudah ada.');
-        renderInputForm();
-        return;
+    if (!keranjang) {
+        const slots = currentSections()[section][baris];
+        if (!slots) return showToast('Baris tidak ditemukan.');
+        let bestNo = null, bestCount = Infinity;
+        for (const no of slots) {
+            if (no === null) continue;
+            const c = itemCount(no);
+            if (c < 5 && c < bestCount) { bestCount = c; bestNo = no; }
+        }
+        if (bestNo === null) return showToast(`Semua keranjang di baris ini penuh.`);
+        keranjang = bestNo;
     }
-
-    // Keranjang belum ada, cari slot kosong di section/baris terpilih
-    const slotInfo = findEmptySlot(section, baris);
-    if (!slotInfo) return showToast(`Semua slot di baris ${baris} sudah terisi. Pilih baris lain.`);
-
-    // Tempatkan keranjang di slot kosong
-    currentSections()[section][baris][slotInfo.idx] = noKeranjang;
-    // Buat basket baru
-    currentBaskets()[noKeranjang] = { section, baris, slot: slotInfo.slot, items: [] };
+    const no = parseInt(keranjang);
+    if (itemCount(no) >= 5) return showToast('Keranjang sudah penuh (5 item).');
+    if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, items:[] };
     const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
     if (expDate) item.expDate = expDate;
     if (estOutDate) item.estOutDate = estOutDate;
-    currentBaskets()[noKeranjang].items.push(item);
-    logTransaction('in', { nama, qty, jenis, keranjang: noKeranjang, section, baris, expDate, estOutDate });
-    saveToFirestore();
-    showToast(`✅ Barang masuk ke keranjang baru di slot ${slotInfo.slot}.`);
-    renderInputForm();
+    currentBaskets()[no].items.push(item);
+    logTransaction('in', { nama, qty, jenis, keranjang:no, section, baris, expDate, estOutDate });
+    saveToFirestore(); showToast('✅ Barang masuk'); renderInputForm();
 }
 
-// ─── RIWAYAT (dengan warna) ───
+// ─── RIWAYAT ───
 function renderHistory() {
-    const list = currentTransactions().slice(0,100).map(t => {
-        let icon = '', cls = '';
-        if (t.type === 'in') { icon = '📥'; cls = 'in'; }
-        else if (t.type === 'out') { icon = '📤'; cls = 'out'; }
-        else if (t.type === 'move') { icon = '🔄'; cls = 'move'; }
-        return `<div class="item-row ${cls}">
-            <div>${icon} <strong>${t.detail.nama}</strong> (${t.detail.qty})
-            <br><small>${new Date(t.timestamp).toLocaleString('id-ID')} | ${t.detail.section||''} | ${t.user}</small></div>
-        </div>`;
-    }).join('');
-    container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📋 Riwayat</h3><button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button></div>${list||'<div class="empty-state">Belum ada aktivitas</div>'}</div>`;
+    const list=currentTransactions().slice(0,100).map(t=>`<div class="item-row"><div>${t.type==='in'?'📥':t.type==='move'?'🔄':'📤'} <strong>${t.detail.nama}</strong> (${t.detail.qty})<br><small>${new Date(t.timestamp).toLocaleString('id-ID')} | ${t.detail.section||''} | ${t.user}</small></div></div>`).join('');
+    container.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📋 Riwayat</h3><button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button></div>${list||'<div class="empty-state">Belum ada aktivitas</div>'}</div>`;
 }
 
-// ─── REKAP & DOWNLOAD (tidak berubah) ───
+// ─── REKAP & DOWNLOAD ───
 function renderRekap() {
     const BULAN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
     const trx=currentTransactions(); const nowYear=new Date().getFullYear();
@@ -652,10 +660,75 @@ function downloadExcel() {
     trx.forEach(t => { const d = t.detail; h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type==='in'?'Masuk':t.type==='move'?'Pindah':'Keluar'}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.estOutDate||''}</td></tr>`; });
     h += '</table></body></html>'; _dlBlob(h, `riwayat_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);
 }
-function downloadRekapExcel() { /* sama seperti sebelumnya */ }
+function downloadRekapExcel() { /* sama seperti sebelumnya, tidak diubah */ }
 function _dlBlob(html, filename) {
     const blob = new Blob([html], { type:'application/vnd.ms-excel;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+}
+
+// ─── MANAGE (ADMIN ONLY) ───
+function renderManageBaskets() {
+    if (!isAdmin()) {
+        container.innerHTML = '<div class="card"><h3>⚙️ Atur Nomor Keranjang</h3><p style="color:#ef4444; font-weight:600;">🔒 Hanya admin yang dapat mengedit struktur kotak/baris.</p></div>';
+        return;
+    }
+    let html = '<div class="card"><h3>⚙️ Atur Slot Keranjang</h3>';
+    for (const [section, barisObj] of Object.entries(currentSections())) {
+        html += `<div style="margin-bottom:20px;"><strong>📍 ${section}</strong>`;
+        for (const [baris, slots] of Object.entries(barisObj)) {
+            html += `<div style="margin-left:8px;margin-bottom:10px;"><span class="baris-label">📌 Baris ${baris}</span>`;
+            for (let i = 0; i < 5; i++) {
+                const no = slots[i];
+                if (no) {
+                    const cnt = itemCount(no);
+                    html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;">
+                        <span class="chip">Slot ${i+1}: ${no} (${cnt}/5)
+                            <span style="cursor:pointer;color:red;margin-left:4px;" onclick="clearSlot('${section}','${baris}',${i})">✕</span>
+                        </span></div>`;
+                } else {
+                    html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;">
+                        <span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span>
+                        <input type="number" id="inp_${section}_${baris}_${i}" placeholder="No" style="width:80px;padding:4px;">
+                        <button class="btn btn-sm btn-primary" onclick="fillSlot('${section}','${baris}',${i})">Isi</button></div>`;
+                }
+            }
+            html += `</div>`;
+        }
+        html += `<div><button class="btn btn-sm btn-outline" onclick="addBaris('${section}')">➕ Tambah Baris Baru</button></div></div>`;
+    }
+    html += '</div>';
+    container.innerHTML = html;
+}
+window.clearSlot = function(section, baris, idx) {
+    if (!isAdmin()) return showToast('⚠️ Hanya admin.');
+    const slots = currentSections()[section][baris];
+    const no = slots[idx];
+    if (no && itemCount(no) > 0) return showToast(`Keranjang ${no} masih berisi.`);
+    if (!confirm(`Kosongkan slot ${idx+1}?`)) return;
+    if (no && currentBaskets()[no]) delete currentBaskets()[no];
+    slots[idx] = null;
+    saveToFirestore(); renderManageBaskets(); showToast('✅ Slot dikosongkan.');
+};
+window.fillSlot = function(section, baris, idx) {
+    if (!isAdmin()) return showToast('⚠️ Hanya admin.');
+    const input = document.getElementById(`inp_${section}_${baris}_${idx}`);
+    if (!input) return;
+    const no = parseInt(input.value);
+    if (isNaN(no) || no <= 0) return showToast('Nomor tidak valid.');
+    for (const [sec, barisObj] of Object.entries(currentSections()))
+        for (const slots of Object.values(barisObj))
+            if (slots.includes(no)) return showToast(`Nomor ${no} sudah digunakan di ${sec}.`);
+    currentSections()[section][baris][idx] = no;
+    if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, slot: idx+1, items: [] };
+    else { currentBaskets()[no].section = section; currentBaskets()[no].baris = baris; currentBaskets()[no].slot = idx+1; }
+    saveToFirestore(); input.value = ''; renderManageBaskets(); showToast(`✅ Keranjang ${no} ditempatkan.`);
+};
+function addBaris(section) {
+    if (!isAdmin()) return showToast('⚠️ Hanya admin.');
+    const barisObj = currentSections()[section];
+    const nextLabel = String.fromCharCode(65 + Object.keys(barisObj).length);
+    barisObj[nextLabel] = [null,null,null,null,null];
+    saveToFirestore(); renderManageBaskets(); showToast(`✅ Baris ${nextLabel} ditambahkan.`);
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
