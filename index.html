@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Walk-in Frozen & Chiller | Cloud v9</title>
+    <title>Walk-in Frozen & Chiller | Cloud v10</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --bg:#f0f4f8; --card:#fff; --text:#1e293b; --primary:#2563eb; --danger:#ef4444; --warning:#f59e0b; --success:#10b981; --orange:#f97316; --shadow:0 4px 12px rgba(0,0,0,0.05); --radius:20px; }
+        :root {
+            --bg:#f0f4f8; --card:#fff; --text:#1e293b; --primary:#2563eb;
+            --danger:#ef4444; --warning:#f59e0b; --success:#10b981;
+            --orange:#f97316; --shadow:0 4px 12px rgba(0,0,0,0.05); --radius:20px;
+        }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Segoe UI',system-ui; background:linear-gradient(135deg,#e0e7ff,#f0f4ff); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+
+        /* ── HEADER & TABS ── */
         .header { background:rgba(15,23,42,0.9); backdrop-filter:blur(10px); width:100%; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; color:white; position:sticky; top:0; z-index:100; gap:12px; flex-wrap:wrap; }
         .header h2 { font-size:1.2rem; font-weight:700; }
         .area-selector { display:flex; align-items:center; gap:8px; }
@@ -22,18 +28,27 @@
         .tab-btn.active { background:var(--primary); color:white; box-shadow:0 4px 12px rgba(37,99,235,0.3); }
         .container { width:100%; max-width:780px; padding:16px; display:flex; flex-direction:column; gap:16px; margin-bottom:20px; }
         .card { background:var(--card); border-radius:var(--radius); padding:18px 16px; box-shadow:var(--shadow); }
-        .form-group { margin-bottom:14px; } label { font-weight:600; font-size:0.8rem; display:block; margin-bottom:4px; }
+
+        /* ── FORM ELEMENTS ── */
+        .form-group { margin-bottom:14px; }
+        label { font-weight:600; font-size:0.8rem; display:block; margin-bottom:4px; }
         input, select { width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:14px; font-size:0.95rem; background:#f8fafc; }
         .btn { padding:12px 18px; border-radius:14px; border:none; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; }
-        .btn-primary { background:var(--primary); color:white; } .btn-danger { background:var(--danger); color:white; } .btn-outline { background:transparent; border:1px solid #cbd5e1; }
-        .btn-sm { padding:6px 12px; font-size:0.75rem; }
-        .item-row { display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f1f5f9; border-radius:12px; margin-bottom:6px; }
+        .btn-primary { background:var(--primary); color:white; }
+        .btn-danger  { background:var(--danger);  color:white; }
+        .btn-outline { background:transparent; border:1px solid #cbd5e1; }
+        .btn-sm      { padding:6px 12px; font-size:0.75rem; }
+        .item-row { display:flex; justify-content:space-between; align-items:flex-start; padding:10px; background:#f1f5f9; border-radius:12px; margin-bottom:6px; gap:8px; }
         .item-row.expired { background:#fee2e2; border:1px solid #ef4444; }
         .empty-state { color:#94a3b8; text-align:center; padding:20px; }
         .toast { position:fixed; bottom:20px; left:20px; right:20px; background:#1e293b; color:white; padding:14px; border-radius:14px; text-align:center; opacity:0; transform:translateY(20px); transition:0.3s; z-index:200; }
         .toast.show { opacity:1; transform:translateY(0); }
-        .chip { background:#e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; margin:2px; }
-        .baris-label { font-size:0.75rem; font-weight:700; color:#475569; margin-top:10px; margin-bottom:4px; background:#e2e8f0; display:inline-block; padding:2px 10px; border-radius:20px; }
+        .chip { background:#e2e8f0; border-radius:20px; padding:5px 10px; font-size:0.82rem; display:inline-flex; align-items:center; gap:5px; margin:2px; }
+        .baris-label { font-size:0.75rem; font-weight:700; color:#475569; background:#e2e8f0; display:inline-block; padding:2px 10px; border-radius:20px; }
+        .reset-btn { background:#fee2e2; color:#ef4444; border:2px solid #ef4444; padding:10px 20px; border-radius:14px; cursor:pointer; font-weight:600; margin-top:16px; width:100%; }
+        .google-btn { background:#fff; color:#333; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px; cursor:pointer; font-weight:500; margin-top:10px; width:100%; }
+
+        /* ── REKAP ── */
         .rekap-tabs { display:flex; gap:8px; margin-bottom:16px; }
         .rekap-tab { padding:8px 20px; border-radius:20px; border:1px solid #cbd5e1; background:#f8fafc; font-weight:600; cursor:pointer; font-size:0.85rem; }
         .rekap-tab.active { background:var(--primary); color:white; border-color:var(--primary); }
@@ -48,55 +63,112 @@
         .section-badge { background:#dbeafe; color:#1d4ed8; border-radius:20px; padding:2px 8px; font-size:0.75rem; font-weight:600; margin:2px; display:inline-block; }
         .filter-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
         .filter-row select { width:auto; padding:8px 12px; font-size:0.85rem; }
-        .reset-btn { background:#fee2e2; color:#ef4444; border:2px solid #ef4444; padding:10px 20px; border-radius:14px; cursor:pointer; font-weight:600; margin-top:20px; width:100%; }
-        .google-btn { background:#fff; color:#333; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px; cursor:pointer; font-weight:500; margin-top:10px; width:100%; }
 
-        /* Denah */
+        /* ── RIWAYAT — badge warna ── */
+        .hist-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:12px; font-size:0.7rem; font-weight:700; }
+        .hist-in   { background:#dcfce7; color:#15803d; border:1px solid #16a34a; }
+        .hist-out  { background:#fee2e2; color:#b91c1c; border:1px solid #dc2626; }
+        .hist-move { background:#dbeafe; color:#1d4ed8; border:1px solid #2563eb; }
+
+        /* ── FLOOR PLAN — room ── */
         .fp-room { border:3px solid #1e293b; border-radius:10px; padding:10px; overflow-x:auto; }
         .fp-room-title { font-weight:800; font-size:0.95rem; color:#1e293b; margin-bottom:10px; text-align:center; }
-        .fp-legend { display:flex; gap:16px; flex-wrap:wrap; padding:8px 4px; font-size:0.8rem; font-weight:600; margin-top:10px; }
+        .fp-legend { display:flex; gap:12px; flex-wrap:wrap; padding:8px 4px; font-size:0.8rem; font-weight:600; margin-top:10px; }
 
-        .baris-box { width:120px; height:140px; background:#fde68a; border:2.5px solid #d97706; border-radius:10px; padding:6px; display:flex; flex-direction:column; flex-shrink:0; }
-        .baris-box-lbl { font-size:0.65rem; font-weight:800; color:#92400e; text-align:center; line-height:1.2; margin-bottom:4px; white-space:nowrap; overflow:hidden; }
-        .baris-slots { display:flex; flex-direction:column-reverse; gap:2px; flex:1; }
+        /* ── BARIS BOX — kotak section ── */
+        /*  Lebar > tinggi agar 5 slot horizontal muat + label tidak tertutup */
+        .baris-box {
+            width: 135px;
+            height: 95px;
+            background: #fde68a;
+            border: 2.5px solid #d97706;
+            border-radius: 10px;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        .baris-box-lbl {
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: #92400e;
+            text-align: center;
+            line-height: 1.2;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        /* 5 slot HORIZONTAL di dalam kotak */
+        .baris-slots {
+            display: flex;
+            flex-direction: row;
+            gap: 2px;
+            flex: 1;
+            min-height: 0;
+        }
 
-        .basket-slot { flex:1; border-radius:5px; background:#fff; border:1.5px solid #cbd5e1; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; position:relative; transition:transform 0.1s; overflow:hidden; min-height:0; }
-        .basket-slot:active { transform:scale(0.95); }
-        .basket-slot.green { border-color:var(--success); background:#ecfdf5; }
-        .basket-slot.orange { border-color:var(--orange); background:#fff7ed; animation:softPulse 1.8s infinite; }
-        .basket-slot.red { border-color:var(--danger); background:#fef2f2; animation:strongPulse 0.9s infinite; }
-        .basket-slot.slot-empty { background:#f8fafc; border:1.5px dashed #d1d5db; cursor:default; }
-        .slot-num { font-weight:800; font-size:0.65rem; line-height:1; color:#1e293b; }
-        .slot-count { font-size:0.55rem; color:#64748b; }
-        .slot-alert { position:absolute; top:-3px; right:-3px; background:var(--danger); color:white; border-radius:50%; width:11px; height:11px; display:flex; align-items:center; justify-content:center; font-size:0.4rem; font-weight:bold; z-index:5; }
+        /* ── BASKET SLOT ── */
+        .basket-slot {
+            flex: 1;
+            border-radius: 5px;
+            background: #fff;
+            border: 1.5px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+            transition: transform 0.1s;
+            gap: 1px;
+        }
+        .basket-slot:active { transform: scale(0.9); }
+        .basket-slot.has-items  { border-color: var(--success); background: #ecfdf5; }
+        .basket-slot.full       { border-color: var(--orange);  background: #fff7ed; animation: softPulse 1.8s infinite; }
+        .basket-slot.exp-slot   { border-color: var(--danger);  background: #fef2f2; animation: strongPulse 0.9s infinite; }
+        .basket-slot.slot-empty { background: #f8fafc; border: 1.5px dashed #d1d5db; cursor: default; }
+        .slot-num   { font-weight: 800; font-size: 0.58rem; color: #1e293b; line-height: 1; }
+        .slot-count { font-size: 0.48rem; color: #64748b; line-height: 1; }
+        .slot-alert { position: absolute; top: -3px; right: -3px; background: var(--danger); color: white; border-radius: 50%; width: 11px; height: 11px; display: flex; align-items: center; justify-content: center; font-size: 0.4rem; font-weight: bold; z-index: 5; }
 
-        .baris-box.stock-box { background:#e0e7ff; border-color:#6366f1; justify-content:center; align-items:center; gap:4px; }
-        .baris-box.stock-box .baris-box-lbl { color:#4338ca; font-size:0.58rem; white-space:normal; text-align:center; line-height:1.3; margin:0; }
-        .stock-icon { font-size:1.8rem; }
+        /* Stock Keranjang */
+        .baris-box.stock-box { background: #e0e7ff; border-color: #6366f1; justify-content: center; align-items: center; gap: 4px; }
+        .baris-box.stock-box .baris-box-lbl { color: #4338ca; font-size: 0.58rem; white-space: normal; text-align: center; line-height: 1.3; margin: 0; }
+        .stock-icon { font-size: 1.8rem; }
 
-        .spacer { min-height:40px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.75rem; flex:1; }
-        .spacer-box { width:120px; height:140px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.85rem; flex-shrink:0; }
+        /* Spacers */
+        .spacer { background: rgba(255,255,255,0.4); border: 1px dashed #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #c8d3df; font-size: 0.72rem; flex: 1; min-height: 38px; }
+        .spacer-box { width: 135px; height: 95px; background: rgba(255,255,255,0.4); border: 1px dashed #d1d5db; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #c8d3df; font-size: 0.75rem; flex-shrink: 0; text-align: center; }
 
-        .frz-plan { display:flex; flex-direction:column; gap:8px; min-width:820px; }
-        .frz-body { display:flex; gap:8px; align-items:flex-start; }
-        .frz-left { display:flex; flex-direction:column; gap:8px; flex:1; }
-        .frz-right { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
-        .frz-bot { display:flex; gap:8px; align-items:flex-start; }
-        .boxes-row { display:flex; gap:8px; }
+        /* Frozen layout */
+        .frz-plan  { display: flex; flex-direction: column; gap: 8px; min-width: 860px; }
+        .frz-body  { display: flex; gap: 8px; align-items: flex-start; }
+        .frz-left  { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .frz-right { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+        .frz-bot   { display: flex; gap: 8px; align-items: flex-start; }
+        .boxes-row { display: flex; gap: 8px; }
 
-        .chl-plan { display:flex; flex-direction:column; gap:8px; min-width:840px; }
-        .chl-top { display:flex; gap:8px; align-items:flex-start; }
-        .chl-space { min-height:80px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.75rem; }
-        .chl-bot { display:flex; gap:8px; flex-wrap:wrap; }
+        /* Chiller layout */
+        .chl-plan  { display: flex; flex-direction: column; gap: 8px; min-width: 860px; }
+        .chl-top   { display: flex; gap: 8px; align-items: flex-start; }
+        .chl-space { min-height: 80px; background: rgba(255,255,255,0.4); border: 1px dashed #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #c8d3df; font-size: 0.75rem; }
+        .chl-bot   { display: flex; gap: 8px; flex-wrap: wrap; }
 
-        .move-form { background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:8px; margin-top:6px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
-        .move-form select { width:auto; padding:6px; }
+        /* Move form */
+        .move-form { background: #f0f4ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 8px; margin-top: 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .move-form select { width: auto; padding: 6px; }
 
-        @keyframes softPulse { 0%{box-shadow:0 0 0 0 rgba(249,115,22,0.3)} 50%{box-shadow:0 0 0 5px rgba(249,115,22,0.1)} 100%{box-shadow:0 0 0 0 rgba(249,115,22,0.3)} }
-        @keyframes strongPulse { 0%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 50%{box-shadow:0 0 0 7px rgba(239,68,68,0.15)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} }
+        @keyframes softPulse   { 0%{box-shadow:0 0 0 0 rgba(249,115,22,0.3)} 50%{box-shadow:0 0 0 5px rgba(249,115,22,0.1)} 100%{box-shadow:0 0 0 0 rgba(249,115,22,0.3)} }
+        @keyframes strongPulse { 0%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)}  50%{box-shadow:0 0 0 7px rgba(239,68,68,0.15)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} }
     </style>
 </head>
 <body>
+
+<!-- LOGIN -->
 <div id="loginScreen" class="container" style="max-width:400px;margin-top:40px;">
     <div class="card" style="text-align:center">
         <h2>🔐 Masuk Walk-in</h2>
@@ -109,12 +181,16 @@
     </div>
 </div>
 
+<!-- APP -->
 <div id="appScreen" style="display:none;width:100%;">
     <div class="header">
         <h2>🧊 Walk-in <span id="areaTitle">Frozen</span></h2>
         <div class="area-selector">
             <span style="color:white;">Area:</span>
-            <select id="areaSelect" onchange="switchArea()"><option value="frozen">❄️ Frozen</option><option value="chiller">🌡️ Chiller</option></select>
+            <select id="areaSelect" onchange="switchArea()">
+                <option value="frozen">❄️ Frozen</option>
+                <option value="chiller">🌡️ Chiller</option>
+            </select>
         </div>
         <div class="user-row">
             <span id="currentUserName" style="font-size:0.8rem;color:white;"></span>
@@ -133,6 +209,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ══════════════════════════════════════════════
+//  FIREBASE
+// ══════════════════════════════════════════════
 const firebaseConfig = {
     apiKey: "AIzaSyA1K3kQ93LSz1yKpBa2cMCRD045alTm6cs",
     authDomain: "walk-in-web.firebaseapp.com",
@@ -145,56 +224,88 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
 let currentArea = 'frozen';
-let appData = { frozen: { sections:{}, baskets:{}, transactions:[] }, chiller: { sections:{}, baskets:{}, transactions:[] } };
+let appData = {
+    frozen:  { sections:{}, baskets:{}, transactions:[] },
+    chiller: { sections:{}, baskets:{}, transactions:[] }
+};
 let currentTab = 'dashboard';
 let rekapMode  = 'bulanan';
 let unsubscribe = null;
 const ADMIN_EMAILS = ['slardar.men@gmail.com'];
 
+// ══════════════════════════════════════════════
+//  DEFAULT SECTIONS — Semua slot kosong (null)
+//  Admin gunakan tombol Reset untuk hapus data
+//  Firestore lama (jika ada nomor lama).
+//
+//  Frozen : IMP=5 kotak, RTL=3, NPL=3,
+//           RDQ=1, MTPP=2, MI=3
+//  Chiller: IMP=1, RTL=1, NPL=1, MTPP=1,
+//           RDQ=1, MI=1, THAWING=2
+//  Setiap kotak = 5 slot (5 nomor keranjang)
+// ══════════════════════════════════════════════
+const N = [null,null,null,null,null]; // 5 slot kosong
+
 const defaultFrozenSections = {
-    'IMP': { A: [6,7,8,10,18], B: [19,30,38,46,55], C: [62,63,66,68,69], D: [70,71,73,null,null], E: [null,null,null,null,null] },
-    'RTL': { A: [1,2,17,21,23], B: [31,32,33,36,null], C: [null,null,null,null,null] },
-    'NPL': { A: [20,24,26,28,29], B: [35,41,42,43,54], C: [58,65,67,75,null] },
-    'RDQ': { A: [5,15,44,48,49] },
-    'MTPP': { A: [11,12,27,34,40], B: [50,53,61,64,74] },
-    'MI':   { A: [3,13,14,16,25], B: [37,39,47,51,59], C: [60,null,null,null,null] }
+    'IMP':  { A:[...N], B:[...N], C:[...N], D:[...N], E:[...N] },
+    'RTL':  { A:[...N], B:[...N], C:[...N] },
+    'NPL':  { A:[...N], B:[...N], C:[...N] },
+    'RDQ':  { A:[...N] },
+    'MTPP': { A:[...N], B:[...N] },
+    'MI':   { A:[...N], B:[...N], C:[...N] }
 };
 const defaultChillerSections = {
-    'IMP': { A: [null,null,null,null,null] }, 'RTL': { A: [null,null,null,null,null] }, 'NPL': { A: [null,null,null,null,null] },
-    'MTPP': { A: [null,null,null,null,null] }, 'RDQ': { A: [null,null,null,null,null] }, 'MI': { A: [null,null,null,null,null] },
-    'THAWING': { A: [null,null,null,null,null], B: [null,null,null,null,null] }
+    'IMP':     { A:[...N] },
+    'RTL':     { A:[...N] },
+    'NPL':     { A:[...N] },
+    'MTPP':    { A:[...N] },
+    'RDQ':     { A:[...N] },
+    'MI':      { A:[...N] },
+    'THAWING': { A:[...N], B:[...N] }
 };
 
 function getDefaultSections(area) {
-    return area === 'frozen' ? JSON.parse(JSON.stringify(defaultFrozenSections)) : JSON.parse(JSON.stringify(defaultChillerSections));
+    return area === 'frozen'
+        ? JSON.parse(JSON.stringify(defaultFrozenSections))
+        : JSON.parse(JSON.stringify(defaultChillerSections));
 }
-function upgradeBarisToSlots(barisData) {
-    if (!barisData || !Array.isArray(barisData)) return [null,null,null,null,null];
+
+// Konversi format lama ke slot format [null/number × 5]
+function toSlotArray(val) {
     const slots = [null,null,null,null,null];
-    barisData.forEach((no,i) => { if(i<5 && no!==null && no!==undefined) slots[i] = no; });
+    if (!Array.isArray(val)) return slots;
+    val.forEach((v, i) => { if (i < 5 && v != null && !isNaN(v)) slots[i] = Number(v); });
     return slots;
 }
 function convertSectionsToSlotFormat(sections) {
     const out = {};
-    for (const [sec, barisObj] of Object.entries(sections)) {
+    for (const [sec, barisObj] of Object.entries(sections || {})) {
         const converted = {};
         for (const [b, val] of Object.entries(barisObj)) {
-            converted[b] = (Array.isArray(val) && val.length===5 && val.every(v=>v===null||typeof v==='number')) ? val : upgradeBarisToSlots(val);
+            converted[b] = (Array.isArray(val) && val.length === 5) ? val.map(v => (v == null ? null : Number(v))) : toSlotArray(val);
         }
         out[sec] = converted;
     }
     return out;
 }
 
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
 function login() {
     const email = document.getElementById('loginEmail').value.trim();
     const pass  = document.getElementById('loginPassword').value.trim();
-    auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('loginError').textContent = 'Gagal: ' + e.message);
+    auth.signInWithEmailAndPassword(email, pass)
+        .catch(e => document.getElementById('loginError').textContent = 'Gagal: ' + e.message);
 }
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(e => document.getElementById('loginError').textContent = 'Google login gagal: ' + e.message);
+    auth.signInWithPopup(provider)
+        .catch(e => document.getElementById('loginError').textContent = 'Google login gagal: ' + e.message);
 }
 function logout() { auth.signOut(); }
 
@@ -211,6 +322,9 @@ auth.onAuthStateChanged(user => {
     }
 });
 
+// ══════════════════════════════════════════════
+//  FIRESTORE
+// ══════════════════════════════════════════════
 function listenToFirestore() {
     if (unsubscribe) unsubscribe();
     unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => {
@@ -218,23 +332,29 @@ function listenToFirestore() {
             const data = doc.data();
             let fData = data.frozen  || { sections: getDefaultSections('frozen'),  baskets:{}, transactions:[] };
             let cData = data.chiller || { sections: getDefaultSections('chiller'), baskets:{}, transactions:[] };
-            fData.sections = convertSectionsToSlotFormat(fData.sections || {});
-            cData.sections = convertSectionsToSlotFormat(cData.sections || {});
-            appData.frozen  = fData; appData.chiller = cData;
-            syncBasketsWithSections('frozen'); syncBasketsWithSections('chiller');
+            fData.sections = convertSectionsToSlotFormat(fData.sections);
+            cData.sections = convertSectionsToSlotFormat(cData.sections);
+            appData.frozen  = fData;
+            appData.chiller = cData;
+            syncBasketsWithSections('frozen');
+            syncBasketsWithSections('chiller');
             if (!data.frozen) saveToFirestore();
             renderCurrentTab();
         } else {
             appData.frozen  = { sections: getDefaultSections('frozen'),  baskets:{}, transactions:[] };
             appData.chiller = { sections: getDefaultSections('chiller'), baskets:{}, transactions:[] };
-            syncBasketsWithSections('frozen'); syncBasketsWithSections('chiller');
+            syncBasketsWithSections('frozen');
+            syncBasketsWithSections('chiller');
             saveToFirestore();
             renderCurrentTab();
         }
     });
 }
 function saveToFirestore() {
-    db.collection('shared').doc('data').set({ frozen: appData.frozen, chiller: appData.chiller }, { merge: true });
+    db.collection('shared').doc('data').set(
+        { frozen: appData.frozen, chiller: appData.chiller },
+        { merge: true }
+    );
 }
 function syncBasketsWithSections(area) {
     const sections = appData[area].sections;
@@ -249,84 +369,92 @@ function syncBasketsWithSections(area) {
         for (const [baris, slots] of Object.entries(barisObj))
             slots.forEach((no, idx) => {
                 if (no === null) return;
-                if (!baskets[no]) baskets[no] = { section: sec, baris, slot: idx+1, items: [] };
+                if (!baskets[no]) baskets[no] = { section:sec, baris, slot:idx+1, items:[] };
                 else { baskets[no].section = sec; baskets[no].baris = baris; baskets[no].slot = idx+1; }
             });
 }
 
-function currentSections() { return appData[currentArea].sections; }
-function currentBaskets() { return appData[currentArea].baskets; }
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function currentSections()     { return appData[currentArea].sections; }
+function currentBaskets()      { return appData[currentArea].baskets; }
 function currentTransactions() { return appData[currentArea].transactions; }
+
 function switchArea() {
     currentArea = document.getElementById('areaSelect').value;
-    document.getElementById('areaTitle').textContent = currentArea==='frozen'?'Frozen':'Chiller';
+    document.getElementById('areaTitle').textContent = currentArea === 'frozen' ? 'Frozen' : 'Chiller';
     renderCurrentTab();
 }
-function itemCount(no) { return (currentBaskets()[no]?.items || []).length; }
+function itemCount(no)  { return (currentBaskets()[no]?.items || []).length; }
 function hasExpiredItems(no) {
-    const items = currentBaskets()[no]?.items || [];
     const now = new Date();
-    return items.some(i => (i.expDate && new Date(i.expDate) < now) || (i.estOutDate && new Date(i.estOutDate) < now));
+    return (currentBaskets()[no]?.items || []).some(i =>
+        (i.expDate    && new Date(i.expDate)    < now) ||
+        (i.estOutDate && new Date(i.estOutDate) < now)
+    );
 }
 function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2500);
 }
-function getAvailableBasketInSection(section) {
-    let bestNo = null, bestCount = Infinity;
-    const sec = currentSections()[section] || {};
-    for (const slots of Object.values(sec))
-        for (const no of slots) {
-            if (no === null) continue;
-            const c = itemCount(no);
-            if (c < 5 && c < bestCount) { bestCount = c; bestNo = no; }
-        }
-    return bestNo;
-}
 function logTransaction(type, detail) {
-    currentTransactions().unshift({ id: Date.now(), timestamp: new Date().toISOString(), type, detail, user: auth.currentUser?.email || 'unknown' });
+    currentTransactions().unshift({
+        id: Date.now(), timestamp: new Date().toISOString(),
+        type, detail, user: auth.currentUser?.email || 'unknown'
+    });
     if (currentTransactions().length > 500) currentTransactions().pop();
     saveToFirestore();
 }
 function isAdmin() {
     const user = auth.currentUser;
     if (!user) return false;
-    return user.providerData.some(p => p.providerId==='google.com') && ADMIN_EMAILS.includes(user.email);
+    return user.providerData.some(p => p.providerId === 'google.com') && ADMIN_EMAILS.includes(user.email);
 }
 async function resetAllData() {
     if (!isAdmin()) { showToast('⚠️ Hanya admin yang bisa mereset data.'); return; }
-    if (!confirm('PERINGATAN! Semua data akan dihapus. Lanjutkan?')) return;
-    if (!confirm('Terakhir: data akan hilang total. Yakin?')) return;
+    if (!confirm('PERINGATAN! Semua data akan dihapus total (termasuk nomor keranjang & riwayat). Lanjutkan?')) return;
+    if (!confirm('Konfirmasi terakhir: Yakin hapus semua data?')) return;
     await db.collection('shared').doc('data').set({
         frozen:  { sections: getDefaultSections('frozen'),  baskets:{}, transactions:[] },
         chiller: { sections: getDefaultSections('chiller'), baskets:{}, transactions:[] }
     });
-    showToast('✅ Data berhasil direset.');
+    showToast('✅ Data berhasil direset ke default kosong.');
 }
 
+// ══════════════════════════════════════════════
+//  RENDER ROUTER
+// ══════════════════════════════════════════════
 const container = document.getElementById('appContainer');
 function renderCurrentTab() {
     try {
         switch (currentTab) {
-            case 'dashboard': renderDashboard(); break;
-            case 'in': renderInputForm(); break;
-            case 'history': renderHistory(); break;
-            case 'rekap': renderRekap(); break;
-            case 'manage': renderManageBaskets(); break;
+            case 'dashboard': renderDashboard();     break;
+            case 'in':        renderInputForm();     break;
+            case 'history':   renderHistory();       break;
+            case 'rekap':     renderRekap();         break;
+            case 'manage':    renderManageBaskets(); break;
         }
-    } catch(e) { console.error(e); container.innerHTML = '<div class="card"><div class="empty-state">Error. Refresh halaman.</div></div>'; }
+    } catch(e) {
+        console.error(e);
+        container.innerHTML = '<div class="card"><div class="empty-state">Error. Silakan refresh halaman.</div></div>';
+    }
 }
 
-function buildBasketSlot(no, slotIdx) {
+// ══════════════════════════════════════════════
+//  DENAH — SLOT BUILDER
+// ══════════════════════════════════════════════
+
+/** Satu slot keranjang (vertikal, 5 slot horizontal per kotak) */
+function buildBasketSlot(no) {
     if (no === null) return `<div class="basket-slot slot-empty"></div>`;
-    const count = itemCount(no);
+    const count   = itemCount(no);
     const expired = hasExpiredItems(no);
     let cls = 'basket-slot';
-    if (count >= 5) cls += ' orange';
-    else if (expired) cls += ' red';
-    else if (count > 0) cls += ' green';
-    else cls += ' slot-empty';
+    if (expired)      cls += ' exp-slot';
+    else if (count >= 5) cls += ' full';
+    else if (count > 0)  cls += ' has-items';
     const badge = (expired || count >= 5) ? '<span class="slot-alert">!</span>' : '';
     return `<div class="${cls}" onclick="showBasketDetail(${no})" title="Keranjang ${no} — ${count}/5${expired?' ⚠️':''}">
         <span class="slot-num">${no}</span>
@@ -335,26 +463,39 @@ function buildBasketSlot(no, slotIdx) {
     </div>`;
 }
 
+/** Satu kotak baris (orange box, 5 slot horizontal) */
 function buildBarisBox(secName, barisIdx, slots) {
     const num = String(barisIdx + 1).padStart(2, '0');
     const lbl = `${secName} ${num}`;
-    let slotElements = '';
-    for (let i = 0; i < 5; i++) {
-        slotElements += buildBasketSlot(slots[i], i);
-    }
+    const slotEls = slots.map(no => buildBasketSlot(no)).join('');
     return `<div class="baris-box">
         <div class="baris-box-lbl">${lbl}</div>
-        <div class="baris-slots">${slotElements}</div>
+        <div class="baris-slots">${slotEls}</div>
     </div>`;
 }
 
+/** Semua baris-box suatu section */
 function getSecBoxes(secName) {
     const barisObj = currentSections()[secName] || {};
-    return Object.entries(barisObj).map(([b, slots], idx) => buildBarisBox(secName, idx, slots)).join('');
+    return Object.entries(barisObj)
+        .map(([b, slots], idx) => buildBarisBox(secName, idx, slots))
+        .join('');
 }
 
+// ══════════════════════════════════════════════
+//  DENAH FROZEN
+//  ┌─[IMP01..05]──────────────────────────────┐
+//  │  ── area kosong ──                        │
+//  │  [RTL01..03]              [spacer]        │
+//  │  [NPL01..03]              [MI01]          │
+//  │  ── area kosong ──        [MI02]          │
+//  │  [RDQ01] [MTPP01..02]     [MI03]          │
+//  └──────────────────────────────────────────┘
+// ══════════════════════════════════════════════
 function renderFrozenPlan() {
-    const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> Reset Semua Data (Admin Only)</button>` : '';
+    const adminBtn = isAdmin()
+        ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> Reset Semua Data (Admin Only)</button>`
+        : '';
     container.innerHTML = `
     <div class="card" style="padding:12px;">
         <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
@@ -373,130 +514,143 @@ function renderFrozenPlan() {
                         </div>
                     </div>
                     <div class="frz-right">
-                        <div class="spacer-box">Area Kosong</div>
+                        <div class="spacer-box">Area<br>Kosong</div>
                         ${getSecBoxes('MI')}
                     </div>
                 </div>
             </div>
         </div>
         <div class="fp-legend">
-            <span>🟢 Tersedia</span>
+            <span>🟢 Ada isi (1–4)</span>
             <span>🟠 Penuh (5/5)</span>
             <span>🔴 Expired / Est Lewat</span>
-            <span>⚪ Kosong</span>
+            <span>⬜ Kosong / belum ada nomor</span>
         </div>
         ${adminBtn}
     </div>`;
 }
 
+// ══════════════════════════════════════════════
+//  DENAH CHILLER
+//  ┌─[Stock][THAW01][THAW02]──────────────────┐
+//  │  ── area kosong ──                        │
+//  │  [IMP01][RTL01][NPL01][MTPP01][RDQ01][MI01]│
+//  └──────────────────────────────────────────┘
+// ══════════════════════════════════════════════
 function renderChillerPlan() {
-    const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
-    const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> Reset Semua Data (Admin Only)</button>` : '';
+    const stockBox = `<div class="baris-box stock-box">
+        <div class="baris-box-lbl">📦 Stock<br>Keranjang</div>
+        <div class="stock-icon">🧺</div>
+    </div>`;
+    const adminBtn = isAdmin()
+        ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> Reset Semua Data (Admin Only)</button>`
+        : '';
     const bottomSecs = ['IMP','RTL','NPL','MTPP','RDQ','MI'];
     container.innerHTML = `
     <div class="card" style="padding:12px;">
         <div class="fp-room-title">🌡️ Denah Walk-in Chiller</div>
         <div class="fp-room" style="background:#f0fdf4;">
             <div class="chl-plan">
-                <div class="chl-top">${stockBox}${getSecBoxes('THAWING')}</div>
+                <div class="chl-top">
+                    ${stockBox}
+                    ${getSecBoxes('THAWING')}
+                </div>
                 <div class="chl-space">— Area Kosong —</div>
-                <div class="chl-bot">${bottomSecs.map(s => getSecBoxes(s)).join('')}</div>
+                <div class="chl-bot">
+                    ${bottomSecs.map(s => getSecBoxes(s)).join('')}
+                </div>
             </div>
         </div>
         <div class="fp-legend">
-            <span>🟢 Tersedia</span>
+            <span>🟢 Ada isi (1–4)</span>
             <span>🟠 Penuh (5/5)</span>
             <span>🔴 Expired / Est Lewat</span>
-            <span>⚪ Kosong</span>
+            <span>⬜ Kosong / belum ada nomor</span>
         </div>
         ${adminBtn}
     </div>`;
 }
 
 function renderDashboard() {
-    if (currentArea === 'frozen') renderFrozenPlan(); else renderChillerPlan();
+    if (currentArea === 'frozen') renderFrozenPlan();
+    else renderChillerPlan();
 }
 
-// ─── DETAIL KERANJANG + PINDAH + KELUAR ───
+// ══════════════════════════════════════════════
+//  DETAIL KERANJANG + PINDAH + KELUAR
+// ══════════════════════════════════════════════
 function showBasketDetail(no, moveItemIdx = null) {
     const basket = currentBaskets()[no];
-    const count = itemCount(no);
-    const now = new Date();
-    let itemsHtml = basket && basket.items.length
+    const count  = itemCount(no);
+    const now    = new Date();
+
+    const itemsHtml = basket && basket.items.length
         ? basket.items.map((item, idx) => {
             let cls = '', lbl = '';
-            if (item.expDate && new Date(item.expDate) < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
+            if (item.expDate    && new Date(item.expDate)    < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
             else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
-            const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
+            const moveForm = (moveItemIdx === idx) ? buildMoveForm(no, idx) : '';
             return `<div class="item-row ${cls}">
-                <div>
+                <div style="flex:1;">
                     <strong>${item.nama}</strong> (${item.qty})${lbl}
                     <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
                     ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
                     ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
+                    ${moveForm}
                 </div>
-                <div style="display:flex; gap:4px;">
-                    <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); showBasketDetail(${no}, ${idx})">Pindah</button>
-                    <button class="btn btn-outline btn-sm" onclick="keluarkanItem(${no}, ${idx})">Keluar</button>
+                <div style="display:flex;gap:4px;flex-shrink:0;">
+                    <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${no},${idx})">🔄 Pindah</button>
+                    <button class="btn btn-outline btn-sm" onclick="keluarkanItem(${no},${idx})">📤 Keluar</button>
                 </div>
-                ${moveFormHtml}
             </div>`;
         }).join('')
         : '<div class="empty-state">Keranjang kosong</div>';
 
     container.innerHTML = `<div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-            <h3>Keranjang ${no}${basket?' — Baris '+basket.baris+' Slot '+basket.slot+' ('+basket.section+')':''}</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3>Keranjang ${no}${basket?' — '+basket.section+' '+basket.baris+' Slot '+basket.slot:''}</h3>
             <button class="btn btn-outline btn-sm" onclick="renderDashboard()">← Denah</button>
         </div>
-        <p style="margin-bottom:12px;">Total item: ${count}/5</p>
+        <p style="color:#64748b;margin-bottom:12px;">Total item: <strong>${count}/5</strong></p>
         ${itemsHtml}
     </div>`;
 }
 
-function renderMoveForm(fromNo, fromIdx) {
-    const sections = Object.keys(currentSections());
-    const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
+function buildMoveForm(fromNo, fromIdx) {
+    const secs = Object.keys(currentSections());
+    const secOpts = secs.map(s => `<option value="${s}">${s}</option>`).join('');
     return `<div class="move-form" onclick="event.stopPropagation();">
-        <select id="moveSection" onchange="updateMoveBaris()">${sectionOpts}</select>
-        <select id="moveBaris" onchange="updateMoveKeranjang()"><option>-- Baris --</option></select>
-        <select id="moveKeranjang"><option>-- Keranjang --</option></select>
-        <button class="btn btn-sm btn-primary" onclick="pindahkanItem(${fromNo}, ${fromIdx})">Pindahkan</button>
+        <span style="font-size:0.75rem;font-weight:600;color:#1d4ed8;">Pindah ke:</span>
+        <select id="moveSection" onchange="updateMoveBaris()" style="font-size:0.8rem;">${secOpts}</select>
+        <select id="moveBaris" onchange="updateMoveKeranjang()" style="font-size:0.8rem;"><option value="">-- Baris --</option></select>
+        <select id="moveKeranjang" style="font-size:0.8rem;"><option value="">-- Keranjang --</option></select>
+        <button class="btn btn-sm btn-primary" onclick="pindahkanItem(${fromNo},${fromIdx})">✓ Pindah</button>
     </div>`;
 }
-
 function updateMoveBaris() {
     const sec = document.getElementById('moveSection')?.value;
-    const barisSel = document.getElementById('moveBaris');
-    if (!barisSel) return;
-    barisSel.innerHTML = '<option value="">-- Baris --</option>';
-    if (!sec) return;
-    const barisObj = currentSections()[sec] || {};
-    Object.keys(barisObj).forEach((baris, idx) => {
-        const label = `${sec} ${String(idx+1).padStart(2,'0')}`;
-        barisSel.innerHTML += `<option value="${baris}">${label}</option>`;
+    const bSel = document.getElementById('moveBaris');
+    if (!bSel) return;
+    bSel.innerHTML = '<option value="">-- Baris --</option>';
+    Object.keys(currentSections()[sec] || {}).forEach((baris, idx) => {
+        bSel.innerHTML += `<option value="${baris}">${sec} ${String(idx+1).padStart(2,'0')}</option>`;
     });
     updateMoveKeranjang();
 }
-
 function updateMoveKeranjang() {
     const sec = document.getElementById('moveSection')?.value;
     const baris = document.getElementById('moveBaris')?.value;
-    const kerSel = document.getElementById('moveKeranjang');
-    if (!kerSel) return;
-    kerSel.innerHTML = '<option value="">-- Keranjang --</option>';
+    const kSel = document.getElementById('moveKeranjang');
+    if (!kSel) return;
+    kSel.innerHTML = '<option value="">-- Keranjang --</option>';
     if (!sec || !baris) return;
-    const slots = currentSections()[sec][baris];
-    if (slots) {
-        slots.forEach((no, idx) => {
-            if (no === null) return;
-            const c = itemCount(no);
-            const disabled = c >= 5 ? 'disabled' : '';
-            kerSel.innerHTML += `<option value="${no}" ${disabled}>Keranjang ${no} (Slot ${idx+1}) ${c}/5</option>`;
-        });
-    }
+    (currentSections()[sec]?.[baris] || []).forEach((no, idx) => {
+        if (no === null) return;
+        const c = itemCount(no);
+        const dis = c >= 5 ? 'disabled' : '';
+        kSel.innerHTML += `<option value="${no}" ${dis}>Slot ${idx+1} · No.${no} (${c}/5)${c>=5?' PENUH':''}</option>`;
+    });
 }
-
 function pindahkanItem(fromNo, fromIdx) {
     const toNo = parseInt(document.getElementById('moveKeranjang')?.value);
     if (!toNo) return showToast('Pilih keranjang tujuan.');
@@ -504,83 +658,141 @@ function pindahkanItem(fromNo, fromIdx) {
     if (itemCount(toNo) >= 5) return showToast('Keranjang tujuan sudah penuh.');
     const fromBasket = currentBaskets()[fromNo];
     if (!fromBasket || !fromBasket.items[fromIdx]) return;
-    const item = fromBasket.items[fromIdx];
-    fromBasket.items.splice(fromIdx, 1);
-    if (!currentBaskets()[toNo]) {
-        currentBaskets()[toNo] = { section: currentBaskets()[toNo]?.section || '', items: [] };
-    }
+    const item = fromBasket.items.splice(fromIdx, 1)[0];
+    if (!currentBaskets()[toNo]) currentBaskets()[toNo] = { section:'', baris:'', items:[] };
     currentBaskets()[toNo].items.push(item);
-    logTransaction('move', { nama: item.nama, qty: item.qty, jenis: item.jenis, dari: fromNo, ke: toNo });
+    logTransaction('move', { nama:item.nama, qty:item.qty, jenis:item.jenis, dari:fromNo, ke:toNo });
     saveToFirestore();
     showToast('✅ Barang dipindahkan.');
     showBasketDetail(fromNo);
 }
-
 function keluarkanItem(no, idx) {
-    const basket = currentBaskets()[no]; if (!basket) return;
+    const basket = currentBaskets()[no];
+    if (!basket) return;
     const item = basket.items[idx];
     if (confirm(`Keluarkan "${item.nama}" dari keranjang ${no}?`)) {
         basket.items.splice(idx, 1);
         logTransaction('out', { nama:item.nama, qty:item.qty, jenis:item.jenis, keranjang:no, section:basket.section });
-        saveToFirestore(); showToast('✅ Barang dikeluarkan'); showBasketDetail(no);
+        saveToFirestore();
+        showToast('✅ Barang dikeluarkan');
+        showBasketDetail(no);
     }
 }
 
-// ─── INPUT BARANG ───
+// ══════════════════════════════════════════════
+//  BARANG MASUK
+//  Pengguna bisa masukkan nomor keranjang baru
+//  langsung di form ini (tidak harus via Atur)
+// ══════════════════════════════════════════════
 function renderInputForm() {
-    const sectionOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
-    container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3>
+    const sectionOpt = Object.keys(currentSections())
+        .map(s => `<option value="${s}">${s}</option>`).join('');
+    container.innerHTML = `
+    <div class="card">
+        <h3>📥 Barang Masuk</h3>
         <form id="inForm" onsubmit="submitIn(event)">
-            <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
+            <div class="form-group">
+                <label>Nama Barang</label>
+                <input type="text" id="inNama" list="namaList" required>
+                <datalist id="namaList"></datalist>
+            </div>
             <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="3 Pack" required></div>
-            <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
+            <div class="form-group">
+                <label>Jenis</label>
+                <select id="inJenis">
+                    <option value="IIP">IIP</option>
+                    <option value="RM">RM</option>
+                    <option value="TH">TH</option>
+                </select>
+            </div>
             <div class="form-group"><label>Tanggal Exp (opsional)</label><input type="date" id="inExpDate"></div>
             <div class="form-group"><label>Estimasi Keluar (opsional)</label><input type="date" id="inEstOutDate"></div>
-            <div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select></div>
-            <div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateKeranjangSelect()"><option value="">-- Pilih --</option></select></div>
-            <div class="form-group"><label>Keranjang</label><select id="inKeranjang"><option value="">-- Otomatis --</option></select></div>
+            <div class="form-group">
+                <label>Section</label>
+                <select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select>
+            </div>
+            <div class="form-group">
+                <label>Baris (Kotak)</label>
+                <select id="inBaris" onchange="updateKeranjangSelect()"><option value="">-- Pilih --</option></select>
+            </div>
+            <div class="form-group">
+                <label>Keranjang</label>
+                <select id="inKeranjang" onchange="onKeranjangChange()">
+                    <option value="">-- Otomatis (cari tersedia) --</option>
+                </select>
+            </div>
+            <!-- Tampil jika pilih "Masukkan Nomor Baru" -->
+            <div id="newKeranjangDiv" style="display:none;">
+                <div class="form-group">
+                    <label>🆕 Nomor Keranjang Baru</label>
+                    <input type="number" id="inNewNo" placeholder="Masukkan nomor keranjang (mis: 42)" min="1">
+                    <small style="color:#64748b;font-size:0.75rem;display:block;margin-top:4px;">
+                        Nomor ini akan ditempatkan di slot kosong pada baris yang dipilih.
+                    </small>
+                </div>
+            </div>
             <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
-        </form></div>`;
+        </form>
+    </div>`;
     updateBarisSelect();
     updateNamaDatalist();
 }
 
 function updateBarisSelect() {
     const section = document.getElementById('inSection')?.value;
-    const barisSelect = document.getElementById('inBaris');
-    if (!barisSelect) return;
-    barisSelect.innerHTML = '<option value="">-- Pilih --</option>';
+    const barisSel = document.getElementById('inBaris');
+    const kerSel   = document.getElementById('inKeranjang');
+    const newDiv   = document.getElementById('newKeranjangDiv');
+    if (!barisSel) return;
+    barisSel.innerHTML = '<option value="">-- Pilih --</option>';
+    if (newDiv) newDiv.style.display = 'none';
+    if (kerSel) { kerSel.innerHTML = '<option value="">-- Otomatis --</option>'; }
     if (section) {
         const barisObj = currentSections()[section] || {};
         Object.keys(barisObj).forEach((baris, idx) => {
-            const label = `${section} ${String(idx+1).padStart(2,'0')}`;
-            barisSelect.innerHTML += `<option value="${baris}">${label}</option>`;
+            const lbl = `${section} ${String(idx+1).padStart(2,'0')}`;
+            barisSel.innerHTML += `<option value="${baris}">${lbl}</option>`;
         });
-        if (Object.keys(barisObj).length > 0) {
-            barisSelect.value = Object.keys(barisObj)[0];
-            updateKeranjangSelect();
-        }
-    } else {
-        document.getElementById('inKeranjang').innerHTML = '<option value="">-- Otomatis --</option>';
+        const first = Object.keys(barisObj)[0];
+        if (first) { barisSel.value = first; updateKeranjangSelect(); }
     }
 }
 
 function updateKeranjangSelect() {
     const section = document.getElementById('inSection')?.value;
-    const baris = document.getElementById('inBaris')?.value;
-    const select = document.getElementById('inKeranjang');
+    const baris   = document.getElementById('inBaris')?.value;
+    const select  = document.getElementById('inKeranjang');
+    const newDiv  = document.getElementById('newKeranjangDiv');
     if (!select) return;
-    select.innerHTML = '<option value="">-- Otomatis --</option>';
-    if (section && baris) {
-        const slots = currentSections()[section][baris];
-        if (slots) {
-            slots.forEach((no, idx) => {
-                if (no === null) return;
-                const c = itemCount(no);
-                select.innerHTML += `<option value="${no}" ${c>=5?'disabled':''}>Slot ${idx+1} - ${no} (${c}/5)${c>=5?' PENUH':''}</option>`;
-            });
+    if (newDiv) newDiv.style.display = 'none';
+    select.innerHTML = '<option value="">-- Otomatis (cari tersedia) --</option>';
+    if (!section || !baris) return;
+    const slots = currentSections()[section]?.[baris] || [];
+    let hasEmpty = false;
+    slots.forEach((no, idx) => {
+        if (no !== null) {
+            const c = itemCount(no);
+            const opt = document.createElement('option');
+            opt.value = no;
+            opt.textContent = `Slot ${idx+1} · No.${no} (${c}/5)${c>=5?' PENUH':''}`;
+            if (c >= 5) opt.disabled = true;
+            select.appendChild(opt);
+        } else {
+            hasEmpty = true;
         }
+    });
+    if (hasEmpty) {
+        const opt = document.createElement('option');
+        opt.value = 'new';
+        opt.textContent = '📝 Masukkan Nomor Keranjang Baru (slot kosong tersedia)';
+        select.appendChild(opt);
     }
+}
+
+function onKeranjangChange() {
+    const val = document.getElementById('inKeranjang')?.value;
+    const newDiv = document.getElementById('newKeranjangDiv');
+    if (newDiv) newDiv.style.display = (val === 'new') ? 'block' : 'none';
 }
 
 function updateNamaDatalist() {
@@ -592,145 +804,411 @@ function updateNamaDatalist() {
 
 function submitIn(e) {
     e.preventDefault();
-    const nama=document.getElementById('inNama').value.trim(), qty=document.getElementById('inQty').value.trim();
-    const jenis=document.getElementById('inJenis').value, expDate=document.getElementById('inExpDate').value;
-    const estOutDate=document.getElementById('inEstOutDate').value, section=document.getElementById('inSection').value;
-    const baris=document.getElementById('inBaris').value;
-    let keranjang=document.getElementById('inKeranjang').value;
-    if (!nama||!qty) return showToast('Lengkapi data!');
-    if (!baris) return showToast('Pilih Baris terlebih dahulu.');
-    if (!keranjang) {
-        const slots = currentSections()[section][baris];
-        if (!slots) return showToast('Baris tidak ditemukan.');
+    const nama       = document.getElementById('inNama').value.trim();
+    const qty        = document.getElementById('inQty').value.trim();
+    const jenis      = document.getElementById('inJenis').value;
+    const expDate    = document.getElementById('inExpDate').value;
+    const estOutDate = document.getElementById('inEstOutDate').value;
+    const section    = document.getElementById('inSection').value;
+    const baris      = document.getElementById('inBaris').value;
+    let keranjang    = document.getElementById('inKeranjang').value;
+
+    if (!nama || !qty) return showToast('Lengkapi nama dan jumlah!');
+    if (!baris) return showToast('Pilih baris terlebih dahulu.');
+
+    const barisSlots = currentSections()[section]?.[baris];
+    if (!barisSlots) return showToast('Baris tidak ditemukan.');
+
+    // === KASUS: Masukkan Nomor Keranjang Baru ===
+    if (keranjang === 'new') {
+        const newNo = parseInt(document.getElementById('inNewNo')?.value);
+        if (!newNo || newNo <= 0) return showToast('Masukkan nomor keranjang yang valid!');
+
+        // Cek duplikat di seluruh section & area
+        for (const barisObj of Object.values(currentSections()))
+            for (const slots of Object.values(barisObj))
+                if (slots.includes(newNo)) return showToast(`Nomor ${newNo} sudah digunakan.`);
+
+        // Tempatkan di slot kosong pertama
+        const emptyIdx = barisSlots.findIndex(s => s === null);
+        if (emptyIdx === -1) return showToast('Tidak ada slot kosong di baris ini.');
+
+        barisSlots[emptyIdx] = newNo;
+        currentBaskets()[newNo] = { section, baris, slot: emptyIdx+1, items: [] };
+        keranjang = newNo;
+
+    // === KASUS: Otomatis — cari keranjang yang tersedia ===
+    } else if (!keranjang) {
         let bestNo = null, bestCount = Infinity;
-        for (const no of slots) {
+        for (const no of barisSlots) {
             if (no === null) continue;
             const c = itemCount(no);
             if (c < 5 && c < bestCount) { bestCount = c; bestNo = no; }
         }
-        if (bestNo === null) return showToast(`Semua keranjang di baris ini penuh.`);
+        if (bestNo === null) return showToast('Tidak ada keranjang tersedia di baris ini.');
         keranjang = bestNo;
     }
+
     const no = parseInt(keranjang);
     if (itemCount(no) >= 5) return showToast('Keranjang sudah penuh (5 item).');
-    if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, items:[] };
+    if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, items: [] };
+
     const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
-    if (expDate) item.expDate = expDate;
+    if (expDate)    item.expDate    = expDate;
     if (estOutDate) item.estOutDate = estOutDate;
+
     currentBaskets()[no].items.push(item);
     logTransaction('in', { nama, qty, jenis, keranjang:no, section, baris, expDate, estOutDate });
-    saveToFirestore(); showToast('✅ Barang masuk'); renderInputForm();
+    saveToFirestore();
+    showToast('✅ Barang masuk ke keranjang ' + no);
+    renderInputForm();
 }
 
-// ─── RIWAYAT ───
+// ══════════════════════════════════════════════
+//  RIWAYAT — dengan badge warna untuk
+//  membedakan Masuk / Keluar / Pindah
+// ══════════════════════════════════════════════
 function renderHistory() {
-    const list=currentTransactions().slice(0,100).map(t=>`<div class="item-row"><div>${t.type==='in'?'📥':t.type==='move'?'🔄':'📤'} <strong>${t.detail.nama}</strong> (${t.detail.qty})<br><small>${new Date(t.timestamp).toLocaleString('id-ID')} | ${t.detail.section||''} | ${t.user}</small></div></div>`).join('');
-    container.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📋 Riwayat</h3><button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button></div>${list||'<div class="empty-state">Belum ada aktivitas</div>'}</div>`;
+    const badgeCfg = {
+        'in':   { lbl:'📥 Masuk',  cls:'hist-in',   border:'#16a34a' },
+        'out':  { lbl:'📤 Keluar', cls:'hist-out',  border:'#dc2626' },
+        'move': { lbl:'🔄 Pindah', cls:'hist-move', border:'#2563eb' }
+    };
+
+    const list = currentTransactions().slice(0,100).map(t => {
+        const cfg  = badgeCfg[t.type] || badgeCfg['out'];
+        const d    = t.detail;
+        const info = t.type === 'move'
+            ? `Dari keranjang <strong>${d.dari}</strong> → keranjang <strong>${d.ke}</strong>`
+            : `Keranjang <strong>${d.keranjang||''}</strong> | ${d.section||''} ${d.baris?'Baris '+d.baris:''}`;
+        return `<div class="item-row" style="border-left:4px solid ${cfg.border};">
+            <div style="flex:1;">
+                <span class="hist-badge ${cfg.cls}">${cfg.lbl}</span>
+                &nbsp;<strong>${d.nama||''}</strong> ${d.qty?'('+d.qty+')':''}
+                <br><small style="color:#64748b;">${new Date(t.timestamp).toLocaleString('id-ID')} | ${info} | ${t.user}</small>
+            </div>
+        </div>`;
+    }).join('');
+
+    const legend = `<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <span class="hist-badge hist-in">📥 Masuk</span>
+        <span class="hist-badge hist-out">📤 Keluar</span>
+        <span class="hist-badge hist-move">🔄 Pindah</span>
+    </div>`;
+
+    container.innerHTML = `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3>📋 Riwayat</h3>
+            <button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button>
+        </div>
+        ${legend}
+        ${list || '<div class="empty-state">Belum ada aktivitas</div>'}
+    </div>`;
 }
 
-// ─── REKAP & DOWNLOAD ───
+// ══════════════════════════════════════════════
+//  REKAP BULANAN & TAHUNAN
+// ══════════════════════════════════════════════
 function renderRekap() {
-    const BULAN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-    const trx=currentTransactions(); const nowYear=new Date().getFullYear();
-    const yearsSet=new Set(trx.map(t=>new Date(t.timestamp).getFullYear()));
-    const years=[...yearsSet].sort((a,b)=>b-a);
-    const selYear=parseInt(document.getElementById('rekapYearFilter')?.value||nowYear);
-    let totalIn=0,totalOut=0; trx.forEach(t=>t.type==='in'?totalIn++:totalOut++);
-    const statBoxes=`<div class="stat-grid"><div class="stat-box"><div class="val">${totalIn}</div><div class="lbl">Total Masuk</div></div><div class="stat-box out"><div class="val">${totalOut}</div><div class="lbl">Total Keluar</div></div></div>`;
-    const modeTabs=`<div class="rekap-tabs"><button class="rekap-tab ${rekapMode==='bulanan'?'active':''}" onclick="rekapMode='bulanan';renderRekap()">📅 Bulanan</button><button class="rekap-tab ${rekapMode==='tahunan'?'active':''}" onclick="rekapMode='tahunan';renderRekap()">📆 Tahunan</button></div>`;
-    if (rekapMode==='bulanan') {
-        const monthData={};
-        trx.forEach(t=>{const d=new Date(t.timestamp);if(d.getFullYear()!==selYear)return;const m=d.getMonth();if(!monthData[m])monthData[m]={in:0,out:0,bySection:{}};monthData[m][t.type]++;const sec=t.detail.section||'-';if(!monthData[m].bySection[sec])monthData[m].bySection[sec]={in:0,out:0};monthData[m].bySection[sec][t.type]++;});
-        let rows='';for(let m=0;m<12;m++){const md=monthData[m];if(!md)continue;const badges=Object.entries(md.bySection).map(([s,v])=>`<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');rows+=`<tr><td><strong>${BULAN[m]} ${selYear}</strong></td><td style="color:var(--primary);">+${md.in}</td><td style="color:var(--danger);">-${md.out}</td><td>${md.in-md.out>=0?'+':''}${md.in-md.out}</td><td>${badges}</td></tr>`;}
-        if(!rows) rows=`<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">Tidak ada data tahun ${selYear}</td></tr>`;
-        const yearOpts=years.map(y=>`<option value="${y}" ${y===selYear?'selected':''}>${y}</option>`).join('')||`<option value="${nowYear}">${nowYear}</option>`;
-        container.innerHTML=`<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${statBoxes}${modeTabs}<div class="filter-row"><label>Tahun: <select id="rekapYearFilter" onchange="renderRekap()">${yearOpts}</select></label><button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button></div><div style="overflow-x:auto;"><table class="rekap-table"><thead><tr><th>Bulan</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const trx = currentTransactions(), nowYear = new Date().getFullYear();
+    const years = [...new Set(trx.map(t => new Date(t.timestamp).getFullYear()))].sort((a,b)=>b-a);
+    const selYear = parseInt(document.getElementById('rekapYearFilter')?.value || nowYear);
+    let totalIn = 0, totalOut = 0;
+    trx.forEach(t => { if(t.type==='in') totalIn++; else if(t.type==='out') totalOut++; });
+    const statBoxes = `<div class="stat-grid">
+        <div class="stat-box"><div class="val">${totalIn}</div><div class="lbl">Total Masuk</div></div>
+        <div class="stat-box out"><div class="val">${totalOut}</div><div class="lbl">Total Keluar</div></div>
+    </div>`;
+    const modeTabs = `<div class="rekap-tabs">
+        <button class="rekap-tab ${rekapMode==='bulanan'?'active':''}" onclick="rekapMode='bulanan';renderRekap()">📅 Bulanan</button>
+        <button class="rekap-tab ${rekapMode==='tahunan'?'active':''}" onclick="rekapMode='tahunan';renderRekap()">📆 Tahunan</button>
+    </div>`;
+
+    if (rekapMode === 'bulanan') {
+        const monthData = {};
+        trx.forEach(t => {
+            const d = new Date(t.timestamp);
+            if (d.getFullYear() !== selYear) return;
+            const m = d.getMonth();
+            if (!monthData[m]) monthData[m] = { in:0, out:0, bySection:{} };
+            if (t.type === 'in')  monthData[m].in++;
+            if (t.type === 'out') monthData[m].out++;
+            const sec = t.detail.section || '-';
+            if (!monthData[m].bySection[sec]) monthData[m].bySection[sec] = { in:0, out:0 };
+            if (t.type === 'in')  monthData[m].bySection[sec].in++;
+            if (t.type === 'out') monthData[m].bySection[sec].out++;
+        });
+        let rows = '';
+        for (let m = 0; m < 12; m++) {
+            const md = monthData[m]; if (!md) continue;
+            const badges = Object.entries(md.bySection)
+                .map(([s,v]) => `<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');
+            rows += `<tr>
+                <td><strong>${BULAN[m]} ${selYear}</strong></td>
+                <td style="color:var(--primary);">+${md.in}</td>
+                <td style="color:var(--danger);">-${md.out}</td>
+                <td>${md.in-md.out>=0?'+':''}${md.in-md.out}</td>
+                <td>${badges}</td>
+            </tr>`;
+        }
+        if (!rows) rows = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">Tidak ada data tahun ${selYear}</td></tr>`;
+        const yearOpts = years.map(y=>`<option value="${y}" ${y===selYear?'selected':''}>${y}</option>`).join('')
+            || `<option value="${nowYear}">${nowYear}</option>`;
+        container.innerHTML = `<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>
+            ${statBoxes}${modeTabs}
+            <div class="filter-row">
+                <label>Tahun: <select id="rekapYearFilter" onchange="renderRekap()">${yearOpts}</select></label>
+                <button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button>
+            </div>
+            <div style="overflow-x:auto;"><table class="rekap-table">
+                <thead><tr><th>Bulan</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div></div>`;
     } else {
-        const yearData={};
-        trx.forEach(t=>{const y=new Date(t.timestamp).getFullYear();if(!yearData[y])yearData[y]={in:0,out:0,bySection:{}};yearData[y][t.type]++;const sec=t.detail.section||'-';if(!yearData[y].bySection[sec])yearData[y].bySection[sec]={in:0,out:0};yearData[y].bySection[sec][t.type]++;});
-        let rows='';[...Object.keys(yearData)].sort((a,b)=>b-a).forEach(y=>{const yd=yearData[y];const badges=Object.entries(yd.bySection).map(([s,v])=>`<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');rows+=`<tr><td><strong>${y}</strong></td><td style="color:var(--primary);">+${yd.in}</td><td style="color:var(--danger);">-${yd.out}</td><td>${yd.in-yd.out>=0?'+':''}${yd.in-yd.out}</td><td>${badges}</td></tr>`;});
-        if(!rows) rows=`<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">Belum ada data</td></tr>`;
-        container.innerHTML=`<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${statBoxes}${modeTabs}<div class="filter-row"><button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button></div><div style="overflow-x:auto;"><table class="rekap-table"><thead><tr><th>Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+        const yearData = {};
+        trx.forEach(t => {
+            const y = new Date(t.timestamp).getFullYear();
+            if (!yearData[y]) yearData[y] = { in:0, out:0, bySection:{} };
+            if (t.type==='in')  yearData[y].in++;
+            if (t.type==='out') yearData[y].out++;
+            const sec = t.detail.section || '-';
+            if (!yearData[y].bySection[sec]) yearData[y].bySection[sec] = { in:0, out:0 };
+            if (t.type==='in')  yearData[y].bySection[sec].in++;
+            if (t.type==='out') yearData[y].bySection[sec].out++;
+        });
+        let rows = '';
+        [...Object.keys(yearData)].sort((a,b)=>b-a).forEach(y => {
+            const yd = yearData[y];
+            const badges = Object.entries(yd.bySection)
+                .map(([s,v])=>`<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');
+            rows += `<tr>
+                <td><strong>${y}</strong></td>
+                <td style="color:var(--primary);">+${yd.in}</td>
+                <td style="color:var(--danger);">-${yd.out}</td>
+                <td>${yd.in-yd.out>=0?'+':''}${yd.in-yd.out}</td>
+                <td>${badges}</td>
+            </tr>`;
+        });
+        if (!rows) rows = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">Belum ada data</td></tr>`;
+        container.innerHTML = `<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>
+            ${statBoxes}${modeTabs}
+            <div class="filter-row">
+                <button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button>
+            </div>
+            <div style="overflow-x:auto;"><table class="rekap-table">
+                <thead><tr><th>Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div></div>`;
     }
 }
 
-function downloadExcel() {
-    const trx = currentTransactions(); if (!trx.length) return showToast('Tidak ada data');
-    let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Riwayat — ${currentArea.toUpperCase()}</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th><th>Jenis Brg</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est Out</th></tr>`;
-    trx.forEach(t => { const d = t.detail; h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type==='in'?'Masuk':t.type==='move'?'Pindah':'Keluar'}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.estOutDate||''}</td></tr>`; });
-    h += '</table></body></html>'; _dlBlob(h, `riwayat_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);
-}
-function downloadRekapExcel() { /* sama seperti sebelumnya, tidak diubah */ }
-function _dlBlob(html, filename) {
-    const blob = new Blob([html], { type:'application/vnd.ms-excel;charset=utf-8;' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
-}
-
-// ─── MANAGE (ADMIN ONLY) ───
+// ══════════════════════════════════════════════
+//  ATUR NOMOR KERANJANG
+//  Semua user: isi/hapus slot
+//  Admin only: tambah baris baru, reset data
+// ══════════════════════════════════════════════
 function renderManageBaskets() {
-    if (!isAdmin()) {
-        container.innerHTML = '<div class="card"><h3>⚙️ Atur Nomor Keranjang</h3><p style="color:#ef4444; font-weight:600;">🔒 Hanya admin yang dapat mengedit struktur kotak/baris.</p></div>';
-        return;
-    }
-    let html = '<div class="card"><h3>⚙️ Atur Slot Keranjang</h3>';
+    const admin = isAdmin();
+    let html = `<div class="card">
+        <h3>⚙️ Atur Nomor Keranjang</h3>
+        <p style="color:#64748b;font-size:0.82rem;margin-bottom:16px;">
+            Klik <strong>Isi</strong> untuk memasukkan nomor keranjang ke slot kosong.
+            Nomor yang sudah terisi hanya bisa dihapus jika keranjang kosong (0 item).
+            ${admin ? '<br>🔑 Admin: dapat tambah baris baru & reset data.' : ''}
+        </p>`;
+
     for (const [section, barisObj] of Object.entries(currentSections())) {
-        html += `<div style="margin-bottom:20px;"><strong>📍 ${section}</strong>`;
-        for (const [baris, slots] of Object.entries(barisObj)) {
-            html += `<div style="margin-left:8px;margin-bottom:10px;"><span class="baris-label">📌 Baris ${baris}</span>`;
+        html += `<div style="margin-bottom:20px;padding:12px;background:#f8fafc;border-radius:14px;border:1px solid #e2e8f0;">
+            <div style="font-weight:700;font-size:0.95rem;margin-bottom:10px;color:#1e293b;">📍 ${section}</div>`;
+
+        Object.entries(barisObj).forEach(([baris, slots], barisIdx) => {
+            const lbl = `${section} ${String(barisIdx+1).padStart(2,'0')}`;
+            html += `<div style="margin-bottom:12px;">
+                <span class="baris-label">📌 ${lbl}</span>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;">`;
+
             for (let i = 0; i < 5; i++) {
                 const no = slots[i];
-                if (no) {
+                if (no !== null) {
                     const cnt = itemCount(no);
-                    html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;">
-                        <span class="chip">Slot ${i+1}: ${no} (${cnt}/5)
-                            <span style="cursor:pointer;color:red;margin-left:4px;" onclick="clearSlot('${section}','${baris}',${i})">✕</span>
-                        </span></div>`;
+                    const canDel = cnt === 0;
+                    html += `<div style="background:${canDel?'#fef3c7':'#e2e8f0'};border:1px solid ${canDel?'#d97706':'#cbd5e1'};border-radius:10px;padding:5px 10px;display:flex;align-items:center;gap:6px;font-size:0.82rem;">
+                        <span style="color:#475569;">S${i+1}</span>
+                        <strong>${no}</strong>
+                        <span style="color:#64748b;font-size:0.75rem;">${cnt}/5</span>
+                        ${canDel
+                            ? `<span style="cursor:pointer;color:#ef4444;font-size:1rem;font-weight:bold;" onclick="clearSlot('${section}','${baris}',${i})" title="Hapus nomor ini">✕</span>`
+                            : `<span title="Keranjang berisi, tidak bisa dihapus" style="cursor:not-allowed;">🔒</span>`
+                        }
+                    </div>`;
                 } else {
-                    html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;">
-                        <span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span>
-                        <input type="number" id="inp_${section}_${baris}_${i}" placeholder="No" style="width:80px;padding:4px;">
-                        <button class="btn btn-sm btn-primary" onclick="fillSlot('${section}','${baris}',${i})">Isi</button></div>`;
+                    html += `<div style="display:flex;align-items:center;gap:4px;background:#fff;border:1px dashed #cbd5e1;border-radius:10px;padding:5px 8px;">
+                        <span style="font-size:0.72rem;color:#94a3b8;">S${i+1}:</span>
+                        <input type="number" id="inp_${section}_${baris}_${i}" placeholder="No." min="1"
+                            style="width:60px;padding:4px 6px;font-size:0.82rem;border:none;background:transparent;outline:none;">
+                        <button class="btn btn-sm btn-primary" style="padding:4px 8px;font-size:0.72rem;"
+                            onclick="fillSlot('${section}','${baris}',${i})">Isi</button>
+                    </div>`;
                 }
             }
-            html += `</div>`;
+            html += `</div></div>`;
+        });
+
+        if (admin) {
+            html += `<button class="btn btn-sm btn-outline" onclick="addBaris('${section}')">
+                ➕ Tambah Baris Baru di ${section}
+            </button>`;
         }
-        html += `<div><button class="btn btn-sm btn-outline" onclick="addBaris('${section}')">➕ Tambah Baris Baru</button></div></div>`;
+        html += `</div>`;
+    }
+
+    if (admin) {
+        html += `<button class="reset-btn" onclick="resetAllData()">
+            <i class="fas fa-exclamation-triangle"></i> Reset Semua Data & Nomor Keranjang (Admin Only)
+        </button>`;
     }
     html += '</div>';
     container.innerHTML = html;
 }
+
+// Hapus nomor dari slot (semua user, jika keranjang kosong)
 window.clearSlot = function(section, baris, idx) {
-    if (!isAdmin()) return showToast('⚠️ Hanya admin.');
-    const slots = currentSections()[section][baris];
+    const slots = currentSections()[section]?.[baris];
+    if (!slots) return showToast('Slot tidak ditemukan.');
     const no = slots[idx];
-    if (no && itemCount(no) > 0) return showToast(`Keranjang ${no} masih berisi.`);
-    if (!confirm(`Kosongkan slot ${idx+1}?`)) return;
-    if (no && currentBaskets()[no]) delete currentBaskets()[no];
+    if (no === null) return showToast('Slot sudah kosong.');
+    if (itemCount(no) > 0) return showToast(`Keranjang ${no} masih berisi ${itemCount(no)} item. Keluarkan dulu semua barangnya.`);
+    if (!confirm(`Hapus nomor keranjang ${no} dari ${section} ${baris} slot ${idx+1}?`)) return;
+    if (currentBaskets()[no]) delete currentBaskets()[no];
     slots[idx] = null;
-    saveToFirestore(); renderManageBaskets(); showToast('✅ Slot dikosongkan.');
+    saveToFirestore();
+    renderManageBaskets();
+    showToast(`✅ Keranjang ${no} dihapus dari slot.`);
 };
+
+// Isi slot kosong dengan nomor keranjang (semua user)
 window.fillSlot = function(section, baris, idx) {
-    if (!isAdmin()) return showToast('⚠️ Hanya admin.');
     const input = document.getElementById(`inp_${section}_${baris}_${idx}`);
     if (!input) return;
     const no = parseInt(input.value);
     if (isNaN(no) || no <= 0) return showToast('Nomor tidak valid.');
-    for (const [sec, barisObj] of Object.entries(currentSections()))
+
+    // Cek duplikat
+    for (const barisObj of Object.values(currentSections()))
         for (const slots of Object.values(barisObj))
-            if (slots.includes(no)) return showToast(`Nomor ${no} sudah digunakan di ${sec}.`);
-    currentSections()[section][baris][idx] = no;
-    if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, slot: idx+1, items: [] };
+            if (slots.includes(no)) return showToast(`Nomor ${no} sudah digunakan.`);
+
+    const slots = currentSections()[section]?.[baris];
+    if (!slots) return showToast('Baris tidak ditemukan.');
+    if (slots[idx] !== null) return showToast('Slot ini sudah terisi.');
+
+    slots[idx] = no;
+    if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, slot:idx+1, items:[] };
     else { currentBaskets()[no].section = section; currentBaskets()[no].baris = baris; currentBaskets()[no].slot = idx+1; }
-    saveToFirestore(); input.value = ''; renderManageBaskets(); showToast(`✅ Keranjang ${no} ditempatkan.`);
+
+    saveToFirestore();
+    input.value = '';
+    renderManageBaskets();
+    showToast(`✅ Keranjang ${no} ditempatkan di ${section} ${baris} slot ${idx+1}.`);
 };
+
+// Tambah baris baru (admin only)
 function addBaris(section) {
-    if (!isAdmin()) return showToast('⚠️ Hanya admin.');
-    const barisObj = currentSections()[section];
+    if (!isAdmin()) return showToast('⚠️ Hanya admin yang dapat menambah baris baru.');
+    const barisObj  = currentSections()[section];
     const nextLabel = String.fromCharCode(65 + Object.keys(barisObj).length);
     barisObj[nextLabel] = [null,null,null,null,null];
-    saveToFirestore(); renderManageBaskets(); showToast(`✅ Baris ${nextLabel} ditambahkan.`);
+    saveToFirestore();
+    renderManageBaskets();
+    showToast(`✅ Baris ${nextLabel} ditambahkan ke ${section}.`);
 }
 
+// ══════════════════════════════════════════════
+//  DOWNLOAD EXCEL
+// ══════════════════════════════════════════════
+function downloadExcel() {
+    const trx = currentTransactions();
+    if (!trx.length) return showToast('Tidak ada data');
+    const jenisLabel = { in:'Masuk', out:'Keluar', move:'Pindah' };
+    let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+        <head><meta charset="UTF-8"></head><body>
+        <h2>Riwayat — ${currentArea.toUpperCase()}</h2>
+        <table border="1"><tr style="background:#2563eb;color:white;">
+        <th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th>
+        <th>Jenis Brg</th><th>Keranjang</th><th>Section</th>
+        <th>User</th><th>Exp</th><th>Est Out</th></tr>`;
+    trx.forEach(t => {
+        const d = t.detail;
+        const ker = t.type === 'move' ? `${d.dari}→${d.ke}` : (d.keranjang || '');
+        h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td>
+            <td>${jenisLabel[t.type]||t.type}</td>
+            <td>${d.nama||''}</td><td>${d.qty||''}</td>
+            <td>${d.jenis||''}</td><td>${ker}</td>
+            <td>${d.section||''}</td><td>${t.user}</td>
+            <td>${d.expDate||''}</td><td>${d.estOutDate||''}</td></tr>`;
+    });
+    h += '</table></body></html>';
+    _dlBlob(h, `riwayat_${currentArea}_${_today()}.xls`);
+}
+
+function downloadRekapExcel() {
+    const BULAN = ['Januari','Februari','Maret','April','Mei','Juni',
+                   'Juli','Agustus','September','Oktober','November','Desember'];
+    const trx = currentTransactions();
+    if (!trx.length) return showToast('Tidak ada data');
+    let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+        <head><meta charset="UTF-8"></head><body>`;
+
+    if (rekapMode === 'bulanan') {
+        const selYear = parseInt(document.getElementById('rekapYearFilter')?.value || new Date().getFullYear());
+        const md = {};
+        trx.forEach(t => {
+            const d = new Date(t.timestamp);
+            if (d.getFullYear() !== selYear) return;
+            const m = d.getMonth();
+            if (!md[m]) md[m] = { in:0, out:0 };
+            if (t.type==='in')  md[m].in++;
+            if (t.type==='out') md[m].out++;
+        });
+        h += `<h2>Rekap Bulanan ${selYear} — ${currentArea.toUpperCase()}</h2>
+            <table border="1"><tr style="background:#2563eb;color:white;">
+            <th>Bulan</th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>`;
+        for (let m = 0; m < 12; m++) {
+            const x = md[m] || { in:0, out:0 };
+            h += `<tr><td>${BULAN[m]} ${selYear}</td><td>${x.in}</td><td>${x.out}</td><td>${x.in-x.out}</td></tr>`;
+        }
+    } else {
+        const yd = {};
+        trx.forEach(t => {
+            const y = new Date(t.timestamp).getFullYear();
+            if (!yd[y]) yd[y] = { in:0, out:0 };
+            if (t.type==='in')  yd[y].in++;
+            if (t.type==='out') yd[y].out++;
+        });
+        h += `<h2>Rekap Tahunan — ${currentArea.toUpperCase()}</h2>
+            <table border="1"><tr style="background:#2563eb;color:white;">
+            <th>Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>`;
+        [...Object.keys(yd)].sort((a,b)=>b-a).forEach(y => {
+            h += `<tr><td>${y}</td><td>${yd[y].in}</td><td>${yd[y].out}</td><td>${yd[y].in-yd[y].out}</td></tr>`;
+        });
+    }
+    h += '</table></body></html>';
+    _dlBlob(h, `rekap_${rekapMode}_${currentArea}_${_today()}.xls`);
+}
+
+function _dlBlob(html, filename) {
+    const blob = new Blob([html], { type:'application/vnd.ms-excel;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+}
+function _today() { return new Date().toISOString().split('T')[0]; }
+
+// ══════════════════════════════════════════════
+//  TAB NAVIGATION
+// ══════════════════════════════════════════════
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function () {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
