@@ -1131,41 +1131,39 @@
         }
 
         function renderFrozenPlan() {
-            const adminBtn = isAdmin() ?
-                `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi</button>` :
-                '';
-            container.innerHTML = `
-            <div class="card" style="padding:12px;">
-                <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
-                <div class="fp-room" style="background:#e8f4f8;">
-                    <div class="frz-plan">
-                        <div class="frz-body">
-                            <div class="frz-left">
-                                <div class="boxes-row">${getSecBoxes('IMP')}</div>
-                                <div class="spacer">— Area Kosong —</div>
-                                <div class="boxes-row">${getSecBoxes('RTL')}</div>
-                                <div class="boxes-row">${getSecBoxes('NPL')}</div>
-                                <div class="spacer">— Area Kosong —</div>
-                                <div class="frz-bot">
-                                    <div class="boxes-row">${getSecBoxes('RDQ')}</div>
-                                    <div class="boxes-row">${getSecBoxes('MTPP')}</div>
-                                </div>
-                            </div>
-                            <div class="frz-right">
-                                <div class="spacer-box">Area Kosong</div>
-                                ${getSecBoxes('MI')}
-                            </div>
-                        </div>
+    const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
+    container.innerHTML = `
+    <div class="card" style="padding:12px;">
+        <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
+        <div class="fp-room" style="background:#e8f4f8;">
+            <div class="frz-plan">
+                <div class="frz-body">
+                    <!-- KOLOM KIRI -->
+                    <div class="frz-left">
+                        <div class="boxes-row">${getSecBoxes('IMP')}</div>
+                        <div class="spacer">— Area Kosong —</div>
+                        <div class="boxes-row">${getSecBoxes('RTL')}</div>
+                        <div class="spacer">— Area Kosong —</div>
+                        <div class="boxes-row">${getSecBoxes('NPL')}</div>
+                    </div>
+                    <!-- KOLOM KANAN -->
+                    <div class="frz-right">
+                        <div class="boxes-row">${getSecBoxes('RDQ')}</div>
+                        <div class="boxes-row">${getSecBoxes('MTPP')}</div>
+                        <div class="spacer">— Area Kosong —</div>
+                        <div class="boxes-row">${getSecBoxes('MI')}</div>
                     </div>
                 </div>
-                <div class="fp-legend">
-                    <span>🟢 Tersedia</span>
-                    <span>🟠 Penuh (5/5)</span>
-                    <span>🔴 Expired / Est Lewat</span>
-                    <span>⚪ Kosong</span>
-                </div>
-                ${adminBtn}
-            </div>`;
+            </div>
+        </div>
+        <div class="fp-legend">
+            <span>🟢 Tersedia</span>
+            <span>🟠 Penuh (5/5)</span>
+            <span>🔴 Expired / Est Lewat</span>
+            <span>⚪ Kosong</span>
+        </div>
+        ${adminBtn}
+    </div>`;
         }
 
         function renderChillerPlan() {
