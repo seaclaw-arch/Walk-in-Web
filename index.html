@@ -1130,7 +1130,7 @@
             return Object.entries(barisObj).map(([b, slots], idx) => buildBarisBox(secName, idx, slots)).join('');
         }
 
-        function renderFrozenPlan() {
+     function renderFrozenPlan() {
     const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
     container.innerHTML = `
     <div class="card" style="padding:12px;">
@@ -1164,7 +1164,7 @@
         </div>
         ${adminBtn}
     </div>`;
-        }
+}
 
         function renderChillerPlan() {
             const stockBox =
