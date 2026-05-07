@@ -1874,6 +1874,11 @@
         // RESIZE SPACER
         
 function spacerResize(e, spacer, direction) {
+    if (!editMode) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
     const startX = e.clientX;
     const startY = e.clientY;
     const startWidth = spacer.offsetWidth;
@@ -1881,71 +1886,83 @@ function spacerResize(e, spacer, direction) {
     const isHorizontal = spacer.classList.contains('spacer-h');
 
     function onMouseMove(e) {
+        e.preventDefault();
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
 
-        // RESIZE TINGGI (ATAS & BAWAH) - berlaku untuk semua spacer
+        // RESIZE TINGGI (ATAS & BAWAH)
         if (direction.includes('bottom')) {
-            spacer.style.minHeight = Math.max(5, Math.min(600, startHeight + dy)) + 'px';
+            const newHeight = Math.max(5, Math.min(600, startHeight + dy));
+            spacer.style.minHeight = newHeight + 'px';
+            spacer.style.height = newHeight + 'px';
             if (!isHorizontal) {
-                spacer.style.height = Math.max(5, Math.min(600, startHeight + dy)) + 'px';
                 spacer.style.flex = 'none';
             }
         }
         if (direction.includes('top')) {
-            spacer.style.minHeight = Math.max(5, Math.min(600, startHeight - dy)) + 'px';
+            const newHeight = Math.max(5, Math.min(600, startHeight - dy));
+            spacer.style.minHeight = newHeight + 'px';
+            spacer.style.height = newHeight + 'px';
             if (!isHorizontal) {
-                spacer.style.height = Math.max(5, Math.min(600, startHeight - dy)) + 'px';
                 spacer.style.flex = 'none';
             }
         }
 
-        // RESIZE LEBAR (KIRI & KANAN) - berlaku untuk semua spacer
+        // RESIZE LEBAR (KIRI & KANAN)
         if (direction.includes('right')) {
-            spacer.style.minWidth = Math.max(5, Math.min(800, startWidth + dx)) + 'px';
+            const newWidth = Math.max(5, Math.min(800, startWidth + dx));
+            spacer.style.minWidth = newWidth + 'px';
+            spacer.style.width = newWidth + 'px';
             spacer.style.flex = 'none';
-            if (isHorizontal) {
-                spacer.style.width = Math.max(5, Math.min(800, startWidth + dx)) + 'px';
-            }
         }
         if (direction.includes('left')) {
-            spacer.style.minWidth = Math.max(5, Math.min(800, startWidth - dx)) + 'px';
+            const newWidth = Math.max(5, Math.min(800, startWidth - dx));
+            spacer.style.minWidth = newWidth + 'px';
+            spacer.style.width = newWidth + 'px';
             spacer.style.flex = 'none';
-            if (isHorizontal) {
-                spacer.style.width = Math.max(5, Math.min(800, startWidth - dx)) + 'px';
-            }
         }
     }
 
     function onMouseUp() {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
         showToast('✅ Spacer diubah.');
     }
 
+    document.body.style.cursor = spacer.classList.contains('spacer-h') ? 
+        (direction.includes('left') || direction.includes('right') ? 'ew-resize' : 'ns-resize') : 'move';
+    document.body.style.userSelect = 'none';
+    
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
 }
 
 // =============================================
-// FUNGSI INIT SPACER RESIZE - 8 HANDLE (SIAP PAKAI)
+// FUNGSI INIT SPACER RESIZE (FIXED)
 // =============================================
 
 function initSpacerResize(spacer) {
-    // Tambahkan 8 handle resize seperti box
-    if (!spacer.querySelector('.resize-handle-top-left')) {
-        spacer.innerHTML += `
-            <div class="resize-handle resize-handle-top"></div>
-            <div class="resize-handle resize-handle-bottom"></div>
-            <div class="resize-handle resize-handle-left"></div>
-            <div class="resize-handle resize-handle-right"></div>
-            <div class="resize-handle resize-handle-top-left"></div>
-            <div class="resize-handle resize-handle-top-right"></div>
-            <div class="resize-handle resize-handle-bottom-left"></div>
-            <div class="resize-handle resize-handle-bottom-right"></div>
-        `;
-    }
+    // Hapus handle lama jika ada
+    const oldHandles = spacer.querySelectorAll('.resize-handle');
+    oldHandles.forEach(h => h.remove());
 
+    // Tambahkan 8 handle resize
+    const handlesHTML = `
+        <div class="resize-handle resize-handle-top" style="position:absolute;width:100%;height:10px;top:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;"></div>
+        <div class="resize-handle resize-handle-bottom" style="position:absolute;width:100%;height:10px;bottom:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;"></div>
+        <div class="resize-handle resize-handle-left" style="position:absolute;width:10px;height:100%;left:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;"></div>
+        <div class="resize-handle resize-handle-right" style="position:absolute;width:10px;height:100%;right:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;"></div>
+        <div class="resize-handle resize-handle-top-left" style="position:absolute;width:14px;height:14px;top:-7px;left:-7px;cursor:nwse-resize;background:#2563eb;border-radius:3px;z-index:26;"></div>
+        <div class="resize-handle resize-handle-top-right" style="position:absolute;width:14px;height:14px;top:-7px;right:-7px;cursor:nesw-resize;background:#2563eb;border-radius:3px;z-index:26;"></div>
+        <div class="resize-handle resize-handle-bottom-left" style="position:absolute;width:14px;height:14px;bottom:-7px;left:-7px;cursor:nesw-resize;background:#2563eb;border-radius:3px;z-index:26;"></div>
+        <div class="resize-handle resize-handle-bottom-right" style="position:absolute;width:14px;height:14px;bottom:-7px;right:-7px;cursor:nwse-resize;background:#2563eb;border-radius:3px;z-index:26;"></div>
+    `;
+    
+    spacer.insertAdjacentHTML('beforeend', handlesHTML);
+
+    // Binding event untuk setiap handle
     const directions = [
         'top', 'right', 'bottom', 'left',
         'top-left', 'top-right', 'bottom-left', 'bottom-right'
@@ -1954,17 +1971,24 @@ function initSpacerResize(spacer) {
     directions.forEach(dir => {
         const handle = spacer.querySelector(`.resize-handle-${dir}`);
         if (handle) {
-            // Hapus event listener lama dengan clone
-            const newHandle = handle.cloneNode(true);
-            handle.parentNode.replaceChild(newHandle, handle);
-
-            newHandle.addEventListener('mousedown', function(e) {
+            handle.addEventListener('mousedown', function(e) {
                 if (!editMode) return;
                 e.preventDefault();
                 e.stopPropagation();
                 spacerResize(e, spacer, dir);
             });
         }
+    });
+}
+
+// =============================================
+// FUNGSI INIT ALL SPACER RESIZE (FIXED)
+// =============================================
+
+function initAllSpacerResize() {
+    const spacers = document.querySelectorAll('.spacer-h, .spacer-v');
+    spacers.forEach(spacer => {
+        initSpacerResize(spacer);
     });
 }
         // ============ SEARCH, DETAIL, INPUT, HISTORY, REKAP, MANAGE (tetap sama) ============
