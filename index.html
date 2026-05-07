@@ -508,41 +508,58 @@
             return Object.entries(barisObj).map(([b, slots], idx) => buildBarisBox(secName, idx, slots)).join('');
         }
 
-        function renderFrozenPlan() {
-            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
-            container.innerHTML = `
-            <div class="card" style="padding:12px;">
-                <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
-                <div class="fp-room" style="background:#e8f4f8;">
-                    <div class="frz-plan">
-                        <div class="frz-body">
-                            <div class="frz-left">
-                                <div class="boxes-row">${getSecBoxes('IMP')}</div>
-                                <div class="spacer">— Area Kosong —</div>
-                                <div class="boxes-row">${getSecBoxes('RTL')}</div>
-                                <div class="boxes-row">${getSecBoxes('NPL')}</div>
-                                <div class="spacer">— Area Kosong —</div>
-                                <div class="frz-bot">
-                                    <div class="boxes-row">${getSecBoxes('RDQ')}</div>
-                                    <div class="boxes-row">${getSecBoxes('MTPP')}</div>
-                                </div>
-                            </div>
-                            <div class="frz-right">
-                                <div class="spacer-box">Area Kosong</div>
-                                ${getSecBoxes('MI')}
-                            </div>
-                        </div>
+       function renderFrozenPlan() {
+    const adminBtn = isAdmin() ? 
+        `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : '';
+
+    container.innerHTML = `
+    <div class="card" style="padding:12px;">
+        <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
+        <div class="fp-room" style="background:#e8f4f8;">
+            <div class="frz-plan">
+                
+                <!-- BARIS 1: IMP 5 kotak - FULL WIDTH -->
+                <div class="frz-row">
+                    <div class="boxes-row">${getSecBoxes('IMP')}</div>
+                </div>
+
+                <!-- Area Kosong Horizontal - FULL WIDTH -->
+                <div class="spacer-h">— Area Kosong —</div>
+
+                <!-- BARIS 2: RTL+NPL (kiri) | Area Kosong (tengah) | MI (kanan) -->
+                <div class="frz-row">
+                    <!-- Kiri: RTL + NPL bertumpuk -->
+                    <div class="frz-left-stack">
+                        <div class="boxes-row">${getSecBoxes('RTL')}</div>
+                        <div class="boxes-row">${getSecBoxes('NPL')}</div>
                     </div>
+                    <!-- Tengah: Area Kosong vertikal -->
+                    <div class="spacer-v" style="min-height:358px;flex:1;">Area<br>Kosong</div>
+                    <!-- Kanan: MI 3 kotak -->
+                    <div class="frz-right-stack">${getSecBoxes('MI')}</div>
                 </div>
-                <div class="fp-legend">
-                    <span>🟢 Tersedia</span>
-                    <span>🟠 Penuh (5/5)</span>
-                    <span>🔴 Expired / Est Lewat</span>
-                    <span>⚪ Kosong</span>
+
+                <!-- Area Kosong Horizontal - FULL WIDTH -->
+                <div class="spacer-h">— Area Kosong —</div>
+
+                <!-- BARIS 3: RDQ + MTPP (kiri) | ruang kosong (kanan) -->
+                <div class="frz-row">
+                    <div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>
+                    <!-- Ruang kosong di kanan, sejajar MI di atas -->
+                    <div class="spacer-v" style="min-height:175px;flex:1;"></div>
                 </div>
-                ${adminBtn}
-            </div>`;
-        }
+
+            </div>
+        </div>
+        <div class="fp-legend">
+            <span>🟢 Tersedia</span>
+            <span>🟠 Penuh (5/5)</span>
+            <span>🔴 Expired / Est Lewat</span>
+            <span>⚪ Kosong</span>
+        </div>
+        ${adminBtn}
+    </div>`;
+}
 
         function renderChillerPlan() {
             const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
