@@ -229,7 +229,6 @@
             width: 100%;
         }
 
-        /* SEARCH */
         .search-container {
             position: relative;
             margin-bottom: 16px;
@@ -319,7 +318,6 @@
             font-weight: 600;
         }
 
-        /* DENAH */
         .fp-room {
             border: 3px solid #1e293b;
             border-radius: 10px;
@@ -345,7 +343,6 @@
             margin-top: 10px;
         }
 
-        /* EDIT MODE */
         .edit-mode .baris-box {
             cursor: move;
             position: relative;
@@ -394,7 +391,6 @@
             z-index: 35;
             align-items: center;
             justify-content: center;
-            line-height: 1;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         .edit-mode .spacer-h:hover .delete-element-btn,
@@ -428,7 +424,6 @@
             transition: width 0.15s, height 0.15s;
         }
 
-        /* EDIT TOOLBAR */
         .edit-toolbar {
             display: none;
             background: #1e293b;
@@ -485,7 +480,6 @@
             justify-content: center;
         }
 
-        /* PRESET PANEL */
         .preset-panel {
             display: none;
             background: #f8fafc;
@@ -569,7 +563,6 @@
             color: #ef4444;
         }
 
-        /* SAVE MODAL */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -619,6 +612,15 @@
         .modal-box .preset-option.selected {
             border-color: var(--primary);
             background: #eff6ff;
+        }
+        .modal-box .preset-option.opt-1 {
+            border-left: 4px solid var(--preset-1);
+        }
+        .modal-box .preset-option.opt-2 {
+            border-left: 4px solid var(--preset-2);
+        }
+        .modal-box .preset-option.opt-3 {
+            border-left: 4px solid var(--preset-3);
         }
 
         .baris-box {
@@ -1019,26 +1021,6 @@
                 box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5)
             }
         }
-
-        /* TOAST UNDO */
-        .toast-undo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .toast-undo button {
-            background: var(--warning);
-            color: #000;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.8rem;
-        }
-        .toast-undo button:hover {
-            background: #e5a50a;
-        }
     </style>
 </head>
 <body>
@@ -1081,7 +1063,6 @@
     </div>
     <div class="toast" id="toast"></div>
 
-    <!-- SAVE MODAL -->
     <div class="modal-overlay" id="saveModal">
         <div class="modal-box">
             <h3>💾 Simpan Layout sebagai Preset</h3>
@@ -1113,14 +1094,13 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ==================== ADMIN ====================
         const _ENCODED_ADMIN_EMAILS = ['c2xhcmRhci5tZW5AZ21haWwuY29t'];
         function _getAdminEmails() { return _ENCODED_ADMIN_EMAILS.map(e => { try { return atob(e); } catch (x) { return ''; } }).filter(e => e); }
         const ADMIN_EMAILS = _getAdminEmails();
 
         // ==================== STATE ====================
         let currentArea = 'frozen';
-        let appData = { frozen: { sections: {}, baskets: {}, transactions: [] }, chiller: { sections: {}, baskets: {}, transactions: [] } };
+        let appData = { frozen: { sections: {}, baskets: {}, transactions: [], denahLayout: null }, chiller: { sections: {}, baskets: {}, transactions: [], denahLayout: null } };
         let currentTab = 'dashboard';
         let rekapMode = 'bulanan';
         let unsubscribe = null;
@@ -1129,51 +1109,10 @@
         let selectedPresetSlot = null;
         let layoutPresets = { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } };
         let activePreset = { frozen: null, chiller: null };
-
-        // ==================== UNDO/REDO ====================
         let undoStack = [];
         let redoStack = [];
         const MAX_UNDO = 50;
 
-        function saveUndoState() {
-            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
-            if (!denah) return;
-            undoStack.push(denah.innerHTML);
-            if (undoStack.length > MAX_UNDO) undoStack.shift();
-            redoStack = [];
-            updateUndoRedoButtons();
-        }
-
-        function undo() {
-            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
-            if (!denah || undoStack.length === 0) return;
-            redoStack.push(denah.innerHTML);
-            denah.innerHTML = undoStack.pop();
-            updateUndoRedoButtons();
-            if (editMode) initEditMode();
-            showToast('↩️ Undo berhasil');
-        }
-
-        function redo() {
-            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
-            if (!denah || redoStack.length === 0) return;
-            undoStack.push(denah.innerHTML);
-            denah.innerHTML = redoStack.pop();
-            updateUndoRedoButtons();
-            if (editMode) initEditMode();
-            showToast('↪️ Redo berhasil');
-        }
-
-        function updateUndoRedoButtons() {
-            const undoBtn = document.getElementById('btnUndo');
-            const redoBtn = document.getElementById('btnRedo');
-            if (undoBtn) { undoBtn.disabled = undoStack.length === 0;
-                undoBtn.title = `Undo (${undoStack.length} langkah)`; }
-            if (redoBtn) { redoBtn.disabled = redoStack.length === 0;
-                redoBtn.title = `Redo (${redoStack.length} langkah)`; }
-        }
-
-        // ==================== DEFAULT SECTIONS ====================
         const defaultFrozenSections = {
             'IMP': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null], D: [null, null, null, null, null], E: [null, null, null, null, null] },
             'RTL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null] },
@@ -1209,15 +1148,15 @@
 
         // ==================== DATA ====================
         function listenToFirestore() { if (unsubscribe) unsubscribe();
-            unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => { if (doc.exists) { const d = doc.data(); let fd = d.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }; let cd = d.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+            unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => { if (doc.exists) { const d = doc.data(); let fd = d.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [], denahLayout: null }; let cd = d.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [], denahLayout: null };
                     fd.sections = convertSectionsToSlotFormat(fd.sections || {});
                     cd.sections = convertSectionsToSlotFormat(cd.sections || {});
                     appData.frozen = fd;
                     appData.chiller = cd; if (d.layoutPresets) layoutPresets = d.layoutPresets; if (d.activePreset) activePreset = d.activePreset;
                     syncBasketsWithSections('frozen');
                     syncBasketsWithSections('chiller'); if (!d.frozen) saveToFirestore();
-                    renderCurrentTab(); } else { appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
-                    appData.chiller = { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+                    renderCurrentTab(); } else { appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [], denahLayout: null };
+                    appData.chiller = { sections: getDefaultSections('chiller'), baskets: {}, transactions: [], denahLayout: null };
                     syncBasketsWithSections('frozen');
                     syncBasketsWithSections('chiller');
                     saveToFirestore();
@@ -1238,13 +1177,13 @@
         function itemCount(no) { return (currentBaskets()[no]?.items || []).length; }
         function hasExpiredItems(no) { const items = currentBaskets()[no]?.items || []; const now = new Date(); return items.some(i => (i.expDate && new Date(i.expDate) < now) || (i.estOutDate && new Date(i.estOutDate) < now)); }
         function showToast(msg) { const t = document.getElementById('toast');
-            t.textContent = msg;
+            t.innerHTML = msg;
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 2500); }
         function logTransaction(type, detail) { currentTransactions().unshift({ id: Date.now(), timestamp: new Date().toISOString(), type, detail, user: auth.currentUser?.email || 'unknown' }); if (currentTransactions().length > 500) currentTransactions().pop();
             saveToFirestore(); }
         function isAdmin() { const u = auth.currentUser; return u && u.providerData.some(p => p.providerId === 'google.com') && ADMIN_EMAILS.includes(u.email); }
-        async function resetAllData() { if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; } if (!confirm('⚠️ Hapus total semua data?')) return; await db.collection('shared').doc('data').set({ frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }, chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] }, layoutPresets: { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } }, activePreset: { frozen: null, chiller: null } });
+        async function resetAllData() { if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; } if (!confirm('⚠️ Hapus total semua data?')) return; await db.collection('shared').doc('data').set({ frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [], denahLayout: null }, chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [], denahLayout: null }, layoutPresets: { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } }, activePreset: { frozen: null, chiller: null } });
             layoutPresets = { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } };
             activePreset = { frozen: null, chiller: null };
             undoStack = [];
@@ -1252,7 +1191,8 @@
             showToast('✅ Data dihapus.'); }
 
         const container = document.getElementById('appContainer');
-        function renderCurrentTab() { try { switch (currentTab) { case 'dashboard': renderDashboard(); break; case 'search': renderSearch(); break; case 'in': renderInputForm(); break; case 'history': renderHistory(); break; case 'rekap': renderRekap(); break; case 'manage': renderManageBaskets(); break; } } catch (e) { container.innerHTML = '<div class="card"><div class="empty-state">Error.</div></div>'; } }
+        function renderCurrentTab() { try { switch (currentTab) { case 'dashboard': renderDashboard(); break; case 'search': renderSearch(); break; case 'in': renderInputForm(); break; case 'history': renderHistory(); break; case 'rekap': renderRekap(); break; case 'manage': renderManageBaskets(); break; } } catch (e) { console.error(e);
+                container.innerHTML = '<div class="card"><div class="empty-state">Error.</div></div>'; } }
 
         // ==================== BUILD ====================
         function buildBasketSlot(no) { if (no === null) return `<div class="basket-slot slot-empty"></div>`; const c = itemCount(no); const exp = hasExpiredItems(no); let cls = 'basket-slot'; if (c >= 5) cls += ' orange'; else if (exp) cls += ' red'; else if (c > 0) cls += ' green'; const badge = (exp || c >= 5) ? '<span class="slot-alert">!</span>' : ''; return `<div class="${cls}" onclick="${editMode?'':'showBasketDetail('+no+')'}" title="Keranjang ${no} — ${c}/5"><span class="slot-num">${no}</span><span class="slot-count">${c}/5</span>${badge}</div>`; }
@@ -1265,18 +1205,126 @@
         function deleteElement(btn) { if (!isAdmin() || !editMode) return; const el = btn.closest('.spacer-h, .spacer-v, .empty-box'); if (!el) return; if (!confirm('Hapus elemen ini?')) return;
             saveUndoState();
             el.remove();
+            saveCurrentLayoutToFirestore();
             showToast('🗑️ Elemen dihapus.'); }
 
-        // ==================== DENAH ====================
-        function renderFrozenPlan() { const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : ''; const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}"><span style="font-weight:700;">✏️ Edit</span><button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Aktif':'Nonaktif'}</button><span class="toolbar-divider"></span><button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button><button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button><span class="toolbar-divider"></span><button onclick="openSaveModal()">💾 Simpan Preset</button><button onclick="addEmptyBox()">➕ Box Kosong</button><button onclick="addSpacerH()">➕ Spacer H</button><button onclick="addSpacerV()">➕ Spacer V</button></div>` : ''; const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : '';
-            container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">❄️ Denah Walk-in Frozen ${editMode?'🔧 EDIT':''} ${activePreset.frozen?'📌 Preset '+activePreset.frozen:''}</div>${editToggle}${editToolbar}${presetPanel}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#e8f4f8;" id="denahContainer"><div class="frz-plan" id="frzPlan"><div class="frz-row"><div class="boxes-row">${getSecBoxes('IMP')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="frz-left-stack"><div class="boxes-row">${getSecBoxes('RTL')}</div><div class="boxes-row">${getSecBoxes('NPL')}</div></div>${buildSpacerV()}<div class="frz-right-stack">${getSecBoxes('MI')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>${buildSpacerV()}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
-            if (editMode) { initEditMode();
-                updateUndoRedoButtons(); } }
+        // ==================== SAVE & LOAD LAYOUT ====================
+        function saveCurrentLayoutToFirestore() {
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah) return;
+            const clone = denah.cloneNode(true);
+            clone.querySelectorAll('.dragging, .drop-zone, .resize-handle, .delete-element-btn').forEach(el => el.remove());
+            clone.querySelectorAll('[style]').forEach(el => {
+                const keep = [];
+                if (el.style.width && el.style.width !== '100%') keep.push(`width:${el.style.width}`);
+                if (el.style.height) keep.push(`height:${el.style.height}`);
+                if (el.style.minHeight && el.style.minHeight !== '35px' && el.style.minHeight !== '80px') keep.push(`min-height:${el.style.minHeight}`);
+                if (el.style.minWidth && el.style.minWidth !== '60px') keep.push(`min-width:${el.style.minWidth}`);
+                if (el.style.flex && el.style.flex !== '1' && el.style.flex !== '0 1 auto') keep.push(`flex:${el.style.flex}`);
+                el.setAttribute('style', keep.join(';'));
+            });
+            if (!appData[currentArea]) appData[currentArea] = {};
+            appData[currentArea].denahLayout = {
+                html: clone.outerHTML,
+                updatedAt: new Date().toISOString(),
+                updatedBy: auth.currentUser?.email || 'unknown'
+            };
+            saveToFirestore();
+        }
 
-        function renderChillerPlan() { const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : ''; const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}"><span style="font-weight:700;">✏️ Edit</span><button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Aktif':'Nonaktif'}</button><span class="toolbar-divider"></span><button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button><button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button><span class="toolbar-divider"></span><button onclick="openSaveModal()">💾 Simpan Preset</button><button onclick="addEmptyBox()">➕ Box Kosong</button><button onclick="addSpacerH()">➕ Spacer H</button><button onclick="addSpacerV()">➕ Spacer V</button></div>` : ''; const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : ''; const sb = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`; const bs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
+        function loadLayoutFromFirestore() {
+            const layout = appData[currentArea]?.denahLayout;
+            if (!layout?.html) return false;
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah) return false;
+            const temp = document.createElement('div');
+            temp.innerHTML = layout.html;
+            const saved = temp.firstElementChild;
+            if (!saved) return false;
+            denah.innerHTML = '';
+            while (saved.firstChild) { denah.appendChild(saved.firstChild); }
+            return true;
+        }
+
+        // ==================== UNDO/REDO ====================
+        function saveUndoState() {
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah) return;
+            undoStack.push(denah.innerHTML);
+            if (undoStack.length > MAX_UNDO) undoStack.shift();
+            redoStack = [];
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah || undoStack.length === 0) return;
+            redoStack.push(denah.innerHTML);
+            denah.innerHTML = undoStack.pop();
+            updateUndoRedoButtons();
+            if (editMode) initEditMode();
+            saveCurrentLayoutToFirestore();
+            showToast('↩️ Undo berhasil');
+        }
+
+        function redo() {
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah || redoStack.length === 0) return;
+            undoStack.push(denah.innerHTML);
+            denah.innerHTML = redoStack.pop();
+            updateUndoRedoButtons();
+            if (editMode) initEditMode();
+            saveCurrentLayoutToFirestore();
+            showToast('↪️ Redo berhasil');
+        }
+
+        function updateUndoRedoButtons() {
+            const ub = document.getElementById('btnUndo');
+            const rb = document.getElementById('btnRedo');
+            if (ub) { ub.disabled = undoStack.length === 0;
+                ub.title = `Undo (${undoStack.length} langkah)`; }
+            if (rb) { rb.disabled = redoStack.length === 0;
+                rb.title = `Redo (${redoStack.length} langkah)`; }
+        }
+
+        // ==================== DENAH ====================
+        function renderFrozenPlan() {
+            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : '';
+            const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : '';
+            const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}"><span style="font-weight:700;">✏️ Edit</span><button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Aktif':'Nonaktif'}</button><span class="toolbar-divider"></span><button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button><button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button><span class="toolbar-divider"></span><button onclick="openSaveModal()">💾 Simpan Preset</button><button onclick="addEmptyBox()">➕ Box Kosong</button><button onclick="addSpacerH()">➕ Spacer H</button><button onclick="addSpacerV()">➕ Spacer V</button></div>` : '';
+            const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : '';
+
+            // Render dengan layout default dulu, lalu load dari Firestore
+            container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">❄️ Denah Walk-in Frozen ${editMode?'🔧 EDIT':''} ${activePreset.frozen?'📌 Preset '+activePreset.frozen:''}</div>${editToggle}${editToolbar}${presetPanel}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#e8f4f8;" id="denahContainer"><div class="frz-plan" id="frzPlan"><div class="frz-row"><div class="boxes-row">${getSecBoxes('IMP')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="frz-left-stack"><div class="boxes-row">${getSecBoxes('RTL')}</div><div class="boxes-row">${getSecBoxes('NPL')}</div></div>${buildSpacerV()}<div class="frz-right-stack">${getSecBoxes('MI')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>${buildSpacerV()}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
+
+            // Load layout dari Firestore setelah render
+            setTimeout(() => {
+                if (appData[currentArea]?.denahLayout?.html) {
+                    loadLayoutFromFirestore();
+                }
+                if (editMode) { initEditMode();
+                    updateUndoRedoButtons(); }
+            }, 100);
+        }
+
+        function renderChillerPlan() {
+            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : '';
+            const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : '';
+            const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}"><span style="font-weight:700;">✏️ Edit</span><button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Aktif':'Nonaktif'}</button><span class="toolbar-divider"></span><button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button><button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button><span class="toolbar-divider"></span><button onclick="openSaveModal()">💾 Simpan Preset</button><button onclick="addEmptyBox()">➕ Box Kosong</button><button onclick="addSpacerH()">➕ Spacer H</button><button onclick="addSpacerV()">➕ Spacer V</button></div>` : '';
+            const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : '';
+            const sb = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
+            const bs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
+
             container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">🌡️ Denah Walk-in Chiller ${editMode?'🔧 EDIT':''} ${activePreset.chiller?'📌 Preset '+activePreset.chiller:''}</div>${editToggle}${editToolbar}${presetPanel}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#f0fdf4;" id="denahContainer"><div class="chl-plan" id="chlPlan"><div class="chl-top">${sb}${getSecBoxes('THAWING')}</div>${buildSpacerH()}<div class="chl-bot">${bs.map(s => getSecBoxes(s)).join('')}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
-            if (editMode) { initEditMode();
-                updateUndoRedoButtons(); } }
+
+            setTimeout(() => {
+                if (appData[currentArea]?.denahLayout?.html) {
+                    loadLayoutFromFirestore();
+                }
+                if (editMode) { initEditMode();
+                    updateUndoRedoButtons(); }
+            }, 100);
+        }
 
         function renderDashboard() { currentArea === 'frozen' ? renderFrozenPlan() : renderChillerPlan(); }
 
@@ -1288,6 +1336,7 @@
             plan.appendChild(row);
             initEmptyBoxDrag(row.querySelector('.empty-box'));
             initBoxResizeSingle(row.querySelector('.empty-box'));
+            saveCurrentLayoutToFirestore();
             showToast('✅ Box kosong ditambahkan.'); }
 
         function addSpacerH() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
@@ -1296,6 +1345,7 @@
             plan.appendChild(spacer);
             initSpacerDrag(spacer);
             initSpacerResize(spacer);
+            saveCurrentLayoutToFirestore();
             showToast('✅ Spacer H ditambahkan.'); }
 
         function addSpacerV() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); const rows = plan.querySelectorAll('.frz-row, .chl-row'); let target = rows[rows.length - 1]; if (!target) { target = document.createElement('div');
@@ -1306,6 +1356,7 @@
             target.appendChild(spacer);
             initSpacerDrag(spacer);
             initSpacerResize(spacer);
+            saveCurrentLayoutToFirestore();
             showToast('✅ Spacer V ditambahkan.'); }
 
         // ==================== PRESET ====================
@@ -1320,17 +1371,22 @@
             selectedPresetSlot = null; }
         function selectPresetSlot(slot) { selectedPresetSlot = slot;
             document.querySelectorAll('.preset-option').forEach(el => el.classList.toggle('selected', parseInt(el.dataset.preset) === slot)); }
-        function confirmSavePreset() { if (!selectedPresetSlot) { showToast('⚠️ Pilih slot preset.'); return; } const name = document.getElementById('presetName').value.trim() || `Layout ${new Date().toLocaleDateString('id-ID')}`; const layoutData = captureCurrentLayout();
-            layoutPresets[currentArea][selectedPresetSlot] = { name, savedAt: new Date().toISOString(), layout: layoutData };
+        function confirmSavePreset() { if (!selectedPresetSlot) { showToast('⚠️ Pilih slot preset.'); return; } const name = document.getElementById('presetName').value.trim() || `Layout ${new Date().toLocaleDateString('id-ID')}`;
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            layoutPresets[currentArea][selectedPresetSlot] = { name, savedAt: new Date().toISOString(), layoutHTML: denah ? denah.outerHTML : '' };
             activePreset[currentArea] = selectedPresetSlot;
             saveToFirestore();
             closeSaveModal();
             renderDashboard();
             showToast(`✅ Disimpan sebagai Preset ${selectedPresetSlot}`); }
-        function loadPreset(slot) { if (!isAdmin()) return; const preset = layoutPresets[currentArea][slot]; if (!preset) { showToast('⚠️ Preset kosong.'); return; } if (!confirm(`Muat Preset ${slot}: "${preset.name}"?`)) return;
+        function loadPreset(slot) { if (!isAdmin()) return; const preset = layoutPresets[currentArea][slot]; if (!preset?.layoutHTML) { showToast('⚠️ Preset kosong.'); return; } if (!confirm(`Muat Preset ${slot}: "${preset.name}"?`)) return;
             activePreset[currentArea] = slot;
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (denah) {
+                denah.innerHTML = ''; const temp = document.createElement('div');
+                temp.innerHTML = preset.layoutHTML; const saved = temp.firstElementChild; if (saved) { while (saved.firstChild) { denah.appendChild(saved.firstChild); } }
+            }
+            saveCurrentLayoutToFirestore();
             saveToFirestore();
-            applyLayout(preset.layout);
             renderDashboard();
             showToast(`✅ Preset ${slot} dimuat.`); }
         function deletePreset(slot) { if (!isAdmin()) return; if (!confirm(`Hapus Preset ${slot}?`)) return;
@@ -1338,15 +1394,6 @@
             saveToFirestore();
             renderDashboard();
             showToast(`🗑️ Preset ${slot} dihapus.`); }
-        function captureCurrentLayout() { const layout = { boxes: {}, spacers: [], emptyBoxes: [] };
-            document.querySelectorAll('.baris-box').forEach(box => { const key = box.dataset.section + '_' + box.dataset.index;
-                layout.boxes[key] = { width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }; });
-            document.querySelectorAll('.spacer-h, .spacer-v').forEach((spacer, i) => { layout.spacers.push({ index: i, className: spacer.className, minHeight: spacer.style.minHeight || '', minWidth: spacer.style.minWidth || '', flex: spacer.style.flex || '', width: spacer.style.width || '', height: spacer.style.height || '' }); });
-            document.querySelectorAll('.empty-box').forEach((box, i) => { layout.emptyBoxes.push({ index: i, width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }); }); return layout; }
-        function applyLayout(ld) { if (!ld) return;
-            setTimeout(() => { if (ld.boxes) { for (const [key, size] of Object.entries(ld.boxes)) { const [section, index] = key.split('_'); const box = document.querySelector(`.baris-box[data-section="${section}"][data-index="${index}"]`); if (box) { if (size.width) box.style.width = size.width; if (size.height) box.style.height = size.height; } } } if (ld.spacers) { const spacers = document.querySelectorAll('.spacer-h, .spacer-v');
-                    ld.spacers.forEach(s => { if (spacers[s.index]) { if (s.minHeight) spacers[s.index].style.minHeight = s.minHeight; if (s.minWidth) spacers[s.index].style.minWidth = s.minWidth; if (s.flex) spacers[s.index].style.flex = s.flex; if (s.width) spacers[s.index].style.width = s.width; if (s.height) spacers[s.index].style.height = s.height; } }); } if (ld.emptyBoxes) { const boxes = document.querySelectorAll('.empty-box');
-                    ld.emptyBoxes.forEach(s => { if (boxes[s.index]) { if (s.width) boxes[s.index].style.width = s.width; if (s.height) boxes[s.index].style.height = s.height; } }); } }, 200); }
 
         // ==================== EDIT MODE ====================
         function toggleEditMode() { if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; }
@@ -1354,20 +1401,24 @@
                 redoStack = []; }
             renderDashboard();
             showToast(editMode ? '🔧 Edit mode AKTIF (Undo/Redo tersedia)' : '✅ Edit mode NONAKTIF'); }
-        function initEditMode() { initBoxDrag();
+
+        function initEditMode() {
+            initBoxDrag();
             initBoxResize();
             initAllSpacerDrag();
             initAllSpacerResize();
             initAllEmptyBoxDrag();
             initAllEmptyBoxResize();
-            updateUndoRedoButtons(); }
+            updateUndoRedoButtons();
+        }
 
         // DRAG BOX
         function initBoxDrag() { document.querySelectorAll('.baris-box').forEach(box => { box.addEventListener('dragstart', function(e) { if (!editMode) return;
                     dragState = { element: this, type: 'box' };
                     this.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', 'box'); });
-                box.addEventListener('dragend', function() { if (dragState && dragState.type === 'box') saveUndoState(); this.classList.remove('dragging');
+                    e.dataTransfer.setData('text/plain', 'box');
+                    saveUndoState(); });
+                box.addEventListener('dragend', function() { if (dragState && dragState.type === 'box') saveCurrentLayoutToFirestore(); this.classList.remove('dragging');
                     dragState = null;
                     clearDropZones(); }); });
             initDropZones(); }
@@ -1378,8 +1429,9 @@
             spacer.addEventListener('dragstart', function(e) { if (!editMode) { e.preventDefault(); return; }
                     dragState = { element: this, type: 'spacer' };
                     this.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', 'spacer'); });
-            spacer.addEventListener('dragend', function() { if (dragState && dragState.type === 'spacer') saveUndoState(); this.classList.remove('dragging');
+                    e.dataTransfer.setData('text/plain', 'spacer');
+                    saveUndoState(); });
+            spacer.addEventListener('dragend', function() { if (dragState && dragState.type === 'spacer') saveCurrentLayoutToFirestore(); this.classList.remove('dragging');
                     dragState = null;
                     clearDropZones(); }); }
 
@@ -1389,8 +1441,9 @@
             box.addEventListener('dragstart', function(e) { if (!editMode) { e.preventDefault(); return; }
                     dragState = { element: this, type: 'empty-box' };
                     this.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', 'empty-box'); });
-            box.addEventListener('dragend', function() { if (dragState && dragState.type === 'empty-box') saveUndoState(); this.classList.remove('dragging');
+                    e.dataTransfer.setData('text/plain', 'empty-box');
+                    saveUndoState(); });
+            box.addEventListener('dragend', function() { if (dragState && dragState.type === 'empty-box') saveCurrentLayoutToFirestore(); this.classList.remove('dragging');
                     dragState = null;
                     clearDropZones(); }); }
 
@@ -1418,6 +1471,7 @@
             overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;';
             document.body.appendChild(overlay); function onMouseMove(e) { e.preventDefault(); const dx = e.clientX - startX; const dy = e.clientY - startY; if (direction.includes('right')) box.style.width = Math.max(40, Math.min(400, startWidth + dx)) + 'px'; if (direction.includes('left')) box.style.width = Math.max(40, Math.min(400, startWidth - dx)) + 'px'; if (direction.includes('bottom')) box.style.height = Math.max(40, Math.min(400, startHeight + dy)) + 'px'; if (direction.includes('top')) box.style.height = Math.max(40, Math.min(400, startHeight - dy)) + 'px'; } function onMouseUp() { document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp); if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                saveCurrentLayoutToFirestore();
                 showToast('✅ Ukuran diubah.'); }
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp); }
@@ -1445,6 +1499,7 @@
                     spacer.style.height = h + 'px';
                     spacer.style.minHeight = h + 'px'; if (!isH) spacer.style.flex = 'none'; } } function onMouseUp() { document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp); if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                saveCurrentLayoutToFirestore();
                 showToast('✅ Spacer diubah.'); }
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp); }
@@ -1584,7 +1639,13 @@
             saveToFirestore();
             renderManageBaskets(); };
 
-        // ==================== INIT ====================
+        // ==================== KEYBOARD SHORTCUT ====================
+        document.addEventListener('keydown', function(e) { if (!editMode) return; if (e.ctrlKey && e.key === 'z') { e.preventDefault();
+                undo(); } if (e.ctrlKey && e.key === 'y') { e.preventDefault();
+                redo(); } if (e.ctrlKey && e.shiftKey && e.key === 'Z') { e.preventDefault();
+                redo(); } });
+
+        // ==================== INIT TABS ====================
         document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', function() {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
@@ -1592,17 +1653,6 @@
             renderCurrentTab(); }); });
         document.getElementById('areaSelect').value = currentArea;
         document.getElementById('saveModal').addEventListener('click', function(e) { if (e.target === this) closeSaveModal(); });
-
-        // Keyboard shortcut untuk Undo/Redo
-        document.addEventListener('keydown', function(e) {
-            if (!editMode) return;
-            if (e.ctrlKey && e.key === 'z') { e.preventDefault();
-                undo(); }
-            if (e.ctrlKey && e.key === 'y') { e.preventDefault();
-                redo(); }
-            if (e.ctrlKey && e.shiftKey && e.key === 'Z') { e.preventDefault();
-                redo(); }
-        });
     </script>
 </body>
 </html>
