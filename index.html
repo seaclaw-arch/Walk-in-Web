@@ -508,7 +508,7 @@
             return Object.entries(barisObj).map(([b, slots], idx) => buildBarisBox(secName, idx, slots)).join('');
         }
 
-       function renderFrozenPlan() {
+      function renderFrozenPlan() {
     const adminBtn = isAdmin() ? 
         `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : '';
 
@@ -518,34 +518,35 @@
         <div class="fp-room" style="background:#e8f4f8;">
             <div class="frz-plan">
                 
-                <!-- BARIS 1: IMP 5 kotak - FULL WIDTH -->
+                <!-- BARIS 1: IMP 5 kotak -->
                 <div class="frz-row">
                     <div class="boxes-row">${getSecBoxes('IMP')}</div>
                 </div>
 
-                <!-- Area Kosong Horizontal - FULL WIDTH -->
+                <!-- Area Kosong Horizontal -->
                 <div class="spacer-h">— Area Kosong —</div>
 
-                <!-- BARIS 2: RTL+NPL (kiri) | Area Kosong (tengah) | MI (kanan) -->
+                <!-- BARIS RTL+NPL (kiri) | Area Kosong (tengah) | MI (kanan) -->
                 <div class="frz-row">
                     <!-- Kiri: RTL + NPL bertumpuk -->
                     <div class="frz-left-stack">
                         <div class="boxes-row">${getSecBoxes('RTL')}</div>
                         <div class="boxes-row">${getSecBoxes('NPL')}</div>
                     </div>
-                    <!-- Tengah: Area Kosong vertikal -->
+                    
+                    <!-- TENGAH: Area Kosong (memanjang dari atas RTL sampai bawah NPL) -->
                     <div class="spacer-v" style="min-height:358px;flex:1;">Area<br>Kosong</div>
-                    <!-- Kanan: MI 3 kotak -->
-                    <div class="frz-right-stack">${getSecBoxes('MI')}</div>
+                    
+                    <!-- KANAN: MI 3 kotak bertumpuk -->
+                    <div class="boxes-col">${getSecBoxes('MI')}</div>
                 </div>
 
-                <!-- Area Kosong Horizontal - FULL WIDTH -->
+                <!-- Area Kosong Horizontal -->
                 <div class="spacer-h">— Area Kosong —</div>
 
-                <!-- BARIS 3: RDQ + MTPP (kiri) | ruang kosong (kanan) -->
+                <!-- BARIS RDQ+MTPP | spacer (sejajar MI) -->
                 <div class="frz-row">
                     <div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>
-                    <!-- Ruang kosong di kanan, sejajar MI di atas -->
                     <div class="spacer-v" style="min-height:175px;flex:1;"></div>
                 </div>
 
