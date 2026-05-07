@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Walk-in Frozen & Chiller | v2.7 - Step 1 (Drag)</title>
+    <title>Walk-in Frozen & Chiller | v3.5</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -24,6 +24,9 @@
             --in-color: #10b981;
             --out-color: #ef4444;
             --search-color: #06b6d4;
+            --preset-1: #8b5cf6;
+            --preset-2: #06b6d4;
+            --preset-3: #f59e0b;
         }
         * {
             margin: 0;
@@ -102,7 +105,7 @@
         }
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             padding: 16px;
             display: flex;
             flex-direction: column;
@@ -134,15 +137,15 @@
             background: #f8fafc;
         }
         .btn {
-            padding: 10px 16px;
-            border-radius: 12px;
+            padding: 12px 18px;
+            border-radius: 14px;
             border: none;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
         .btn-primary {
             background: var(--primary);
@@ -160,8 +163,17 @@
             padding: 6px 12px;
             font-size: 0.75rem;
         }
+        .btn-xs {
+            padding: 4px 8px;
+            font-size: 0.65rem;
+            border-radius: 8px;
+        }
         .btn-warning {
             background: var(--warning);
+            color: white;
+        }
+        .btn-success {
+            background: var(--success);
             color: white;
         }
         .item-row {
@@ -216,6 +228,8 @@
             margin-top: 10px;
             width: 100%;
         }
+
+        /* SEARCH */
         .search-container {
             position: relative;
             margin-bottom: 16px;
@@ -224,6 +238,11 @@
             padding-left: 42px;
             font-size: 1rem;
             border: 2px solid #cbd5e1;
+            transition: border-color 0.3s;
+        }
+        .search-container input:focus {
+            border-color: var(--search-color);
+            outline: none;
         }
         .search-icon {
             position: absolute;
@@ -233,6 +252,72 @@
             color: #94a3b8;
             font-size: 1.1rem;
         }
+        .search-result-item {
+            background: #f0f9ff;
+            border-left: 6px solid var(--search-color);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .search-result-item:hover {
+            background: #e0f2fe;
+            transform: translateX(4px);
+        }
+        .search-result-item .item-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+        .search-result-item .item-detail {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-top: 4px;
+        }
+        .search-result-item .item-location {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #dbeafe;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-top: 6px;
+        }
+        .search-result-item .item-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .status-expired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-safe {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .search-highlight {
+            background: #fef08a;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+        .search-result-count {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
 
         /* DENAH */
         .fp-room {
@@ -241,7 +326,7 @@
             padding: 10px;
             overflow-x: auto;
             position: relative;
-            min-height: 150px;
+            min-height: 200px;
         }
         .fp-room-title {
             font-weight: 800;
@@ -260,6 +345,282 @@
             margin-top: 10px;
         }
 
+        /* EDIT MODE */
+        .edit-mode .baris-box {
+            cursor: move;
+            position: relative;
+            transition: box-shadow 0.2s;
+        }
+        .edit-mode .baris-box:hover {
+            box-shadow: 0 0 0 3px var(--primary);
+            z-index: 10;
+        }
+        .edit-mode .baris-box.dragging {
+            opacity: 0.7;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+            z-index: 100;
+        }
+        .edit-mode .spacer-h,
+        .edit-mode .spacer-v,
+        .edit-mode .empty-box {
+            cursor: move;
+            position: relative;
+            transition: background 0.2s, box-shadow 0.2s;
+            border: 2px dashed #cbd5e1;
+        }
+        .edit-mode .spacer-h:hover,
+        .edit-mode .spacer-v:hover,
+        .edit-mode .empty-box:hover {
+            background: rgba(37, 99, 235, 0.1) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px var(--primary);
+            z-index: 10;
+        }
+
+        .delete-element-btn {
+            display: none;
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 24px;
+            height: 24px;
+            background: var(--danger);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.6rem;
+            font-weight: bold;
+            z-index: 35;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .edit-mode .spacer-h:hover .delete-element-btn,
+        .edit-mode .spacer-v:hover .delete-element-btn,
+        .edit-mode .empty-box:hover .delete-element-btn {
+            display: flex;
+        }
+        .delete-element-btn:hover {
+            background: #dc2626;
+            transform: scale(1.15);
+        }
+
+        .drop-zone {
+            border: 2px dashed #6366f1 !important;
+            background: rgba(99, 102, 241, 0.15) !important;
+        }
+
+        .empty-box {
+            width: 110px;
+            height: 175px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            position: relative;
+            transition: width 0.15s, height 0.15s;
+        }
+
+        /* EDIT TOOLBAR */
+        .edit-toolbar {
+            display: none;
+            background: #1e293b;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .edit-toolbar.active {
+            display: flex;
+        }
+        .edit-toolbar .toolbar-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .edit-toolbar .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 4px;
+        }
+        .edit-toolbar button {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .edit-toolbar button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .edit-toolbar button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .edit-toolbar button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        .edit-toolbar .undo-redo-btn {
+            font-size: 1rem;
+            padding: 6px 10px;
+            min-width: 36px;
+            justify-content: center;
+        }
+
+        /* PRESET PANEL */
+        .preset-panel {
+            display: none;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+        .preset-panel.active {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .preset-card {
+            flex: 1;
+            min-width: 180px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            position: relative;
+        }
+        .preset-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+        .preset-card.active-preset {
+            border-color: var(--success);
+            background: #f0fdf4;
+        }
+        .preset-card.preset-1 {
+            border-left: 4px solid var(--preset-1);
+        }
+        .preset-card.preset-2 {
+            border-left: 4px solid var(--preset-2);
+        }
+        .preset-card.preset-3 {
+            border-left: 4px solid var(--preset-3);
+        }
+        .preset-card .preset-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .preset-card .preset-info {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .preset-card .preset-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+        }
+        .preset-card .preset-delete {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        .preset-card .preset-delete:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        /* SAVE MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .modal-box h3 {
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+        .modal-box .preset-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .modal-box .preset-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .modal-box .preset-option:hover {
+            border-color: var(--primary);
+        }
+        .modal-box .preset-option.selected {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
         .baris-box {
             width: 110px;
             height: 175px;
@@ -271,6 +632,7 @@
             flex-direction: column;
             flex-shrink: 0;
             position: relative;
+            transition: width 0.15s, height 0.15s;
         }
         .baris-box-lbl {
             font-size: 0.6rem;
@@ -279,6 +641,8 @@
             text-align: center;
             line-height: 1.2;
             margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
         }
         .baris-slots {
             display: flex;
@@ -299,7 +663,11 @@
             justify-content: center;
             cursor: pointer;
             position: relative;
+            transition: transform 0.1s;
             overflow: hidden;
+        }
+        .basket-slot:active {
+            transform: scale(0.95);
         }
         .basket-slot.green {
             border-color: var(--success);
@@ -323,6 +691,7 @@
         .slot-num {
             font-weight: 800;
             font-size: 0.6rem;
+            line-height: 1;
             color: #1e293b;
         }
         .slot-count {
@@ -345,6 +714,7 @@
             font-weight: bold;
             z-index: 5;
         }
+
         .baris-box.stock-box {
             background: #e0e7ff;
             border-color: #6366f1;
@@ -352,9 +722,18 @@
             align-items: center;
             gap: 4px;
         }
+        .baris-box.stock-box .baris-box-lbl {
+            color: #4338ca;
+            font-size: 0.58rem;
+            white-space: normal;
+            text-align: center;
+            line-height: 1.3;
+            margin: 0;
+        }
         .stock-icon {
             font-size: 1.8rem;
         }
+
         .spacer-h {
             min-height: 35px;
             background: rgba(255, 255, 255, 0.4);
@@ -366,6 +745,7 @@
             color: #c8d3df;
             font-size: 0.7rem;
             width: 100%;
+            transition: min-height 0.15s, min-width 0.15s;
             position: relative;
         }
         .spacer-v {
@@ -379,8 +759,10 @@
             font-size: 0.7rem;
             flex: 1;
             min-width: 60px;
+            transition: min-height 0.15s, min-width 0.15s;
             position: relative;
         }
+
         .frz-plan,
         .chl-plan {
             display: flex;
@@ -396,7 +778,14 @@
             min-height: 40px;
         }
         .frz-left-stack,
-        .frz-right-stack {
+        .chl-left-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .frz-right-stack,
+        .chl-right-stack {
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -406,80 +795,24 @@
             display: flex;
             gap: 8px;
         }
+        .boxes-col {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
         .chl-top {
             display: flex;
             gap: 8px;
             align-items: flex-start;
         }
+        .chl-space {
+            min-height: 80px;
+        }
         .chl-bot {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
-        }
-
-        /* EDIT MODE - DRAG */
-        .edit-mode .baris-box {
-            cursor: move !important;
-            transition: box-shadow 0.2s;
-        }
-        .edit-mode .baris-box:hover {
-            box-shadow: 0 0 0 3px #2563eb !important;
-            z-index: 10;
-        }
-        .edit-mode .baris-box.dragging {
-            opacity: 0.6;
-            box-shadow: 0 0 15px rgba(37, 99, 235, 0.5) !important;
-            z-index: 100;
-        }
-        .edit-mode .spacer-h,
-        .edit-mode .spacer-v {
-            cursor: move !important;
-            transition: background 0.2s, box-shadow 0.2s;
-            border: 2px dashed #cbd5e1;
-        }
-        .edit-mode .spacer-h:hover,
-        .edit-mode .spacer-v:hover {
-            background: rgba(37, 99, 235, 0.1) !important;
-            border-color: #2563eb !important;
-            box-shadow: 0 0 0 2px #2563eb;
-            z-index: 10;
-        }
-        .edit-mode .spacer-h.dragging,
-        .edit-mode .spacer-v.dragging {
-            opacity: 0.6;
-            background: rgba(37, 99, 235, 0.2) !important;
-            border-color: #2563eb !important;
-            z-index: 100;
-        }
-        .drop-zone-active {
-            border: 2px dashed #6366f1 !important;
-            background: rgba(99, 102, 241, 0.1) !important;
-        }
-        .edit-toggle-btn {
-            margin-bottom: 8px;
-        }
-        .edit-toolbar-simple {
-            display: none;
-            background: #1e293b;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            gap: 12px;
-            align-items: center;
-        }
-        .edit-toolbar-simple.active {
-            display: flex;
-        }
-        .edit-toolbar-simple button {
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: transparent;
-            color: white;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
         }
 
         .move-form {
@@ -493,38 +826,61 @@
             align-items: center;
             flex-wrap: wrap;
         }
-        .reset-btn {
-            background: #fee2e2;
-            color: #ef4444;
-            border: 2px solid #ef4444;
-            padding: 10px 20px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 20px;
-            width: 100%;
+        .move-form select {
+            width: auto;
+            padding: 6px;
         }
-        .chip {
-            background: #e2e8f0;
-            border-radius: 20px;
-            padding: 6px 12px;
+
+        .history-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 6px;
             font-size: 0.85rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin: 2px;
         }
-        .baris-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #475569;
-            margin-top: 10px;
-            margin-bottom: 4px;
-            background: #e2e8f0;
+        .history-item.type-in {
+            background: #ecfdf5;
+            border-left: 6px solid var(--in-color);
+        }
+        .history-item.type-out {
+            background: #fef2f2;
+            border-left: 6px solid var(--out-color);
+        }
+        .history-item.type-move {
+            background: #f5f3ff;
+            border-left: 6px solid var(--move-color);
+        }
+        .history-item.type-edit {
+            background: #fffbeb;
+            border-left: 6px solid var(--warning);
+        }
+        .history-badge {
             display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
         }
+        .badge-in {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge-out {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-move {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+        .badge-edit {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
         .rekap-tabs {
             display: flex;
             gap: 8px;
@@ -603,63 +959,42 @@
             flex-wrap: wrap;
             align-items: center;
         }
-        .search-result-item {
-            background: #f0f9ff;
-            border-left: 6px solid var(--search-color);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .search-result-item:hover {
-            background: #e0f2fe;
-            transform: translateX(4px);
-        }
-        .search-highlight {
-            background: #fef08a;
-            padding: 1px 3px;
-            border-radius: 3px;
-        }
-        .history-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 6px;
+        .filter-row select {
+            width: auto;
+            padding: 8px 12px;
             font-size: 0.85rem;
         }
-        .history-item.type-in {
-            background: #ecfdf5;
-            border-left: 6px solid var(--in-color);
-        }
-        .history-item.type-out {
-            background: #fef2f2;
-            border-left: 6px solid var(--out-color);
-        }
-        .history-item.type-move {
-            background: #f5f3ff;
-            border-left: 6px solid var(--move-color);
-        }
-        .history-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.7rem;
-        }
-        .badge-in {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .badge-out {
+        .reset-btn {
             background: #fee2e2;
-            color: #991b1b;
+            color: #ef4444;
+            border: 2px solid #ef4444;
+            padding: 10px 20px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+            width: 100%;
         }
-        .badge-move {
-            background: #ede9fe;
-            color: #5b21b6;
+        .chip {
+            background: #e2e8f0;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 2px;
+        }
+        .baris-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #475569;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            background: #e2e8f0;
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
         }
 
         @keyframes softPulse {
@@ -683,6 +1018,26 @@
             100% {
                 box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5)
             }
+        }
+
+        /* TOAST UNDO */
+        .toast-undo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toast-undo button {
+            background: var(--warning);
+            color: #000;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .toast-undo button:hover {
+            background: #e5a50a;
         }
     </style>
 </head>
@@ -726,6 +1081,24 @@
     </div>
     <div class="toast" id="toast"></div>
 
+    <!-- SAVE MODAL -->
+    <div class="modal-overlay" id="saveModal">
+        <div class="modal-box">
+            <h3>💾 Simpan Layout sebagai Preset</h3>
+            <p style="font-size:0.85rem;color:#64748b;margin-bottom:12px;">Pilih slot preset:</p>
+            <div class="preset-options" id="presetOptions">
+                <div class="preset-option opt-1" data-preset="1" onclick="selectPresetSlot(1)">🟣 <strong>Preset 1</strong><br><small id="preset1Info">Kosong</small></div>
+                <div class="preset-option opt-2" data-preset="2" onclick="selectPresetSlot(2)">🔵 <strong>Preset 2</strong><br><small id="preset2Info">Kosong</small></div>
+                <div class="preset-option opt-3" data-preset="3" onclick="selectPresetSlot(3)">🟡 <strong>Preset 3</strong><br><small id="preset3Info">Kosong</small></div>
+            </div>
+            <div class="form-group"><label>Nama Preset</label><input type="text" id="presetName" placeholder="Contoh: Layout Tim A"></div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary" onclick="confirmSavePreset()" style="flex:1;">💾 Simpan</button>
+                <button class="btn btn-outline" onclick="closeSaveModal()">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==================== FIREBASE ====================
         const firebaseConfig = {
@@ -742,32 +1115,72 @@
 
         // ==================== ADMIN ====================
         const _ENCODED_ADMIN_EMAILS = ['c2xhcmRhci5tZW5AZ21haWwuY29t'];
-
         function _getAdminEmails() { return _ENCODED_ADMIN_EMAILS.map(e => { try { return atob(e); } catch (x) { return ''; } }).filter(e => e); }
         const ADMIN_EMAILS = _getAdminEmails();
 
         // ==================== STATE ====================
         let currentArea = 'frozen';
-        let appData = { frozen: { sections: {}, baskets: {}, transactions: [] }, chiller: { sections: {}, baskets: {},
-                transactions: [] } };
+        let appData = { frozen: { sections: {}, baskets: {}, transactions: [] }, chiller: { sections: {}, baskets: {}, transactions: [] } };
         let currentTab = 'dashboard';
         let rekapMode = 'bulanan';
         let unsubscribe = null;
         let editMode = false;
         let dragState = null;
+        let selectedPresetSlot = null;
+        let layoutPresets = { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } };
+        let activePreset = { frozen: null, chiller: null };
 
+        // ==================== UNDO/REDO ====================
+        let undoStack = [];
+        let redoStack = [];
+        const MAX_UNDO = 50;
+
+        function saveUndoState() {
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah) return;
+            undoStack.push(denah.innerHTML);
+            if (undoStack.length > MAX_UNDO) undoStack.shift();
+            redoStack = [];
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah || undoStack.length === 0) return;
+            redoStack.push(denah.innerHTML);
+            denah.innerHTML = undoStack.pop();
+            updateUndoRedoButtons();
+            if (editMode) initEditMode();
+            showToast('↩️ Undo berhasil');
+        }
+
+        function redo() {
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah || redoStack.length === 0) return;
+            undoStack.push(denah.innerHTML);
+            denah.innerHTML = redoStack.pop();
+            updateUndoRedoButtons();
+            if (editMode) initEditMode();
+            showToast('↪️ Redo berhasil');
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('btnUndo');
+            const redoBtn = document.getElementById('btnRedo');
+            if (undoBtn) { undoBtn.disabled = undoStack.length === 0;
+                undoBtn.title = `Undo (${undoStack.length} langkah)`; }
+            if (redoBtn) { redoBtn.disabled = redoStack.length === 0;
+                redoBtn.title = `Redo (${redoStack.length} langkah)`; }
+        }
+
+        // ==================== DEFAULT SECTIONS ====================
         const defaultFrozenSections = {
-            'IMP': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null,
-                    null
-                ], D: [null, null, null, null, null], E: [null, null, null, null, null] },
-            'RTL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null,
-                null] },
-            'NPL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null,
-                null] },
+            'IMP': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null], D: [null, null, null, null, null], E: [null, null, null, null, null] },
+            'RTL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null] },
+            'NPL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null] },
             'RDQ': { A: [null, null, null, null, null] },
             'MTPP': { A: [null, null, null, null, null], B: [null, null, null, null, null] },
-            'MI': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null,
-                null] }
+            'MI': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null] }
         };
         const defaultChillerSections = {
             'IMP': { A: [null, null, null, null, null] },
@@ -779,21 +1192,14 @@
             'THAWING': { A: [null, null, null, null, null], B: [null, null, null, null, null] }
         };
 
-        function getDefaultSections(a) { return a === 'frozen' ? JSON.parse(JSON.stringify(defaultFrozenSections)) :
-                JSON.parse(JSON.stringify(defaultChillerSections)); }
-
-        function upgradeBarisToSlots(b) { if (!b || !Array.isArray(b)) return [null, null, null, null, null]; const s = [null,
-                null, null, null, null
-            ];
+        function getDefaultSections(a) { return a === 'frozen' ? JSON.parse(JSON.stringify(defaultFrozenSections)) : JSON.parse(JSON.stringify(defaultChillerSections)); }
+        function upgradeBarisToSlots(b) { if (!b || !Array.isArray(b)) return [null, null, null, null, null]; const s = [null, null, null, null, null];
             b.forEach((n, i) => { if (i < 5 && n !== null && n !== undefined) s[i] = n; }); return s; }
-
         function convertSectionsToSlotFormat(sec) { const out = {}; for (const [sn, bo] of Object.entries(sec)) { const co = {}; for (const [bn, val] of Object.entries(bo)) { co[bn] = (Array.isArray(val) && val.length === 5 && val.every(v => v === null || typeof v === 'number')) ? val : upgradeBarisToSlots(val); } out[sn] = co; } return out; }
 
         // ==================== AUTH ====================
         function login() { const email = document.getElementById('loginEmail').value.trim(); const pass = document.getElementById('loginPassword').value.trim(); if (!email || !pass) { document.getElementById('loginError').textContent = 'Email dan password harus diisi.'; return; } auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('loginError').textContent = 'Gagal: ' + e.message); }
-
         function loginWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => document.getElementById('loginError').textContent = 'Google login gagal: ' + e.message); }
-
         function logout() { auth.signOut(); }
         auth.onAuthStateChanged(user => { if (user) { document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('appScreen').style.display = 'block';
@@ -807,7 +1213,7 @@
                     fd.sections = convertSectionsToSlotFormat(fd.sections || {});
                     cd.sections = convertSectionsToSlotFormat(cd.sections || {});
                     appData.frozen = fd;
-                    appData.chiller = cd;
+                    appData.chiller = cd; if (d.layoutPresets) layoutPresets = d.layoutPresets; if (d.activePreset) activePreset = d.activePreset;
                     syncBasketsWithSections('frozen');
                     syncBasketsWithSections('chiller'); if (!d.frozen) saveToFirestore();
                     renderCurrentTab(); } else { appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
@@ -817,153 +1223,268 @@
                     saveToFirestore();
                     renderCurrentTab(); } }); }
 
-        function saveToFirestore() { db.collection('shared').doc('data').set({ frozen: appData.frozen, chiller: appData.chiller }, { merge: true }); }
+        function saveToFirestore() { db.collection('shared').doc('data').set({ frozen: appData.frozen, chiller: appData.chiller, layoutPresets: layoutPresets, activePreset: activePreset }, { merge: true }); }
 
         function syncBasketsWithSections(area) { const sec = appData[area].sections; const baskets = appData[area].baskets; const valid = new Set(); for (const bo of Object.values(sec)) for (const sl of Object.values(bo)) sl.forEach(n => { if (n !== null) valid.add(n); }); for (const n of Object.keys(baskets)) if (!valid.has(Number(n))) delete baskets[n]; for (const [sn, bo] of Object.entries(sec)) for (const [bn, sl] of Object.entries(bo)) sl.forEach((n, i) => { if (n === null) return; if (!baskets[n]) baskets[n] = { section: sn, baris: bn, slot: i + 1, items: [] }; else { baskets[n].section = sn;
-                    baskets[n].baris = bn;
-                    baskets[n].slot = i + 1; } }); }
+                            baskets[n].baris = bn;
+                            baskets[n].slot = i + 1; } }); }
 
         function currentSections() { return appData[currentArea].sections; }
-
         function currentBaskets() { return appData[currentArea].baskets; }
-
         function currentTransactions() { return appData[currentArea].transactions; }
-
         function switchArea() { currentArea = document.getElementById('areaSelect').value;
             document.getElementById('areaTitle').textContent = currentArea === 'frozen' ? 'Frozen' : 'Chiller';
             renderCurrentTab(); }
-
         function itemCount(no) { return (currentBaskets()[no]?.items || []).length; }
-
         function hasExpiredItems(no) { const items = currentBaskets()[no]?.items || []; const now = new Date(); return items.some(i => (i.expDate && new Date(i.expDate) < now) || (i.estOutDate && new Date(i.estOutDate) < now)); }
-
         function showToast(msg) { const t = document.getElementById('toast');
             t.textContent = msg;
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 2500); }
-
         function logTransaction(type, detail) { currentTransactions().unshift({ id: Date.now(), timestamp: new Date().toISOString(), type, detail, user: auth.currentUser?.email || 'unknown' }); if (currentTransactions().length > 500) currentTransactions().pop();
             saveToFirestore(); }
-
         function isAdmin() { const u = auth.currentUser; return u && u.providerData.some(p => p.providerId === 'google.com') && ADMIN_EMAILS.includes(u.email); }
-        async function resetAllData() { if (!isAdmin()) return showToast('⚠️ Hanya admin.'); if (!confirm('⚠️ Hapus total semua data?')) return; await db.collection('shared').doc('data').set({ frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }, chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] } });
+        async function resetAllData() { if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; } if (!confirm('⚠️ Hapus total semua data?')) return; await db.collection('shared').doc('data').set({ frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }, chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] }, layoutPresets: { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } }, activePreset: { frozen: null, chiller: null } });
+            layoutPresets = { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } };
+            activePreset = { frozen: null, chiller: null };
+            undoStack = [];
+            redoStack = [];
             showToast('✅ Data dihapus.'); }
 
         const container = document.getElementById('appContainer');
-
-        function renderCurrentTab() { try { switch (currentTab) { case 'dashboard': renderDashboard(); break; case 'search': renderSearch(); break; case 'in': renderInputForm(); break; case 'history': renderHistory(); break; case 'rekap': renderRekap(); break; case 'manage': renderManageBaskets(); break; } } catch (e) { console.error(e);
-                container.innerHTML = '<div class="card"><div class="empty-state">Error.</div></div>'; } }
+        function renderCurrentTab() { try { switch (currentTab) { case 'dashboard': renderDashboard(); break; case 'search': renderSearch(); break; case 'in': renderInputForm(); break; case 'history': renderHistory(); break; case 'rekap': renderRekap(); break; case 'manage': renderManageBaskets(); break; } } catch (e) { container.innerHTML = '<div class="card"><div class="empty-state">Error.</div></div>'; } }
 
         // ==================== BUILD ====================
         function buildBasketSlot(no) { if (no === null) return `<div class="basket-slot slot-empty"></div>`; const c = itemCount(no); const exp = hasExpiredItems(no); let cls = 'basket-slot'; if (c >= 5) cls += ' orange'; else if (exp) cls += ' red'; else if (c > 0) cls += ' green'; const badge = (exp || c >= 5) ? '<span class="slot-alert">!</span>' : ''; return `<div class="${cls}" onclick="${editMode?'':'showBasketDetail('+no+')'}" title="Keranjang ${no} — ${c}/5"><span class="slot-num">${no}</span><span class="slot-count">${c}/5</span>${badge}</div>`; }
-
-        function buildBarisBox(sec, idx, slots) { const lbl = `${sec} ${String(idx + 1).padStart(2, '0')}`; let s = ''; for (let i = 0; i < 5; i++) s += buildBasketSlot(slots[i]); return `<div class="baris-box" data-section="${sec}" data-index="${idx}" draggable="${editMode}"><div class="baris-box-lbl">${lbl}</div><div class="baris-slots">${s}</div></div>`; }
-
+        function buildBarisBox(sec, idx, slots) { const lbl = `${sec} ${String(idx + 1).padStart(2, '0')}`; let s = ''; for (let i = 0; i < 5; i++) s += buildBasketSlot(slots[i]); const handles = editMode ? `<div class="resize-handle" style="position:absolute;width:100%;height:10px;top:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="top"></div><div class="resize-handle" style="position:absolute;width:100%;height:10px;bottom:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="bottom"></div><div class="resize-handle" style="position:absolute;width:10px;height:100%;left:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="left"></div><div class="resize-handle" style="position:absolute;width:10px;height:100%;right:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="right"></div>` : ''; return `<div class="baris-box" data-section="${sec}" data-index="${idx}" draggable="${editMode}"><div class="baris-box-lbl">${lbl}</div><div class="baris-slots">${s}</div>${handles}</div>`; }
         function getSecBoxes(sec) { const bo = currentSections()[sec] || {}; return Object.entries(bo).map(([b, sl], i) => buildBarisBox(sec, i, sl)).join(''); }
+        function buildEmptyBox() { const delBtn = editMode ? `<button class="delete-element-btn" onclick="event.stopPropagation();deleteElement(this)" title="Hapus">✕</button>` : ''; const handles = editMode ? `<div class="resize-handle" style="position:absolute;width:100%;height:10px;top:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="top"></div><div class="resize-handle" style="position:absolute;width:100%;height:10px;bottom:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="bottom"></div><div class="resize-handle" style="position:absolute;width:10px;height:100%;left:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="left"></div><div class="resize-handle" style="position:absolute;width:10px;height:100%;right:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="right"></div>` : ''; return `<div class="empty-box" draggable="${editMode}">Area<br>Kosong${delBtn}${handles}</div>`; }
+        function buildSpacerH(text = '— Area Kosong —') { const delBtn = editMode ? `<button class="delete-element-btn" onclick="event.stopPropagation();deleteElement(this)" title="Hapus">✕</button>` : ''; const handles = editMode ? `<div class="resize-handle" style="position:absolute;width:100%;height:12px;top:-6px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="top"></div><div class="resize-handle" style="position:absolute;width:100%;height:12px;bottom:-6px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="bottom"></div><div class="resize-handle" style="position:absolute;width:12px;height:100%;left:-6px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="left"></div><div class="resize-handle" style="position:absolute;width:12px;height:100%;right:-6px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="right"></div>` : ''; return `<div class="spacer-h" draggable="${editMode}">${text}${delBtn}${handles}</div>`; }
+        function buildSpacerV(text = 'Area<br>Kosong') { const delBtn = editMode ? `<button class="delete-element-btn" onclick="event.stopPropagation();deleteElement(this)" title="Hapus">✕</button>` : ''; const handles = editMode ? `<div class="resize-handle" style="position:absolute;width:100%;height:12px;top:-6px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="top"></div><div class="resize-handle" style="position:absolute;width:100%;height:12px;bottom:-6px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="bottom"></div><div class="resize-handle" style="position:absolute;width:12px;height:100%;left:-6px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="left"></div><div class="resize-handle" style="position:absolute;width:12px;height:100%;right:-6px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="right"></div>` : ''; return `<div class="spacer-v" draggable="${editMode}">${text}${delBtn}${handles}</div>`; }
 
-        function buildSpacerH(text = '— Area Kosong —') { return `<div class="spacer-h" draggable="${editMode}">${text}</div>`; }
-
-        function buildSpacerV(text = 'Area<br>Kosong') { return `<div class="spacer-v" draggable="${editMode}" style="min-height:358px;flex:1;">${text}</div>`; }
+        function deleteElement(btn) { if (!isAdmin() || !editMode) return; const el = btn.closest('.spacer-h, .spacer-v, .empty-box'); if (!el) return; if (!confirm('Hapus elemen ini?')) return;
+            saveUndoState();
+            el.remove();
+            showToast('🗑️ Elemen dihapus.'); }
 
         // ==================== DENAH ====================
-        function renderFrozenPlan() {
-            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : '';
-            const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'} edit-toggle-btn" onclick="toggleEditMode()"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : '';
-            const editToolbar = isAdmin() && editMode ? `<div class="edit-toolbar-simple active"><span>✏️ Mode Edit (Drag Only)</span><span style="font-size:0.7rem;opacity:0.7;">Seret box/spacer untuk memindahkan</span></div>` : '';
+        function renderFrozenPlan() { const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : ''; const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}"><span style="font-weight:700;">✏️ Edit</span><button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Aktif':'Nonaktif'}</button><span class="toolbar-divider"></span><button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button><button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button><span class="toolbar-divider"></span><button onclick="openSaveModal()">💾 Simpan Preset</button><button onclick="addEmptyBox()">➕ Box Kosong</button><button onclick="addSpacerH()">➕ Spacer H</button><button onclick="addSpacerV()">➕ Spacer V</button></div>` : ''; const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : '';
+            container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">❄️ Denah Walk-in Frozen ${editMode?'🔧 EDIT':''} ${activePreset.frozen?'📌 Preset '+activePreset.frozen:''}</div>${editToggle}${editToolbar}${presetPanel}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#e8f4f8;" id="denahContainer"><div class="frz-plan" id="frzPlan"><div class="frz-row"><div class="boxes-row">${getSecBoxes('IMP')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="frz-left-stack"><div class="boxes-row">${getSecBoxes('RTL')}</div><div class="boxes-row">${getSecBoxes('NPL')}</div></div>${buildSpacerV()}<div class="frz-right-stack">${getSecBoxes('MI')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>${buildSpacerV()}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
+            if (editMode) { initEditMode();
+                updateUndoRedoButtons(); } }
 
-            container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">❄️ Denah Walk-in Frozen ${editMode?'🔧 EDIT':''}</div>${editToggle}${editToolbar}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#e8f4f8;" id="denahContainer"><div class="frz-plan" id="frzPlan"><div class="frz-row"><div class="boxes-row">${getSecBoxes('IMP')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="frz-left-stack"><div class="boxes-row">${getSecBoxes('RTL')}</div><div class="boxes-row">${getSecBoxes('NPL')}</div></div>${buildSpacerV()}<div class="frz-right-stack">${getSecBoxes('MI')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>${buildSpacerV()}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
-
-            if (editMode) initDragMode();
-        }
-
-        function renderChillerPlan() {
-            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : '';
-            const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'} edit-toggle-btn" onclick="toggleEditMode()"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : '';
-            const editToolbar = isAdmin() && editMode ? `<div class="edit-toolbar-simple active"><span>✏️ Mode Edit (Drag Only)</span><span style="font-size:0.7rem;opacity:0.7;">Seret box/spacer untuk memindahkan</span></div>` : '';
-            const sb = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
-            const bs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
-
-            container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">🌡️ Denah Walk-in Chiller ${editMode?'🔧 EDIT':''}</div>${editToggle}${editToolbar}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#f0fdf4;" id="denahContainer"><div class="chl-plan" id="chlPlan"><div class="chl-top">${sb}${getSecBoxes('THAWING')}</div>${buildSpacerH()}<div class="chl-bot">${bs.map(s => getSecBoxes(s)).join('')}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
-
-            if (editMode) initDragMode();
-        }
+        function renderChillerPlan() { const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : ''; const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}"><span style="font-weight:700;">✏️ Edit</span><button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Aktif':'Nonaktif'}</button><span class="toolbar-divider"></span><button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button><button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button><span class="toolbar-divider"></span><button onclick="openSaveModal()">💾 Simpan Preset</button><button onclick="addEmptyBox()">➕ Box Kosong</button><button onclick="addSpacerH()">➕ Spacer H</button><button onclick="addSpacerV()">➕ Spacer V</button></div>` : ''; const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : ''; const sb = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`; const bs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
+            container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">🌡️ Denah Walk-in Chiller ${editMode?'🔧 EDIT':''} ${activePreset.chiller?'📌 Preset '+activePreset.chiller:''}</div>${editToggle}${editToolbar}${presetPanel}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#f0fdf4;" id="denahContainer"><div class="chl-plan" id="chlPlan"><div class="chl-top">${sb}${getSecBoxes('THAWING')}</div>${buildSpacerH()}<div class="chl-bot">${bs.map(s => getSecBoxes(s)).join('')}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
+            if (editMode) { initEditMode();
+                updateUndoRedoButtons(); } }
 
         function renderDashboard() { currentArea === 'frozen' ? renderFrozenPlan() : renderChillerPlan(); }
 
-        // ==================== EDIT MODE - DRAG ONLY ====================
-        function toggleEditMode() { if (!isAdmin()) return showToast('⚠️ Hanya admin.');
-            editMode = !editMode;
+        // ==================== ADD ELEMENTS ====================
+        function addEmptyBox() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
+            saveUndoState(); const row = document.createElement('div');
+            row.className = 'frz-row';
+            row.innerHTML = buildEmptyBox();
+            plan.appendChild(row);
+            initEmptyBoxDrag(row.querySelector('.empty-box'));
+            initBoxResizeSingle(row.querySelector('.empty-box'));
+            showToast('✅ Box kosong ditambahkan.'); }
+
+        function addSpacerH() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
+            saveUndoState(); const div = document.createElement('div');
+            div.innerHTML = buildSpacerH('— Area Kosong Baru —'); const spacer = div.firstElementChild;
+            plan.appendChild(spacer);
+            initSpacerDrag(spacer);
+            initSpacerResize(spacer);
+            showToast('✅ Spacer H ditambahkan.'); }
+
+        function addSpacerV() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); const rows = plan.querySelectorAll('.frz-row, .chl-row'); let target = rows[rows.length - 1]; if (!target) { target = document.createElement('div');
+                target.className = 'frz-row';
+                plan.appendChild(target); }
+            saveUndoState(); const div = document.createElement('div');
+            div.innerHTML = buildSpacerV('Area<br>Kosong'); const spacer = div.firstElementChild;
+            target.appendChild(spacer);
+            initSpacerDrag(spacer);
+            initSpacerResize(spacer);
+            showToast('✅ Spacer V ditambahkan.'); }
+
+        // ==================== PRESET ====================
+        function renderPresetPanel() { const presets = layoutPresets[currentArea]; let cards = ''; const colors = ['preset-1', 'preset-2', 'preset-3']; const names = ['Preset 1 🟣', 'Preset 2 🔵', 'Preset 3 🟡']; for (let i = 1; i <= 3; i++) { const preset = presets[i]; const isActive = activePreset[currentArea] === i;
+                cards += `<div class="preset-card ${colors[i-1]} ${isActive?'active-preset':''}" onclick="loadPreset(${i})">${isActive?'<span class="preset-badge">✓</span>':''}${preset?`<button class="preset-delete" onclick="event.stopPropagation();deletePreset(${i})">✕</button>`:''}<div class="preset-name">${names[i-1]}</div><div class="preset-info">${preset?preset.name||'Tersimpan':'Kosong'}</div></div>`; } return `<div class="preset-panel active"><span style="font-weight:700;width:100%;">📌 Preset:</span>${cards}</div>`; }
+        function openSaveModal() { if (!isAdmin()) return;
+            selectedPresetSlot = null; for (let i = 1; i <= 3; i++) { const info = document.getElementById(`preset${i}Info`); if (info) info.textContent = layoutPresets[currentArea][i] ? (layoutPresets[currentArea][i].name || 'Tersimpan') : 'Kosong'; }
+            document.getElementById('presetName').value = '';
+            document.getElementById('saveModal').classList.add('active');
+            document.querySelectorAll('.preset-option').forEach(el => el.classList.remove('selected')); }
+        function closeSaveModal() { document.getElementById('saveModal').classList.remove('active');
+            selectedPresetSlot = null; }
+        function selectPresetSlot(slot) { selectedPresetSlot = slot;
+            document.querySelectorAll('.preset-option').forEach(el => el.classList.toggle('selected', parseInt(el.dataset.preset) === slot)); }
+        function confirmSavePreset() { if (!selectedPresetSlot) { showToast('⚠️ Pilih slot preset.'); return; } const name = document.getElementById('presetName').value.trim() || `Layout ${new Date().toLocaleDateString('id-ID')}`; const layoutData = captureCurrentLayout();
+            layoutPresets[currentArea][selectedPresetSlot] = { name, savedAt: new Date().toISOString(), layout: layoutData };
+            activePreset[currentArea] = selectedPresetSlot;
+            saveToFirestore();
+            closeSaveModal();
             renderDashboard();
-            showToast(editMode ? '🔧 Edit mode (Drag) AKTIF' : '✅ Edit mode NONAKTIF'); }
+            showToast(`✅ Disimpan sebagai Preset ${selectedPresetSlot}`); }
+        function loadPreset(slot) { if (!isAdmin()) return; const preset = layoutPresets[currentArea][slot]; if (!preset) { showToast('⚠️ Preset kosong.'); return; } if (!confirm(`Muat Preset ${slot}: "${preset.name}"?`)) return;
+            activePreset[currentArea] = slot;
+            saveToFirestore();
+            applyLayout(preset.layout);
+            renderDashboard();
+            showToast(`✅ Preset ${slot} dimuat.`); }
+        function deletePreset(slot) { if (!isAdmin()) return; if (!confirm(`Hapus Preset ${slot}?`)) return;
+            layoutPresets[currentArea][slot] = null; if (activePreset[currentArea] === slot) activePreset[currentArea] = null;
+            saveToFirestore();
+            renderDashboard();
+            showToast(`🗑️ Preset ${slot} dihapus.`); }
+        function captureCurrentLayout() { const layout = { boxes: {}, spacers: [], emptyBoxes: [] };
+            document.querySelectorAll('.baris-box').forEach(box => { const key = box.dataset.section + '_' + box.dataset.index;
+                layout.boxes[key] = { width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }; });
+            document.querySelectorAll('.spacer-h, .spacer-v').forEach((spacer, i) => { layout.spacers.push({ index: i, className: spacer.className, minHeight: spacer.style.minHeight || '', minWidth: spacer.style.minWidth || '', flex: spacer.style.flex || '', width: spacer.style.width || '', height: spacer.style.height || '' }); });
+            document.querySelectorAll('.empty-box').forEach((box, i) => { layout.emptyBoxes.push({ index: i, width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }); }); return layout; }
+        function applyLayout(ld) { if (!ld) return;
+            setTimeout(() => { if (ld.boxes) { for (const [key, size] of Object.entries(ld.boxes)) { const [section, index] = key.split('_'); const box = document.querySelector(`.baris-box[data-section="${section}"][data-index="${index}"]`); if (box) { if (size.width) box.style.width = size.width; if (size.height) box.style.height = size.height; } } } if (ld.spacers) { const spacers = document.querySelectorAll('.spacer-h, .spacer-v');
+                    ld.spacers.forEach(s => { if (spacers[s.index]) { if (s.minHeight) spacers[s.index].style.minHeight = s.minHeight; if (s.minWidth) spacers[s.index].style.minWidth = s.minWidth; if (s.flex) spacers[s.index].style.flex = s.flex; if (s.width) spacers[s.index].style.width = s.width; if (s.height) spacers[s.index].style.height = s.height; } }); } if (ld.emptyBoxes) { const boxes = document.querySelectorAll('.empty-box');
+                    ld.emptyBoxes.forEach(s => { if (boxes[s.index]) { if (s.width) boxes[s.index].style.width = s.width; if (s.height) boxes[s.index].style.height = s.height; } }); } }, 200); }
 
-        function initDragMode() { setTimeout(() => { const draggables = document.querySelectorAll('.baris-box, .spacer-h, .spacer-v');
-                draggables.forEach(el => { el.addEventListener('dragstart', function(e) { if (!editMode) { e.preventDefault(); return; }
-                        dragState = { el: this };
-                        this.classList.add('dragging');
-                        e.dataTransfer.setData('text/plain', 'move');
-                        e.dataTransfer.effectAllowed = 'move'; });
-                    el.addEventListener('dragend', function(e) { this.classList.remove('dragging');
-                        dragState = null;
-                        document.querySelectorAll('.drop-zone-active').forEach(el => el.classList.remove(
-                            'drop-zone-active')); }); }); const zones = document.querySelectorAll('.boxes-row, .frz-row, .chl-row, .chl-top, .chl-bot, #frzPlan, #chlPlan');
-                zones.forEach(zone => { zone.addEventListener('dragover', function(e) { if (!editMode || !dragState) return;
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = 'move';
-                        this.classList.add('drop-zone-active'); });
-                    zone.addEventListener('dragleave', function(e) { this.classList.remove('drop-zone-active'); });
-                    zone.addEventListener('drop', function(e) { if (!editMode || !dragState) return;
-                        e.preventDefault();
-                        this.classList.remove('drop-zone-active'); if (dragState.el && this !== dragState.el && !this.contains(dragState.el)) { const targetRow = this.closest('.boxes-row, .frz-row, .chl-row'); if (targetRow) { targetRow.appendChild(dragState.el); } else if (this.classList.contains('frz-row') || this.classList.contains('chl-row') || this.classList.contains('chl-top') || this.classList.contains('chl-bot')) { const boxesRow = this.querySelector('.boxes-row'); if (boxesRow) boxesRow.appendChild(dragState.el);
-                            else this.appendChild(dragState.el); } else { this.appendChild(dragState
-                                .el); }
-                            showToast('✅ Dipindahkan!'); } }); }); }, 300); }
+        // ==================== EDIT MODE ====================
+        function toggleEditMode() { if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; }
+            editMode = !editMode; if (!editMode) { undoStack = [];
+                redoStack = []; }
+            renderDashboard();
+            showToast(editMode ? '🔧 Edit mode AKTIF (Undo/Redo tersedia)' : '✅ Edit mode NONAKTIF'); }
+        function initEditMode() { initBoxDrag();
+            initBoxResize();
+            initAllSpacerDrag();
+            initAllSpacerResize();
+            initAllEmptyBoxDrag();
+            initAllEmptyBoxResize();
+            updateUndoRedoButtons(); }
 
-        // ==================== SEARCH ====================
-        function renderSearch(keyword = '') { const allBaskets = []; for (const a of ['frozen', 'chiller']) for (const [no, b] of Object.entries(appData[a].baskets)) allBaskets.push({ area: a, no: parseInt(no), section: b.section, baris: b.baris, slot: b.slot, items: b.items || [] }); const now = new Date(); let allItems = [];
+        // DRAG BOX
+        function initBoxDrag() { document.querySelectorAll('.baris-box').forEach(box => { box.addEventListener('dragstart', function(e) { if (!editMode) return;
+                    dragState = { element: this, type: 'box' };
+                    this.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', 'box'); });
+                box.addEventListener('dragend', function() { if (dragState && dragState.type === 'box') saveUndoState(); this.classList.remove('dragging');
+                    dragState = null;
+                    clearDropZones(); }); });
+            initDropZones(); }
+
+        // DRAG SPACER
+        function initAllSpacerDrag() { document.querySelectorAll('.spacer-h, .spacer-v').forEach(s => initSpacerDrag(s)); }
+        function initSpacerDrag(spacer) { spacer.setAttribute('draggable', editMode);
+            spacer.addEventListener('dragstart', function(e) { if (!editMode) { e.preventDefault(); return; }
+                    dragState = { element: this, type: 'spacer' };
+                    this.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', 'spacer'); });
+            spacer.addEventListener('dragend', function() { if (dragState && dragState.type === 'spacer') saveUndoState(); this.classList.remove('dragging');
+                    dragState = null;
+                    clearDropZones(); }); }
+
+        // DRAG EMPTY BOX
+        function initAllEmptyBoxDrag() { document.querySelectorAll('.empty-box').forEach(box => initEmptyBoxDrag(box)); }
+        function initEmptyBoxDrag(box) { box.setAttribute('draggable', editMode);
+            box.addEventListener('dragstart', function(e) { if (!editMode) { e.preventDefault(); return; }
+                    dragState = { element: this, type: 'empty-box' };
+                    this.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', 'empty-box'); });
+            box.addEventListener('dragend', function() { if (dragState && dragState.type === 'empty-box') saveUndoState(); this.classList.remove('dragging');
+                    dragState = null;
+                    clearDropZones(); }); }
+
+        function initDropZones() { const zones = document.querySelectorAll('.boxes-row, .frz-row, .chl-row, .chl-top, .chl-bot, .frz-left-stack, .frz-right-stack, #frzPlan, #chlPlan');
+            zones.forEach(zone => { zone.addEventListener('dragover', function(e) { if (!editMode || !dragState) return;
+                    e.preventDefault();
+                    this.classList.add('drop-zone'); });
+                zone.addEventListener('dragleave', function() { this.classList.remove('drop-zone'); });
+                zone.addEventListener('drop', function(e) { if (!editMode || !dragState) return;
+                    e.preventDefault();
+                    this.classList.remove('drop-zone'); if (dragState.element && this !== dragState.element && !this.contains(dragState.element)) { if (this.classList.contains('boxes-row') || this.classList.contains('frz-row') || this.classList.contains('chl-row') || this.classList.contains('chl-top') || this.classList.contains('chl-bot')) { this.appendChild(dragState.element); } else { this.after(dragState.element); }
+                        showToast('✅ Dipindahkan.'); } }); }); }
+        function clearDropZones() { document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drop-zone')); }
+
+        // RESIZE BOX
+        function initBoxResize() { document.querySelectorAll('.baris-box').forEach(box => initBoxResizeSingle(box)); }
+        function initBoxResizeSingle(box) { const handles = box.querySelectorAll('.resize-handle');
+            handles.forEach(h => { h.addEventListener('mousedown', function(e) { if (!editMode) return;
+                    e.preventDefault();
+                    e.stopPropagation(); const dir = this.dataset.dir;
+                    saveUndoState();
+                    startResize(e, box, dir); }); }); }
+        function initAllEmptyBoxResize() { document.querySelectorAll('.empty-box').forEach(box => initBoxResizeSingle(box)); }
+        function startResize(e, box, direction) { const startX = e.clientX; const startY = e.clientY; const startWidth = box.offsetWidth; const startHeight = box.offsetHeight; const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;';
+            document.body.appendChild(overlay); function onMouseMove(e) { e.preventDefault(); const dx = e.clientX - startX; const dy = e.clientY - startY; if (direction.includes('right')) box.style.width = Math.max(40, Math.min(400, startWidth + dx)) + 'px'; if (direction.includes('left')) box.style.width = Math.max(40, Math.min(400, startWidth - dx)) + 'px'; if (direction.includes('bottom')) box.style.height = Math.max(40, Math.min(400, startHeight + dy)) + 'px'; if (direction.includes('top')) box.style.height = Math.max(40, Math.min(400, startHeight - dy)) + 'px'; } function onMouseUp() { document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp); if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                showToast('✅ Ukuran diubah.'); }
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp); }
+
+        // RESIZE SPACER
+        function initAllSpacerResize() { document.querySelectorAll('.spacer-h, .spacer-v').forEach(s => initSpacerResize(s)); }
+        function initSpacerResize(spacer) { const handles = spacer.querySelectorAll('.resize-handle');
+            handles.forEach(h => { h.addEventListener('mousedown', function(e) { if (!editMode) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation(); const dir = this.dataset.dir;
+                    saveUndoState();
+                    startSpacerResize(e, spacer, dir); }); }); }
+        function startSpacerResize(e, spacer, direction) { const startX = e.clientX; const startY = e.clientY; const startWidth = spacer.offsetWidth; const startHeight = spacer.offsetHeight; const isH = spacer.classList.contains('spacer-h'); const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;';
+            document.body.appendChild(overlay); function onMouseMove(e) { e.preventDefault(); const dx = e.clientX - startX; const dy = e.clientY - startY; if (direction.includes('right')) { const w = Math.max(10, Math.min(800, startWidth + dx));
+                    spacer.style.width = w + 'px';
+                    spacer.style.minWidth = w + 'px';
+                    spacer.style.flex = 'none'; } if (direction.includes('left')) { const w = Math.max(10, Math.min(800, startWidth - dx));
+                    spacer.style.width = w + 'px';
+                    spacer.style.minWidth = w + 'px';
+                    spacer.style.flex = 'none'; } if (direction.includes('bottom')) { const h = Math.max(10, Math.min(600, startHeight + dy));
+                    spacer.style.height = h + 'px';
+                    spacer.style.minHeight = h + 'px'; if (!isH) spacer.style.flex = 'none'; } if (direction.includes('top')) { const h = Math.max(10, Math.min(600, startHeight - dy));
+                    spacer.style.height = h + 'px';
+                    spacer.style.minHeight = h + 'px'; if (!isH) spacer.style.flex = 'none'; } } function onMouseUp() { document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp); if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                showToast('✅ Spacer diubah.'); }
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp); }
+
+        // ==================== SEARCH, DETAIL, INPUT, HISTORY, REKAP, MANAGE ====================
+        function renderSearch(keyword = '') { const allBaskets = []; for (const a of ['frozen', 'chiller']) { for (const [no, b] of Object.entries(appData[a].baskets)) { allBaskets.push({ area: a, no: parseInt(no), section: b.section, baris: b.baris, slot: b.slot, items: b.items || [] }); } } const now = new Date(); let allItems = [];
             allBaskets.forEach(b => b.items.forEach(it => allItems.push({ ...it, area: b.area, no: b.no, section: b.section, baris: b.baris, slot: b.slot }))); let filtered = allItems; if (keyword.trim()) { const kw = keyword.toLowerCase().trim();
                 filtered = allItems.filter(i => i.nama.toLowerCase().includes(kw) || (i.jenis && i.jenis.toLowerCase().includes(kw))); }
-            filtered.sort((a, b) => a.area.localeCompare(b.area) || a.section.localeCompare(b.section) || a.baris.localeCompare(b.baris) || a.slot - b.slot);
-
-            function hl(t, kw) { if (!kw.trim()) return t; return t.replace(new RegExp(`(${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<span class="search-highlight">$1</span>'); }
-            let html = ''; if (filtered.length === 0 && keyword.trim()) html = '<div class="empty-state">🔍 Tidak ditemukan.</div>'; else filtered.forEach(it => { const exp = it.expDate ? new Date(it.expDate) : null; const est = it.estOutDate ? new Date(it.estOutDate) : null; let st = '',
+            filtered.sort((a, b) => a.area.localeCompare(b.area) || a.section.localeCompare(b.section) || a.baris.localeCompare(b.baris) || a.slot - b.slot); function hl(t, kw) { if (!kw.trim()) return t; return t.replace(new RegExp(`(${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<span class="search-highlight">$1</span>'); } let html = ''; if (filtered.length === 0 && keyword.trim()) html = '<div class="empty-state">🔍 Tidak ditemukan.</div>'; else filtered.forEach(it => { const exp = it.expDate ? new Date(it.expDate) : null; const est = it.estOutDate ? new Date(it.estOutDate) : null; let st = '',
                     sc = ''; if (exp && exp < now) { st = '⚠️ EXPIRED';
                     sc = 'status-expired'; } else if (est && est < now) { st = '⏰ EST LEWAT';
                     sc = 'status-warning'; } else if (exp || est) { const d = exp ? Math.ceil((exp - now) / 86400000) : Math.ceil((est - now) / 86400000);
                     st = `✅ ${d} hari`;
                     sc = d <= 7 ? 'status-warning' : 'status-safe'; }
-                html += `<div class="search-result-item" onclick="navigateToBasket(${it.no},'${it.area}')"><div style="font-weight:700;">${hl(it.nama,keyword)}</div><div style="font-size:0.85rem;color:#475569;">${it.qty} | ${it.jenis||'-'} | Masuk: ${it.tglMasuk?new Date(it.tglMasuk).toLocaleDateString('id-ID'):'-'} ${exp?' | Exp: '+exp.toLocaleDateString('id-ID'):''} ${est?' | Est: '+est.toLocaleDateString('id-ID'):''}</div><div style="display:inline-flex;align-items:center;gap:6px;background:#dbeafe;padding:4px 10px;border-radius:12px;font-size:0.75rem;font-weight:600;color:#1d4ed8;margin-top:6px;"><i class="fas fa-map-marker-alt"></i> ${it.area==='frozen'?'❄️':'🌡️'} → ${it.section} ${it.baris} → Slot ${it.slot} → #${it.no} ${st?`<span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:0.7rem;font-weight:700;margin-left:8px;${sc==='status-expired'?'background:#fee2e2;color:#991b1b;':sc==='status-warning'?'background:#fef3c7;color:#92400e;':'background:#d1fae5;color:#065f46;'}">${st}</span>`:''}</div></div>`; });
-            container.innerHTML = `<div class="card"><h3>🔍 Cari Barang</h3><div class="search-container"><i class="fas fa-search search-icon"></i><input id="searchInput" placeholder="Cari nama/jenis..." value="${keyword}" oninput="renderSearch(this.value)" autofocus></div>${keyword.trim()?`<div style="font-size:0.85rem;color:#64748b;margin-bottom:12px;font-weight:600;">📊 <strong>${filtered.length}</strong> item</div>`:''}<div>${html}</div></div>`; }
-
+                html += `<div class="search-result-item" onclick="navigateToBasket(${it.no},'${it.area}')"><div class="item-name">${hl(it.nama,keyword)}</div><div class="item-detail">${it.qty} | ${it.jenis||'-'} | Masuk: ${it.tglMasuk?new Date(it.tglMasuk).toLocaleDateString('id-ID'):'-'}</div><div class="item-location"><i class="fas fa-map-marker-alt"></i> ${it.area==='frozen'?'❄️':'🌡️'} → ${it.section} ${it.baris} → Slot ${it.slot} → #${it.no} ${st?`<span class="item-status ${sc}">${st}</span>`:''}</div></div>`; });
+            container.innerHTML = `<div class="card"><h3>🔍 Cari Barang</h3><div class="search-container"><i class="fas fa-search search-icon"></i><input id="searchInput" placeholder="Cari nama/jenis..." value="${keyword}" oninput="renderSearch(this.value)" autofocus></div>${keyword.trim()?`<div class="search-result-count">📊 <strong>${filtered.length}</strong> item</div>`:''}<div>${html}</div></div>`; }
         function navigateToBasket(no, area) { if (area !== currentArea) { currentArea = area;
                 document.getElementById('areaSelect').value = area;
                 document.getElementById('areaTitle').textContent = area === 'frozen' ? 'Frozen' : 'Chiller'; }
             showBasketDetail(no); }
-
         function showBasketDetail(no, moveIdx = null) { const b = currentBaskets()[no]; const cnt = itemCount(no); const now = new Date(); let items = b?.items.length ? b.items.map((it, idx) => { let cls = '',
                     lbl = ''; if (it.expDate && new Date(it.expDate) < now) { cls = 'expired';
                     lbl = ' ⚠️ EXP'; } else if (it.estOutDate && new Date(it.estOutDate) < now) { cls = 'expired';
                     lbl = ' ⚠️ EST LEWAT'; } const mf = moveIdx === idx ? renderMoveForm(no, idx) : ''; return `<div class="item-row ${cls}"><div><strong>${it.nama}</strong> (${it.qty})${lbl}<br><small>${it.jenis||''} | Masuk: ${it.tglMasuk?new Date(it.tglMasuk).toLocaleDateString('id-ID'):'-'} ${it.expDate?' | Exp: '+new Date(it.expDate).toLocaleDateString('id-ID'):''} ${it.estOutDate?' | Est: '+new Date(it.estOutDate).toLocaleDateString('id-ID'):''}</small></div><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showBasketDetail(${no},${idx})">Pindah</button><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editEstOutDate(${no},${idx})"><i class="fas fa-edit"></i></button><button class="btn btn-outline btn-sm" onclick="keluarkanItem(${no},${idx})">Keluar</button></div>${mf}</div>`; }).join('') : '<div class="empty-state">Keranjang kosong</div>';
             container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;"><h3>Keranjang ${no}${b?' — '+b.section+' '+b.baris+' Slot '+b.slot:''}</h3><button class="btn btn-outline btn-sm" onclick="renderDashboard()">← Denah</button></div><p>Total: ${cnt}/5</p>${items}</div>`; }
-
         function editEstOutDate(no, idx) { const b = currentBaskets()[no]; if (!b?.items[idx]) return; const it = b.items[idx]; const exp = it.expDate ? new Date(it.expDate) : null; const cur = it.estOutDate ? new Date(it.estOutDate).toISOString().split('T')[0] : ''; const n = prompt(`Edit Estimasi "${it.nama}"\nExp: ${exp?exp.toLocaleDateString('id-ID'):'-'}\n(YYYY-MM-DD):`, cur); if (!n || !/^\d{4}-\d{2}-\d{2}$/.test(n)) return showToast('Format salah.'); const nd = new Date(n); if (isNaN(nd.getTime())) return showToast('Invalid.'); if (exp && nd > exp) return showToast('Tidak boleh > Exp.');
             it.estOutDate = n;
             logTransaction('edit', { nama: it.nama, qty: it.qty, jenis: it.jenis, keranjang: no, section: b.section, oldEstOutDate: cur, newEstOutDate: n });
             saveToFirestore();
             showToast('✅ Diperbarui.');
             showBasketDetail(no); }
-
         function renderMoveForm(fromNo, fromIdx) { const secs = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join(''); return `<div class="move-form" onclick="event.stopPropagation();"><select id="moveSection" onchange="updateMoveBaris()">${secs}</select><select id="moveBaris" onchange="updateMoveKeranjang()"><option>-- Baris --</option></select><select id="moveKeranjang"><option>-- Keranjang --</option></select><button class="btn btn-sm btn-primary" onclick="pindahkanItem(${fromNo},${fromIdx})">Pindahkan</button></div>`; }
-
         function updateMoveBaris() { const sec = document.getElementById('moveSection')?.value; const sel = document.getElementById('moveBaris'); if (!sel) return;
             sel.innerHTML = '<option value="">-- Baris --</option>'; if (!sec) return;
             Object.keys(currentSections()[sec] || {}).forEach((b, i) => sel.innerHTML += `<option value="${b}">${sec} ${String(i+1).padStart(2,'0')}</option>`);
             updateMoveKeranjang(); }
-
         function updateMoveKeranjang() { const sec = document.getElementById('moveSection')?.value; const bar = document.getElementById('moveBaris')?.value; const sel = document.getElementById('moveKeranjang'); if (!sel) return;
             sel.innerHTML = '<option value="">-- Keranjang --</option>'; if (!sec || !bar) return;
             (currentSections()[sec]?.[bar] || []).forEach((no, i) => { if (no === null) return; const c = itemCount(no);
                 sel.innerHTML += `<option value="${no}" ${c>=5?'disabled':''}>Keranjang ${no} (Slot ${i+1}) ${c}/5</option>`; }); }
-
         function pindahkanItem(fromNo, fromIdx) { const toNo = parseInt(document.getElementById('moveKeranjang')?.value); if (!toNo || toNo === fromNo) return showToast('Tujuan tidak valid.'); if (itemCount(toNo) >= 5) return showToast('Tujuan penuh.'); const fb = currentBaskets()[fromNo]; if (!fb?.items[fromIdx]) return; const it = fb.items[fromIdx];
             fb.items.splice(fromIdx, 1); if (!currentBaskets()[toNo]) currentBaskets()[toNo] = { items: [] };
             currentBaskets()[toNo].items.push(it);
@@ -971,39 +1492,32 @@
             saveToFirestore();
             showToast('✅ Dipindahkan.');
             showBasketDetail(fromNo); }
-
         function keluarkanItem(no, idx) { const b = currentBaskets()[no]; if (!b?.items[idx]) return; const it = b.items[idx]; if (!confirm(`Keluar "${it.nama}"?`)) return;
             b.items.splice(idx, 1);
             logTransaction('out', { nama: it.nama, qty: it.qty, jenis: it.jenis, keranjang: no, section: b.section });
             saveToFirestore();
             showToast('✅ Dikeluarkan.');
             showBasketDetail(no); }
-
         function renderInputForm() { const secOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
             container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3><form id="inForm" onsubmit="submitIn(event)"><div class="form-group"><label>Nama</label><input id="inNama" list="namaList" required><datalist id="namaList"></datalist></div><div class="form-group"><label>Jumlah</label><input id="inQty" placeholder="3 Pack" required></div><div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div><div class="form-group"><label>Exp (wajib)</label><input type="date" id="inExpDate" required></div><div class="form-group"><label>Est.Keluar (wajib)</label><input type="date" id="inEstOutDate" required></div><div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${secOpt}</select></div><div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option>-- Pilih --</option></select></div><div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option>-- Pilih --</option></select></div><div class="form-group"><label>No Keranjang Baru</label><input type="number" id="inKeranjangManual" placeholder="Isi jika slot kosong" min="1"></div><button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button></form></div>`;
             updateBarisSelect();
             updateNamaDatalist(); }
-
         function handleSlotChange() { const slot = parseInt(document.getElementById('inSlot')?.value); const mi = document.getElementById('inKeranjangManual'); if (!mi) return; if (!slot) { mi.disabled = true;
-                mi.placeholder = 'Pilih slot'; return; } const sec = document.getElementById('inSection')?.value; const bar = document.getElementById('inBaris')?.value; const slots = currentSections()[sec]?.[bar]; if (!slots) return; const no = slots[slot - 1]; if (no) { mi.disabled = true;
+                mi.placeholder = 'Pilih slot dulu'; return; } const sec = document.getElementById('inSection')?.value; const bar = document.getElementById('inBaris')?.value; const slots = currentSections()[sec]?.[bar]; if (!slots) return; const no = slots[slot - 1]; if (no) { mi.disabled = true;
                 mi.value = '';
                 mi.placeholder = `Keranjang ${no}`; } else { mi.disabled = false;
                 mi.placeholder = 'Nomor baru (wajib)';
                 mi.focus(); } }
-
         function updateBarisSelect() { const sec = document.getElementById('inSection')?.value; const sel = document.getElementById('inBaris'); if (!sel) return;
             sel.innerHTML = '<option value="">-- Pilih --</option>'; if (sec) { Object.keys(currentSections()[sec] || {}).forEach((b, i) => sel.innerHTML += `<option value="${b}">${sec} ${String(i+1).padStart(2,'0')}</option>`); if (Object.keys(currentSections()[sec] || {}).length) { sel.value = Object.keys(currentSections()[sec])[0];
                     updateSlotSelect(); } } else document.getElementById('inSlot').innerHTML = '<option>-- Pilih --</option>'; }
-
         function updateSlotSelect() { const sec = document.getElementById('inSection')?.value; const bar = document.getElementById('inBaris')?.value; const sel = document.getElementById('inSlot'); if (!sel) return;
             sel.innerHTML = '<option value="">-- Pilih --</option>'; if (!sec || !bar) return;
             (currentSections()[sec]?.[bar] || []).forEach((no, i) => { const label = `Slot ${i+1}` + (no ? `: ${no} (${itemCount(no)}/5)` : ' (kosong)');
-                sel.innerHTML += `<option value="${i+1}" ${no&&itemCount(no)>=5?'disabled':''}>${label}</option>`; }); }
-
+                sel.innerHTML += `<option value="${i+1}" ${no&&itemCount(no)>=5?'disabled':''}>${label}${no&&itemCount(no)>=5?' - PENUH':''}</option>`; }); }
         function updateNamaDatalist() { const set = new Set();
             currentTransactions().forEach(t => { if (t.detail?.nama) set.add(t.detail.nama); });
             document.getElementById('namaList').innerHTML = [...set].map(n => `<option value="${n}">`).join(''); }
-
         function submitIn(e) { e.preventDefault(); const nama = document.getElementById('inNama').value.trim(); const qty = document.getElementById('inQty').value.trim(); const jenis = document.getElementById('inJenis').value; const exp = document.getElementById('inExpDate').value; const est = document.getElementById('inEstOutDate').value; const sec = document.getElementById('inSection').value; const bar = document.getElementById('inBaris').value; const slotStr = document.getElementById('inSlot').value; const man = document.getElementById('inKeranjangManual')?.value.trim(); if (!nama || !qty || !bar || !slotStr || !exp || !est) return showToast('Lengkapi semua.'); const si = parseInt(slotStr) - 1; const slots = currentSections()[sec]?.[bar]; if (!slots) return showToast('Data invalid.'); let no = slots[si]; if (!no) { if (!man) return showToast('Slot kosong, isi nomor baru.'); const nn = parseInt(man); for (const [s, bo] of Object.entries(currentSections())) for (const sl of Object.values(bo)) if (sl.includes(nn)) return showToast(`No ${nn} sudah dipakai.`);
                 slots[si] = nn;
                 currentBaskets()[nn] = { section: sec, baris: bar, slot: si + 1, items: [] };
@@ -1013,7 +1527,6 @@
             saveToFirestore();
             showToast('✅ Masuk.');
             setTimeout(renderInputForm, 100); }
-
         function renderHistory() { const list = currentTransactions().slice(0, 100).map(t => { let tc = '',
                     bc = '',
                     ic = ''; if (t.type === 'in') { tc = 'type-in';
@@ -1026,7 +1539,6 @@
                     bc = 'badge-out';
                     ic = '📤'; } const d = t.detail || {}; const ex = t.type === 'move' ? `Dari ${d.dari} → ${d.ke}` : t.type === 'edit' ? `Est: ${d.oldEstOutDate} → ${d.newEstOutDate}` : `Keranjang: ${d.keranjang||'-'} | ${d.section||'-'}`; return `<div class="history-item ${tc}"><div style="font-size:1.5rem;">${ic}</div><div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span class="history-badge ${bc}">${t.type==='in'?'MASUK':t.type==='move'?'PINDAH':t.type==='edit'?'EDIT':'KELUAR'}</span><small>${new Date(t.timestamp).toLocaleString('id-ID')}</small></div><strong>${d.nama||'-'}</strong> — ${d.qty||'-'} (${d.jenis||'-'})<br><small>${ex} | ${t.user}</small></div></div>`; }).join('');
             container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;"><h3>📋 Riwayat</h3><button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button></div>${list||'<div class="empty-state">Belum ada.</div>'}</div>`; }
-
         function renderRekap() { const B = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; const trx = currentTransactions(); const ny = new Date().getFullYear(); const ys = [...new Set(trx.map(t => new Date(t.timestamp).getFullYear()))].sort((a, b) => b - a); const sy = parseInt(document.getElementById('rekapYearFilter')?.value || ny); let ti = 0,
                 to = 0;
             trx.forEach(t => t.type === 'in' ? ti++ : to++); const sb = `<div class="stat-grid"><div class="stat-box"><div class="val">${ti}</div><div class="lbl">Masuk</div></div><div class="stat-box out"><div class="val">${to}</div><div class="lbl">Keluar</div></div></div>`; const mt = `<div class="rekap-tabs"><button class="rekap-tab ${rekapMode==='bulanan'?'active':''}" onclick="rekapMode='bulanan';renderRekap()">📅 Bulanan</button><button class="rekap-tab ${rekapMode==='tahunan'?'active':''}" onclick="rekapMode='tahunan';renderRekap()">📆 Tahunan</button></div>`; if (rekapMode === 'bulanan') { const md = {};
@@ -1041,24 +1553,20 @@
                 [...Object.keys(yd)].sort((a, b) => b - a).forEach(y => { const bd = Object.entries(yd[y].bs).map(([s, v]) => `<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');
                     rows += `<tr><td><strong>${y}</strong></td><td style="color:var(--primary);">+${yd[y].in}</td><td style="color:var(--danger);">-${yd[y].out}</td><td>${yd[y].in-yd[y].out>=0?'+':''}${yd[y].in-yd[y].out}</td><td>${bd}</td></tr>`; }); if (!rows) rows = '<tr><td colspan="5">Belum ada data.</td></tr>';
                 container.innerHTML = `<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${sb}${mt}<button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button><table class="rekap-table"><thead><tr><th>Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div>`; } }
-
-        function downloadExcel() { const trx = currentTransactions(); if (!trx.length) return showToast('Tidak ada.'); let h = '<html><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Tgl</th><th>Jenis</th><th>Item</th><th>Qty</th><th>Jenis</th><th>Keranjang</th><th>Section</th><th>User</th></tr>';
+        function downloadExcel() { const trx = currentTransactions(); if (!trx.length) return showToast('Tidak ada.'); let h = '<html><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Tgl</th><th>Jenis</th><th>Item</th><th>Qty</th><th>Jenis</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est</th></tr>';
             trx.forEach(t => { const d = t.detail;
-                h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td></tr>`; });
+                h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`; });
             h += '</table></body></html>';
             _dlBlob(h, `riwayat_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`); }
-
         function downloadRekapExcel() { const B = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; const trx = currentTransactions(); if (!trx.length) return showToast('Tidak ada.'); let h = '<html><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Bulan/Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>'; const yd = {};
             trx.forEach(t => { const d = new Date(t.timestamp); const k = rekapMode === 'bulanan' ? B[d.getMonth()] + ' ' + d.getFullYear() : d.getFullYear(); if (!yd[k]) yd[k] = { in: 0, out: 0 };
                 yd[k][t.type]++; }); for (const [k, v] of Object.entries(yd)) h += `<tr><td>${k}</td><td>+${v.in}</td><td>-${v.out}</td><td>${v.in-v.out>=0?'+':''}${v.in-v.out}</td></tr>`;
             h += '</table></body></html>';
             _dlBlob(h, `rekap_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`); }
-
         function _dlBlob(html, fn) { const b = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' }); const a = document.createElement('a');
             a.href = URL.createObjectURL(b);
             a.download = fn;
             a.click(); }
-
         function renderManageBaskets() { if (!isAdmin()) { container.innerHTML = '<div class="card"><h3>⚙️ Atur</h3><p style="color:red;">🔒 Hanya admin.</p></div>'; return; } let h = '<div class="card"><h3>⚙️ Atur Slot</h3>'; for (const [sec, bo] of Object.entries(currentSections())) { h += `<div style="margin-bottom:20px;"><strong>📍 ${sec}</strong>`; for (const [bar, slots] of Object.entries(bo)) { h += `<div style="margin-left:8px;"><span class="baris-label">📌 ${bar}</span>`; for (let i = 0; i < 5; i++) { const no = slots[i]; if (no) h += `<div style="display:inline-flex;gap:6px;margin:4px;"><span class="chip">Slot ${i+1}: ${no} (${itemCount(no)}/5) <span style="cursor:pointer;color:red;" onclick="clearSlot('${sec}','${bar}',${i})">✕</span></span></div>`; else h += `<div style="display:inline-flex;gap:6px;margin:4px;"><span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span><input type="number" id="inp_${sec}_${bar}_${i}" placeholder="No" style="width:80px;padding:4px;"><button class="btn btn-sm btn-primary" onclick="fillSlot('${sec}','${bar}',${i})">Isi</button></div>`; } h += '</div>'; } h += `<div><button class="btn btn-sm btn-outline" onclick="addBaris('${sec}')">➕ Tambah Baris</button></div></div>`; } h += '</div>';
             container.innerHTML = h; }
         window.clearSlot = function(s, b, i) { if (!isAdmin()) return; const no = currentSections()[s][b][i]; if (no && itemCount(no) > 0) return showToast('Masih berisi.'); if (!confirm('Kosongkan?')) return; if (no) delete currentBaskets()[no];
@@ -1076,13 +1584,25 @@
             saveToFirestore();
             renderManageBaskets(); };
 
-        // ==================== INIT TABS ====================
+        // ==================== INIT ====================
         document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', function() {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             currentTab = this.dataset.tab;
             renderCurrentTab(); }); });
         document.getElementById('areaSelect').value = currentArea;
+        document.getElementById('saveModal').addEventListener('click', function(e) { if (e.target === this) closeSaveModal(); });
+
+        // Keyboard shortcut untuk Undo/Redo
+        document.addEventListener('keydown', function(e) {
+            if (!editMode) return;
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault();
+                undo(); }
+            if (e.ctrlKey && e.key === 'y') { e.preventDefault();
+                redo(); }
+            if (e.ctrlKey && e.shiftKey && e.key === 'Z') { e.preventDefault();
+                redo(); }
+        });
     </script>
 </body>
 </html>
