@@ -1872,53 +1872,101 @@
         }
 
         // RESIZE SPACER
-        function initAllSpacerResize() {
-            document.querySelectorAll('.spacer-h, .spacer-v').forEach(s => initSpacerResize(s));
+        
+function spacerResize(e, spacer, direction) {
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startWidth = spacer.offsetWidth;
+    const startHeight = spacer.offsetHeight;
+    const isHorizontal = spacer.classList.contains('spacer-h');
+
+    function onMouseMove(e) {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        // RESIZE TINGGI (ATAS & BAWAH) - berlaku untuk semua spacer
+        if (direction.includes('bottom')) {
+            spacer.style.minHeight = Math.max(5, Math.min(600, startHeight + dy)) + 'px';
+            if (!isHorizontal) {
+                spacer.style.height = Math.max(5, Math.min(600, startHeight + dy)) + 'px';
+                spacer.style.flex = 'none';
+            }
+        }
+        if (direction.includes('top')) {
+            spacer.style.minHeight = Math.max(5, Math.min(600, startHeight - dy)) + 'px';
+            if (!isHorizontal) {
+                spacer.style.height = Math.max(5, Math.min(600, startHeight - dy)) + 'px';
+                spacer.style.flex = 'none';
+            }
         }
 
-        function initSpacerResize(spacer) {
-            if (!spacer.querySelector('.resize-handle-top')) {
-                spacer.innerHTML += `<div class="resize-handle resize-handle-top"></div><div class="resize-handle resize-handle-bottom"></div><div class="resize-handle resize-handle-left"></div><div class="resize-handle resize-handle-right"></div>`;
+        // RESIZE LEBAR (KIRI & KANAN) - berlaku untuk semua spacer
+        if (direction.includes('right')) {
+            spacer.style.minWidth = Math.max(5, Math.min(800, startWidth + dx)) + 'px';
+            spacer.style.flex = 'none';
+            if (isHorizontal) {
+                spacer.style.width = Math.max(5, Math.min(800, startWidth + dx)) + 'px';
             }
-            ['top', 'bottom', 'left', 'right'].forEach(dir => {
-                const handle = spacer.querySelector(`.resize-handle-${dir}`);
-                if (handle) {
-                    handle.addEventListener('mousedown', function(e) {
-                        if (!editMode) return;
-                        e.preventDefault();
-                        e.stopPropagation();
-                        spacerResize(e, spacer, dir);
-                    });
-                }
+        }
+        if (direction.includes('left')) {
+            spacer.style.minWidth = Math.max(5, Math.min(800, startWidth - dx)) + 'px';
+            spacer.style.flex = 'none';
+            if (isHorizontal) {
+                spacer.style.width = Math.max(5, Math.min(800, startWidth - dx)) + 'px';
+            }
+        }
+    }
+
+    function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        showToast('✅ Spacer diubah.');
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+}
+
+// =============================================
+// FUNGSI INIT SPACER RESIZE - 8 HANDLE (SIAP PAKAI)
+// =============================================
+
+function initSpacerResize(spacer) {
+    // Tambahkan 8 handle resize seperti box
+    if (!spacer.querySelector('.resize-handle-top-left')) {
+        spacer.innerHTML += `
+            <div class="resize-handle resize-handle-top"></div>
+            <div class="resize-handle resize-handle-bottom"></div>
+            <div class="resize-handle resize-handle-left"></div>
+            <div class="resize-handle resize-handle-right"></div>
+            <div class="resize-handle resize-handle-top-left"></div>
+            <div class="resize-handle resize-handle-top-right"></div>
+            <div class="resize-handle resize-handle-bottom-left"></div>
+            <div class="resize-handle resize-handle-bottom-right"></div>
+        `;
+    }
+
+    const directions = [
+        'top', 'right', 'bottom', 'left',
+        'top-left', 'top-right', 'bottom-left', 'bottom-right'
+    ];
+
+    directions.forEach(dir => {
+        const handle = spacer.querySelector(`.resize-handle-${dir}`);
+        if (handle) {
+            // Hapus event listener lama dengan clone
+            const newHandle = handle.cloneNode(true);
+            handle.parentNode.replaceChild(newHandle, handle);
+
+            newHandle.addEventListener('mousedown', function(e) {
+                if (!editMode) return;
+                e.preventDefault();
+                e.stopPropagation();
+                spacerResize(e, spacer, dir);
             });
         }
-
-        function spacerResize(e, spacer, direction) {
-            const startX = e.clientX;
-            const startY = e.clientY;
-            const startWidth = spacer.offsetWidth;
-            const startHeight = spacer.offsetHeight;
-
-            function onMouseMove(e) {
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                if (direction === 'bottom') spacer.style.minHeight = Math.max(15, Math.min(300, startHeight + dy)) + 'px';
-                if (direction === 'top') spacer.style.minHeight = Math.max(15, Math.min(300, startHeight - dy)) + 'px';
-                if (direction === 'right') { spacer.style.minWidth = Math.max(20, Math.min(500, startWidth + dx)) + 'px';
-                    spacer.style.flex = 'none'; }
-                if (direction === 'left') { spacer.style.minWidth = Math.max(20, Math.min(500, startWidth - dx)) + 'px';
-                    spacer.style.flex = 'none'; }
-            }
-
-            function onMouseUp() {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                showToast('✅ Spacer diubah.');
-            }
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        }
-
+    });
+}
         // ============ SEARCH, DETAIL, INPUT, HISTORY, REKAP, MANAGE (tetap sama) ============
         function renderSearch(keyword = '') {
             const allBaskets = [];
