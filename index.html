@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Walk-in Frozen & Chiller | v3.5</title>
+    <title>Walk-in Frozen & Chiller | v4.0 - Fixed Edit Mode</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -1039,6 +1039,26 @@
         .toast-undo button:hover {
             background: #e5a50a;
         }
+
+        /* SAVING INDICATOR */
+        .saving-indicator {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .saving-indicator.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -1080,6 +1100,7 @@
         <div class="container" id="appContainer"></div>
     </div>
     <div class="toast" id="toast"></div>
+    <div class="saving-indicator" id="savingIndicator">💾 Menyimpan...</div>
 
     <!-- SAVE MODAL -->
     <div class="modal-overlay" id="saveModal">
@@ -1129,6 +1150,12 @@
         let selectedPresetSlot = null;
         let layoutPresets = { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } };
         let activePreset = { frozen: null, chiller: null };
+        
+        // ==================== FIX EDIT MODE ====================
+        let preventRender = false;
+        let pendingRender = false;
+        let isSaving = false;
+        let renderTimeout = null;
 
         // ==================== UNDO/REDO ====================
         let undoStack = [];
@@ -1136,29 +1163,54 @@
         const MAX_UNDO = 50;
 
         function saveUndoState() {
+            if (!editMode) return;
             const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
             if (!denah) return;
-            undoStack.push(denah.innerHTML);
+            
+            const snapshot = {
+                html: denah.innerHTML,
+                sections: JSON.parse(JSON.stringify(currentSections()))
+            };
+            
+            undoStack.push(snapshot);
             if (undoStack.length > MAX_UNDO) undoStack.shift();
             redoStack = [];
             updateUndoRedoButtons();
         }
 
-        function undo() {
+        function undo() { 
             const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
             if (!denah || undoStack.length === 0) return;
-            redoStack.push(denah.innerHTML);
-            denah.innerHTML = undoStack.pop();
+            
+            redoStack.push({
+                html: denah.innerHTML,
+                sections: JSON.parse(JSON.stringify(currentSections()))
+            });
+            
+            const snapshot = undoStack.pop();
+            denah.innerHTML = snapshot.html;
+            appData[currentArea].sections = snapshot.sections;
+            syncBasketsWithSections(currentArea);
+            
             updateUndoRedoButtons();
             if (editMode) initEditMode();
             showToast('↩️ Undo berhasil');
         }
 
-        function redo() {
+        function redo() { 
             const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
             if (!denah || redoStack.length === 0) return;
-            undoStack.push(denah.innerHTML);
-            denah.innerHTML = redoStack.pop();
+            
+            undoStack.push({
+                html: denah.innerHTML,
+                sections: JSON.parse(JSON.stringify(currentSections()))
+            });
+            
+            const snapshot = redoStack.pop();
+            denah.innerHTML = snapshot.html;
+            appData[currentArea].sections = snapshot.sections;
+            syncBasketsWithSections(currentArea);
+            
             updateUndoRedoButtons();
             if (editMode) initEditMode();
             showToast('↪️ Redo berhasil');
@@ -1167,10 +1219,25 @@
         function updateUndoRedoButtons() {
             const undoBtn = document.getElementById('btnUndo');
             const redoBtn = document.getElementById('btnRedo');
-            if (undoBtn) { undoBtn.disabled = undoStack.length === 0;
-                undoBtn.title = `Undo (${undoStack.length} langkah)`; }
-            if (redoBtn) { redoBtn.disabled = redoStack.length === 0;
-                redoBtn.title = `Redo (${redoStack.length} langkah)`; }
+            if (undoBtn) { 
+                undoBtn.disabled = undoStack.length === 0;
+                undoBtn.title = `Undo (${undoStack.length} langkah)`; 
+            }
+            if (redoBtn) { 
+                redoBtn.disabled = redoStack.length === 0;
+                redoBtn.title = `Redo (${redoStack.length} langkah)`; 
+            }
+        }
+
+        function showSavingIndicator(show) {
+            const indicator = document.getElementById('savingIndicator');
+            if (indicator) {
+                if (show) {
+                    indicator.classList.add('show');
+                } else {
+                    indicator.classList.remove('show');
+                }
+            }
         }
 
         // ==================== DEFAULT SECTIONS ====================
@@ -1208,43 +1275,174 @@
                 document.getElementById('appScreen').style.display = 'none'; if (unsubscribe) unsubscribe(); } });
 
         // ==================== DATA ====================
-        function listenToFirestore() { if (unsubscribe) unsubscribe();
-            unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => { if (doc.exists) { const d = doc.data(); let fd = d.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }; let cd = d.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+        function listenToFirestore() { 
+            if (unsubscribe) unsubscribe();
+            
+            unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => { 
+                if (preventRender || editMode) {
+                    pendingRender = true;
+                    return;
+                }
+                
+                if (doc.exists) { 
+                    const d = doc.data(); 
+                    let fd = d.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }; 
+                    let cd = d.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+                    
                     fd.sections = convertSectionsToSlotFormat(fd.sections || {});
                     cd.sections = convertSectionsToSlotFormat(cd.sections || {});
+                    
                     appData.frozen = fd;
-                    appData.chiller = cd; if (d.layoutPresets) layoutPresets = d.layoutPresets; if (d.activePreset) activePreset = d.activePreset;
+                    appData.chiller = cd; 
+                    
+                    if (d.layoutPresets) layoutPresets = d.layoutPresets; 
+                    if (d.activePreset) activePreset = d.activePreset;
+                    
                     syncBasketsWithSections('frozen');
-                    syncBasketsWithSections('chiller'); if (!d.frozen) saveToFirestore();
-                    renderCurrentTab(); } else { appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
+                    syncBasketsWithSections('chiller'); 
+                    
+                    if (!d.frozen) saveToFirestore();
+                    
+                    if (!editMode) {
+                        safeRender();
+                    } else {
+                        pendingRender = true;
+                    }
+                } else { 
+                    appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
                     appData.chiller = { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
                     syncBasketsWithSections('frozen');
                     syncBasketsWithSections('chiller');
                     saveToFirestore();
-                    renderCurrentTab(); } }); }
+                    
+                    if (!editMode) {
+                        safeRender();
+                    } else {
+                        pendingRender = true;
+                    }
+                } 
+            }); 
+        }
+        
+        function safeRender() {
+            if (renderTimeout) clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(() => {
+                if (!editMode && !preventRender) {
+                    renderCurrentTab();
+                }
+            }, 50);
+        }
 
-        function saveToFirestore() { db.collection('shared').doc('data').set({ frozen: appData.frozen, chiller: appData.chiller, layoutPresets: layoutPresets, activePreset: activePreset }, { merge: true }); }
+        function saveToFirestore() { 
+            return db.collection('shared').doc('data').set({ 
+                frozen: appData.frozen, 
+                chiller: appData.chiller, 
+                layoutPresets: layoutPresets, 
+                activePreset: activePreset,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }); 
+        }
 
-        function syncBasketsWithSections(area) { const sec = appData[area].sections; const baskets = appData[area].baskets; const valid = new Set(); for (const bo of Object.values(sec)) for (const sl of Object.values(bo)) sl.forEach(n => { if (n !== null) valid.add(n); }); for (const n of Object.keys(baskets)) if (!valid.has(Number(n))) delete baskets[n]; for (const [sn, bo] of Object.entries(sec)) for (const [bn, sl] of Object.entries(bo)) sl.forEach((n, i) => { if (n === null) return; if (!baskets[n]) baskets[n] = { section: sn, baris: bn, slot: i + 1, items: [] }; else { baskets[n].section = sn;
+        async function saveCurrentLayoutToFirestore() {
+            if (!isAdmin()) {
+                showToast('⚠️ Hanya admin yang bisa menyimpan layout');
+                return;
+            }
+            
+            if (isSaving) return;
+            isSaving = true;
+            showSavingIndicator(true);
+            
+            try {
+                const layoutData = captureCurrentLayout();
+                const updateData = {};
+                updateData[`${currentArea}.layout`] = layoutData;
+                
+                await db.collection('shared').doc('data').update(updateData);
+                showToast('✅ Layout berhasil disimpan ke database');
+                console.log('Layout saved to Firestore');
+            } catch (err) {
+                console.error('Error saving layout:', err);
+                showToast('⚠️ Gagal menyimpan layout: ' + err.message);
+            } finally {
+                isSaving = false;
+                setTimeout(() => showSavingIndicator(false), 500);
+            }
+        }
+
+        function updateSectionsFromDOM() {
+            const boxes = document.querySelectorAll('.baris-box');
+            const newSections = getDefaultSections(currentArea);
+            
+            boxes.forEach(box => {
+                const section = box.dataset.section;
+                const index = parseInt(box.dataset.index);
+                
+                if (section && !isNaN(index)) {
+                    const barisNames = Object.keys(currentSections()[section] || {});
+                    if (barisNames[index]) {
+                        const slots = box.querySelectorAll('.basket-slot');
+                        const barisName = barisNames[index];
+                        
+                        slots.forEach((slot, slotIdx) => {
+                            const slotNum = slot.querySelector('.slot-num');
+                            if (slotNum && slotNum.textContent && !isNaN(parseInt(slotNum.textContent))) {
+                                const no = parseInt(slotNum.textContent);
+                                if (!isNaN(no)) {
+                                    if (!newSections[section]) newSections[section] = {};
+                                    if (!newSections[section][barisName]) newSections[section][barisName] = [null, null, null, null, null];
+                                    newSections[section][barisName][slotIdx] = no;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+            
+            appData[currentArea].sections = newSections;
+            syncBasketsWithSections(currentArea);
+            saveToFirestore();
+        }
+
+        function syncBasketsWithSections(area) { 
+            const sec = appData[area].sections; 
+            const baskets = appData[area].baskets; 
+            const valid = new Set(); 
+            for (const bo of Object.values(sec)) for (const sl of Object.values(bo)) sl.forEach(n => { if (n !== null) valid.add(n); }); 
+            for (const n of Object.keys(baskets)) if (!valid.has(Number(n))) delete baskets[n]; 
+            for (const [sn, bo] of Object.entries(sec)) for (const [bn, sl] of Object.entries(bo)) sl.forEach((n, i) => { if (n === null) return; if (!baskets[n]) baskets[n] = { section: sn, baris: bn, slot: i + 1, items: [] }; else { baskets[n].section = sn;
                             baskets[n].baris = bn;
                             baskets[n].slot = i + 1; } }); }
 
         function currentSections() { return appData[currentArea].sections; }
         function currentBaskets() { return appData[currentArea].baskets; }
         function currentTransactions() { return appData[currentArea].transactions; }
-        function switchArea() { currentArea = document.getElementById('areaSelect').value;
+        
+        function switchArea() { 
+            if (editMode) {
+                showToast('⚠️ Keluar dari edit mode terlebih dahulu');
+                return;
+            }
+            currentArea = document.getElementById('areaSelect').value;
             document.getElementById('areaTitle').textContent = currentArea === 'frozen' ? 'Frozen' : 'Chiller';
-            renderCurrentTab(); }
+            renderCurrentTab(); 
+        }
+        
         function itemCount(no) { return (currentBaskets()[no]?.items || []).length; }
         function hasExpiredItems(no) { const items = currentBaskets()[no]?.items || []; const now = new Date(); return items.some(i => (i.expDate && new Date(i.expDate) < now) || (i.estOutDate && new Date(i.estOutDate) < now)); }
+        
         function showToast(msg) { const t = document.getElementById('toast');
-            t.textContent = msg;
+            t.innerHTML = msg;
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 2500); }
+            
         function logTransaction(type, detail) { currentTransactions().unshift({ id: Date.now(), timestamp: new Date().toISOString(), type, detail, user: auth.currentUser?.email || 'unknown' }); if (currentTransactions().length > 500) currentTransactions().pop();
             saveToFirestore(); }
+            
         function isAdmin() { const u = auth.currentUser; return u && u.providerData.some(p => p.providerId === 'google.com') && ADMIN_EMAILS.includes(u.email); }
-        async function resetAllData() { if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; } if (!confirm('⚠️ Hapus total semua data?')) return; await db.collection('shared').doc('data').set({ frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }, chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] }, layoutPresets: { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } }, activePreset: { frozen: null, chiller: null } });
+        
+        async function resetAllData() { if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; } if (!confirm('⚠️ Hapus total semua data?')) return; 
+            await db.collection('shared').doc('data').set({ frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }, chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] }, layoutPresets: { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } }, activePreset: { frozen: null, chiller: null } });
             layoutPresets = { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } };
             activePreset = { frozen: null, chiller: null };
             undoStack = [];
@@ -1252,7 +1450,20 @@
             showToast('✅ Data dihapus.'); }
 
         const container = document.getElementById('appContainer');
-        function renderCurrentTab() { try { switch (currentTab) { case 'dashboard': renderDashboard(); break; case 'search': renderSearch(); break; case 'in': renderInputForm(); break; case 'history': renderHistory(); break; case 'rekap': renderRekap(); break; case 'manage': renderManageBaskets(); break; } } catch (e) { container.innerHTML = '<div class="card"><div class="empty-state">Error.</div></div>'; } }
+        function renderCurrentTab() { try { 
+            if (editMode && currentTab !== 'dashboard') {
+                showToast('⚠️ Selesaikan edit mode terlebih dahulu');
+                return;
+            }
+            switch (currentTab) { 
+                case 'dashboard': renderDashboard(); break; 
+                case 'search': renderSearch(); break; 
+                case 'in': renderInputForm(); break; 
+                case 'history': renderHistory(); break; 
+                case 'rekap': renderRekap(); break; 
+                case 'manage': renderManageBaskets(); break; 
+            } 
+        } catch (e) { console.error(e); container.innerHTML = '<div class="card"><div class="empty-state">Error: ' + e.message + '</div></div>'; } }
 
         // ==================== BUILD ====================
         function buildBasketSlot(no) { if (no === null) return `<div class="basket-slot slot-empty"></div>`; const c = itemCount(no); const exp = hasExpiredItems(no); let cls = 'basket-slot'; if (c >= 5) cls += ' orange'; else if (exp) cls += ' red'; else if (c > 0) cls += ' green'; const badge = (exp || c >= 5) ? '<span class="slot-alert">!</span>' : ''; return `<div class="${cls}" onclick="${editMode?'':'showBasketDetail('+no+')'}" title="Keranjang ${no} — ${c}/5"><span class="slot-num">${no}</span><span class="slot-count">${c}/5</span>${badge}</div>`; }
@@ -1268,17 +1479,109 @@
             showToast('🗑️ Elemen dihapus.'); }
 
         // ==================== DENAH ====================
-        function renderFrozenPlan() { const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : ''; const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}"><span style="font-weight:700;">✏️ Edit</span><button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Aktif':'Nonaktif'}</button><span class="toolbar-divider"></span><button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button><button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button><span class="toolbar-divider"></span><button onclick="openSaveModal()">💾 Simpan Preset</button><button onclick="addEmptyBox()">➕ Box Kosong</button><button onclick="addSpacerH()">➕ Spacer H</button><button onclick="addSpacerV()">➕ Spacer V</button></div>` : ''; const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : '';
-            container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">❄️ Denah Walk-in Frozen ${editMode?'🔧 EDIT':''} ${activePreset.frozen?'📌 Preset '+activePreset.frozen:''}</div>${editToggle}${editToolbar}${presetPanel}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#e8f4f8;" id="denahContainer"><div class="frz-plan" id="frzPlan"><div class="frz-row"><div class="boxes-row">${getSecBoxes('IMP')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="frz-left-stack"><div class="boxes-row">${getSecBoxes('RTL')}</div><div class="boxes-row">${getSecBoxes('NPL')}</div></div>${buildSpacerV()}<div class="frz-right-stack">${getSecBoxes('MI')}</div></div>${buildSpacerH()}<div class="frz-row"><div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>${buildSpacerV()}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
-            if (editMode) { initEditMode();
-                updateUndoRedoButtons(); } }
+        function renderFrozenPlan() { 
+            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : ''; 
+            const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; 
+            const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}">
+                <span style="font-weight:700;">✏️ Edit</span>
+                <button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Selesai Edit':'Edit Denah'}</button>
+                <span class="toolbar-divider"></span>
+                <button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button>
+                <button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button>
+                <span class="toolbar-divider"></span>
+                ${editMode ? '<button onclick="saveCurrentLayoutToFirestore()" style="background:#10b981;color:white;">💾 Simpan Layout</button>' : ''}
+                <button onclick="openSaveModal()">💾 Simpan Preset</button>
+                <button onclick="addEmptyBox()">➕ Box Kosong</button>
+                <button onclick="addSpacerH()">➕ Spacer H</button>
+                <button onclick="addSpacerV()">➕ Spacer V</button>
+            </div>` : ''; 
+            
+            const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : '';
+            
+            container.innerHTML = `<div class="card" style="padding:12px;">
+                <div class="fp-room-title">❄️ Denah Walk-in Frozen ${editMode?'🔧 EDIT':''} ${activePreset.frozen?'📌 Preset '+activePreset.frozen:''}</div>
+                ${editToggle}
+                ${editToolbar}
+                ${presetPanel}
+                <div class="fp-room ${editMode?'edit-mode':''}" style="background:#e8f4f8;" id="denahContainer">
+                    <div class="frz-plan" id="frzPlan">
+                        <div class="frz-row"><div class="boxes-row">${getSecBoxes('IMP')}</div></div>
+                        ${buildSpacerH()}
+                        <div class="frz-row">
+                            <div class="frz-left-stack">
+                                <div class="boxes-row">${getSecBoxes('RTL')}</div>
+                                <div class="boxes-row">${getSecBoxes('NPL')}</div>
+                            </div>
+                            ${buildSpacerV()}
+                            <div class="frz-right-stack">${getSecBoxes('MI')}</div>
+                        </div>
+                        ${buildSpacerH()}
+                        <div class="frz-row">
+                            <div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>
+                            ${buildSpacerV()}
+                        </div>
+                    </div>
+                </div>
+                <div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>
+                ${adminBtn}
+            </div>`;
+            
+            if (editMode) { 
+                setTimeout(() => {
+                    initEditMode();
+                    updateUndoRedoButtons();
+                }, 100);
+            } 
+        }
 
-        function renderChillerPlan() { const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : ''; const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}"><span style="font-weight:700;">✏️ Edit</span><button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Aktif':'Nonaktif'}</button><span class="toolbar-divider"></span><button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button><button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button><span class="toolbar-divider"></span><button onclick="openSaveModal()">💾 Simpan Preset</button><button onclick="addEmptyBox()">➕ Box Kosong</button><button onclick="addSpacerH()">➕ Spacer H</button><button onclick="addSpacerV()">➕ Spacer V</button></div>` : ''; const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : ''; const sb = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`; const bs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
-            container.innerHTML = `<div class="card" style="padding:12px;"><div class="fp-room-title">🌡️ Denah Walk-in Chiller ${editMode?'🔧 EDIT':''} ${activePreset.chiller?'📌 Preset '+activePreset.chiller:''}</div>${editToggle}${editToolbar}${presetPanel}<div class="fp-room ${editMode?'edit-mode':''}" style="background:#f0fdf4;" id="denahContainer"><div class="chl-plan" id="chlPlan"><div class="chl-top">${sb}${getSecBoxes('THAWING')}</div>${buildSpacerH()}<div class="chl-bot">${bs.map(s => getSecBoxes(s)).join('')}</div></div></div><div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>${adminBtn}</div>`;
-            if (editMode) { initEditMode();
-                updateUndoRedoButtons(); } }
+        function renderChillerPlan() { 
+            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : ''; 
+            const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; 
+            const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}">
+                <span style="font-weight:700;">✏️ Edit</span>
+                <button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Selesai Edit':'Edit Denah'}</button>
+                <span class="toolbar-divider"></span>
+                <button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo"><i class="fas fa-undo"></i></button>
+                <button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo"><i class="fas fa-redo"></i></button>
+                <span class="toolbar-divider"></span>
+                ${editMode ? '<button onclick="saveCurrentLayoutToFirestore()" style="background:#10b981;color:white;">💾 Simpan Layout</button>' : ''}
+                <button onclick="openSaveModal()">💾 Simpan Preset</button>
+                <button onclick="addEmptyBox()">➕ Box Kosong</button>
+                <button onclick="addSpacerH()">➕ Spacer H</button>
+                <button onclick="addSpacerV()">➕ Spacer V</button>
+            </div>` : ''; 
+            
+            const editToggle = isAdmin() ? `<button class="btn btn-sm ${editMode?'btn-warning':'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;"><i class="fas fa-pen"></i> ${editMode?'Selesai Edit':'Edit Denah'}</button>` : ''; 
+            const sb = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`; 
+            const bs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
+            
+            container.innerHTML = `<div class="card" style="padding:12px;">
+                <div class="fp-room-title">🌡️ Denah Walk-in Chiller ${editMode?'🔧 EDIT':''} ${activePreset.chiller?'📌 Preset '+activePreset.chiller:''}</div>
+                ${editToggle}
+                ${editToolbar}
+                ${presetPanel}
+                <div class="fp-room ${editMode?'edit-mode':''}" style="background:#f0fdf4;" id="denahContainer">
+                    <div class="chl-plan" id="chlPlan">
+                        <div class="chl-top">${sb}${getSecBoxes('THAWING')}</div>
+                        ${buildSpacerH()}
+                        <div class="chl-bot">${bs.map(s => getSecBoxes(s)).join('')}</div>
+                    </div>
+                </div>
+                <div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>
+                ${adminBtn}
+            </div>`;
+            
+            if (editMode) { 
+                setTimeout(() => {
+                    initEditMode();
+                    updateUndoRedoButtons();
+                }, 100);
+            } 
+        }
 
-        function renderDashboard() { currentArea === 'frozen' ? renderFrozenPlan() : renderChillerPlan(); }
+        function renderDashboard() { 
+            currentArea === 'frozen' ? renderFrozenPlan() : renderChillerPlan(); 
+        }
 
         // ==================== ADD ELEMENTS ====================
         function addEmptyBox() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
@@ -1286,16 +1589,20 @@
             row.className = 'frz-row';
             row.innerHTML = buildEmptyBox();
             plan.appendChild(row);
-            initEmptyBoxDrag(row.querySelector('.empty-box'));
-            initBoxResizeSingle(row.querySelector('.empty-box'));
+            setTimeout(() => {
+                initEmptyBoxDrag(row.querySelector('.empty-box'));
+                initBoxResizeSingle(row.querySelector('.empty-box'));
+            }, 50);
             showToast('✅ Box kosong ditambahkan.'); }
 
         function addSpacerH() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
             saveUndoState(); const div = document.createElement('div');
             div.innerHTML = buildSpacerH('— Area Kosong Baru —'); const spacer = div.firstElementChild;
             plan.appendChild(spacer);
-            initSpacerDrag(spacer);
-            initSpacerResize(spacer);
+            setTimeout(() => {
+                initSpacerDrag(spacer);
+                initSpacerResize(spacer);
+            }, 50);
             showToast('✅ Spacer H ditambahkan.'); }
 
         function addSpacerV() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); const rows = plan.querySelectorAll('.frz-row, .chl-row'); let target = rows[rows.length - 1]; if (!target) { target = document.createElement('div');
@@ -1304,22 +1611,28 @@
             saveUndoState(); const div = document.createElement('div');
             div.innerHTML = buildSpacerV('Area<br>Kosong'); const spacer = div.firstElementChild;
             target.appendChild(spacer);
-            initSpacerDrag(spacer);
-            initSpacerResize(spacer);
+            setTimeout(() => {
+                initSpacerDrag(spacer);
+                initSpacerResize(spacer);
+            }, 50);
             showToast('✅ Spacer V ditambahkan.'); }
 
         // ==================== PRESET ====================
         function renderPresetPanel() { const presets = layoutPresets[currentArea]; let cards = ''; const colors = ['preset-1', 'preset-2', 'preset-3']; const names = ['Preset 1 🟣', 'Preset 2 🔵', 'Preset 3 🟡']; for (let i = 1; i <= 3; i++) { const preset = presets[i]; const isActive = activePreset[currentArea] === i;
                 cards += `<div class="preset-card ${colors[i-1]} ${isActive?'active-preset':''}" onclick="loadPreset(${i})">${isActive?'<span class="preset-badge">✓</span>':''}${preset?`<button class="preset-delete" onclick="event.stopPropagation();deletePreset(${i})">✕</button>`:''}<div class="preset-name">${names[i-1]}</div><div class="preset-info">${preset?preset.name||'Tersimpan':'Kosong'}</div></div>`; } return `<div class="preset-panel active"><span style="font-weight:700;width:100%;">📌 Preset:</span>${cards}</div>`; }
+        
         function openSaveModal() { if (!isAdmin()) return;
             selectedPresetSlot = null; for (let i = 1; i <= 3; i++) { const info = document.getElementById(`preset${i}Info`); if (info) info.textContent = layoutPresets[currentArea][i] ? (layoutPresets[currentArea][i].name || 'Tersimpan') : 'Kosong'; }
             document.getElementById('presetName').value = '';
             document.getElementById('saveModal').classList.add('active');
             document.querySelectorAll('.preset-option').forEach(el => el.classList.remove('selected')); }
+            
         function closeSaveModal() { document.getElementById('saveModal').classList.remove('active');
             selectedPresetSlot = null; }
+            
         function selectPresetSlot(slot) { selectedPresetSlot = slot;
             document.querySelectorAll('.preset-option').forEach(el => el.classList.toggle('selected', parseInt(el.dataset.preset) === slot)); }
+            
         function confirmSavePreset() { if (!selectedPresetSlot) { showToast('⚠️ Pilih slot preset.'); return; } const name = document.getElementById('presetName').value.trim() || `Layout ${new Date().toLocaleDateString('id-ID')}`; const layoutData = captureCurrentLayout();
             layoutPresets[currentArea][selectedPresetSlot] = { name, savedAt: new Date().toISOString(), layout: layoutData };
             activePreset[currentArea] = selectedPresetSlot;
@@ -1327,97 +1640,198 @@
             closeSaveModal();
             renderDashboard();
             showToast(`✅ Disimpan sebagai Preset ${selectedPresetSlot}`); }
+            
         function loadPreset(slot) { if (!isAdmin()) return; const preset = layoutPresets[currentArea][slot]; if (!preset) { showToast('⚠️ Preset kosong.'); return; } if (!confirm(`Muat Preset ${slot}: "${preset.name}"?`)) return;
             activePreset[currentArea] = slot;
             saveToFirestore();
             applyLayout(preset.layout);
             renderDashboard();
             showToast(`✅ Preset ${slot} dimuat.`); }
+            
         function deletePreset(slot) { if (!isAdmin()) return; if (!confirm(`Hapus Preset ${slot}?`)) return;
             layoutPresets[currentArea][slot] = null; if (activePreset[currentArea] === slot) activePreset[currentArea] = null;
             saveToFirestore();
             renderDashboard();
             showToast(`🗑️ Preset ${slot} dihapus.`); }
+            
         function captureCurrentLayout() { const layout = { boxes: {}, spacers: [], emptyBoxes: [] };
             document.querySelectorAll('.baris-box').forEach(box => { const key = box.dataset.section + '_' + box.dataset.index;
                 layout.boxes[key] = { width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }; });
             document.querySelectorAll('.spacer-h, .spacer-v').forEach((spacer, i) => { layout.spacers.push({ index: i, className: spacer.className, minHeight: spacer.style.minHeight || '', minWidth: spacer.style.minWidth || '', flex: spacer.style.flex || '', width: spacer.style.width || '', height: spacer.style.height || '' }); });
             document.querySelectorAll('.empty-box').forEach((box, i) => { layout.emptyBoxes.push({ index: i, width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }); }); return layout; }
+            
         function applyLayout(ld) { if (!ld) return;
             setTimeout(() => { if (ld.boxes) { for (const [key, size] of Object.entries(ld.boxes)) { const [section, index] = key.split('_'); const box = document.querySelector(`.baris-box[data-section="${section}"][data-index="${index}"]`); if (box) { if (size.width) box.style.width = size.width; if (size.height) box.style.height = size.height; } } } if (ld.spacers) { const spacers = document.querySelectorAll('.spacer-h, .spacer-v');
                     ld.spacers.forEach(s => { if (spacers[s.index]) { if (s.minHeight) spacers[s.index].style.minHeight = s.minHeight; if (s.minWidth) spacers[s.index].style.minWidth = s.minWidth; if (s.flex) spacers[s.index].style.flex = s.flex; if (s.width) spacers[s.index].style.width = s.width; if (s.height) spacers[s.index].style.height = s.height; } }); } if (ld.emptyBoxes) { const boxes = document.querySelectorAll('.empty-box');
                     ld.emptyBoxes.forEach(s => { if (boxes[s.index]) { if (s.width) boxes[s.index].style.width = s.width; if (s.height) boxes[s.index].style.height = s.height; } }); } }, 200); }
 
         // ==================== EDIT MODE ====================
-        function toggleEditMode() { if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; }
-            editMode = !editMode; if (!editMode) { undoStack = [];
-                redoStack = []; }
-            renderDashboard();
-            showToast(editMode ? '🔧 Edit mode AKTIF (Undo/Redo tersedia)' : '✅ Edit mode NONAKTIF'); }
-        function initEditMode() { initBoxDrag();
-            initBoxResize();
-            initAllSpacerDrag();
-            initAllSpacerResize();
-            initAllEmptyBoxDrag();
-            initAllEmptyBoxResize();
-            updateUndoRedoButtons(); }
+        function toggleEditMode() { 
+            if (!isAdmin()) { 
+                showToast('⚠️ Hanya admin.'); 
+                return; 
+            }
+            
+            if (editMode) {
+                // Keluar dari edit mode
+                editMode = false; 
+                undoStack = [];
+                redoStack = [];
+                preventRender = false;
+                
+                // Simpan layout ke Firestore
+                saveCurrentLayoutToFirestore().then(() => {
+                    showToast('✅ Edit mode NONAKTIF - Layout tersimpan');
+                    pendingRender = false;
+                    renderCurrentTab();
+                });
+            } else {
+                // Masuk ke edit mode
+                editMode = true;
+                preventRender = true;
+                pendingRender = false;
+                renderDashboard();
+                showToast('🔧 Edit mode AKTIF (Undo/Redo tersedia)');
+            }
+        }
+        
+        function initEditMode() { 
+            setTimeout(() => {
+                initBoxDrag();
+                initBoxResize();
+                initAllSpacerDrag();
+                initAllSpacerResize();
+                initAllEmptyBoxDrag();
+                initAllEmptyBoxResize();
+                updateUndoRedoButtons();
+            }, 50);
+        }
 
         // DRAG BOX
-        function initBoxDrag() { document.querySelectorAll('.baris-box').forEach(box => { box.addEventListener('dragstart', function(e) { if (!editMode) return;
-                    dragState = { element: this, type: 'box' };
-                    this.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', 'box'); });
-                box.addEventListener('dragend', function() { if (dragState && dragState.type === 'box') saveUndoState(); this.classList.remove('dragging');
-                    dragState = null;
-                    clearDropZones(); }); });
-            initDropZones(); }
+        function initBoxDrag() { document.querySelectorAll('.baris-box').forEach(box => { 
+            box.setAttribute('draggable', editMode);
+            box.removeEventListener('dragstart', boxDragStart);
+            box.removeEventListener('dragend', boxDragEnd);
+            box.addEventListener('dragstart', boxDragStart);
+            box.addEventListener('dragend', boxDragEnd);
+        });
+        initDropZones(); }
+        
+        function boxDragStart(e) { if (!editMode) return;
+            dragState = { element: this, type: 'box' };
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', 'box');
+            e.dataTransfer.effectAllowed = 'move'; }
+            
+        function boxDragEnd() { if (dragState && dragState.type === 'box') saveUndoState(); 
+            if (this) this.classList.remove('dragging');
+            dragState = null;
+            clearDropZones(); }
 
         // DRAG SPACER
         function initAllSpacerDrag() { document.querySelectorAll('.spacer-h, .spacer-v').forEach(s => initSpacerDrag(s)); }
         function initSpacerDrag(spacer) { spacer.setAttribute('draggable', editMode);
-            spacer.addEventListener('dragstart', function(e) { if (!editMode) { e.preventDefault(); return; }
-                    dragState = { element: this, type: 'spacer' };
-                    this.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', 'spacer'); });
-            spacer.addEventListener('dragend', function() { if (dragState && dragState.type === 'spacer') saveUndoState(); this.classList.remove('dragging');
-                    dragState = null;
-                    clearDropZones(); }); }
+            spacer.removeEventListener('dragstart', spacerDragStart);
+            spacer.removeEventListener('dragend', spacerDragEnd);
+            spacer.addEventListener('dragstart', spacerDragStart);
+            spacer.addEventListener('dragend', spacerDragEnd); }
+            
+        function spacerDragStart(e) { if (!editMode) { e.preventDefault(); return; }
+            dragState = { element: this, type: 'spacer' };
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', 'spacer');
+            e.dataTransfer.effectAllowed = 'move'; }
+            
+        function spacerDragEnd() { if (dragState && dragState.type === 'spacer') saveUndoState(); 
+            if (this) this.classList.remove('dragging');
+            dragState = null;
+            clearDropZones(); }
 
         // DRAG EMPTY BOX
         function initAllEmptyBoxDrag() { document.querySelectorAll('.empty-box').forEach(box => initEmptyBoxDrag(box)); }
         function initEmptyBoxDrag(box) { box.setAttribute('draggable', editMode);
-            box.addEventListener('dragstart', function(e) { if (!editMode) { e.preventDefault(); return; }
-                    dragState = { element: this, type: 'empty-box' };
-                    this.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', 'empty-box'); });
-            box.addEventListener('dragend', function() { if (dragState && dragState.type === 'empty-box') saveUndoState(); this.classList.remove('dragging');
-                    dragState = null;
-                    clearDropZones(); }); }
+            box.removeEventListener('dragstart', emptyBoxDragStart);
+            box.removeEventListener('dragend', emptyBoxDragEnd);
+            box.addEventListener('dragstart', emptyBoxDragStart);
+            box.addEventListener('dragend', emptyBoxDragEnd); }
+            
+        function emptyBoxDragStart(e) { if (!editMode) { e.preventDefault(); return; }
+            dragState = { element: this, type: 'empty-box' };
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', 'empty-box');
+            e.dataTransfer.effectAllowed = 'move'; }
+            
+        function emptyBoxDragEnd() { if (dragState && dragState.type === 'empty-box') saveUndoState(); 
+            if (this) this.classList.remove('dragging');
+            dragState = null;
+            clearDropZones(); }
 
-        function initDropZones() { const zones = document.querySelectorAll('.boxes-row, .frz-row, .chl-row, .chl-top, .chl-bot, .frz-left-stack, .frz-right-stack, #frzPlan, #chlPlan');
-            zones.forEach(zone => { zone.addEventListener('dragover', function(e) { if (!editMode || !dragState) return;
-                    e.preventDefault();
-                    this.classList.add('drop-zone'); });
-                zone.addEventListener('dragleave', function() { this.classList.remove('drop-zone'); });
-                zone.addEventListener('drop', function(e) { if (!editMode || !dragState) return;
-                    e.preventDefault();
-                    this.classList.remove('drop-zone'); if (dragState.element && this !== dragState.element && !this.contains(dragState.element)) { if (this.classList.contains('boxes-row') || this.classList.contains('frz-row') || this.classList.contains('chl-row') || this.classList.contains('chl-top') || this.classList.contains('chl-bot')) { this.appendChild(dragState.element); } else { this.after(dragState.element); }
-                        showToast('✅ Dipindahkan.'); } }); }); }
+        function initDropZones() { 
+            const zones = document.querySelectorAll('.boxes-row, .frz-row, .chl-row, .chl-top, .chl-bot, .frz-left-stack, .frz-right-stack, #frzPlan, #chlPlan');
+            zones.forEach(zone => { 
+                zone.removeEventListener('dragover', zoneDragOver);
+                zone.removeEventListener('dragleave', zoneDragLeave);
+                zone.removeEventListener('drop', zoneDrop);
+                zone.addEventListener('dragover', zoneDragOver);
+                zone.addEventListener('dragleave', zoneDragLeave);
+                zone.addEventListener('drop', zoneDrop);
+            }); 
+        }
+        
+        function zoneDragOver(e) { if (!editMode || !dragState) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drop-zone'); }
+            
+        function zoneDragLeave() { this.classList.remove('drop-zone'); }
+        
+        function zoneDrop(e) { if (!editMode || !dragState) return;
+            e.preventDefault();
+            this.classList.remove('drop-zone'); 
+            if (dragState.element && this !== dragState.element && !this.contains(dragState.element)) { 
+                if (this.classList.contains('boxes-row') || this.classList.contains('frz-row') || this.classList.contains('chl-row') || this.classList.contains('chl-top') || this.classList.contains('chl-bot')) { 
+                    this.appendChild(dragState.element); 
+                } else { 
+                    this.after(dragState.element); 
+                }
+                saveUndoState();
+                showToast('✅ Dipindahkan.'); 
+            } 
+        }
+        
         function clearDropZones() { document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drop-zone')); }
 
         // RESIZE BOX
         function initBoxResize() { document.querySelectorAll('.baris-box').forEach(box => initBoxResizeSingle(box)); }
         function initBoxResizeSingle(box) { const handles = box.querySelectorAll('.resize-handle');
-            handles.forEach(h => { h.addEventListener('mousedown', function(e) { if (!editMode) return;
-                    e.preventDefault();
-                    e.stopPropagation(); const dir = this.dataset.dir;
-                    saveUndoState();
-                    startResize(e, box, dir); }); }); }
+            handles.forEach(h => { 
+                h.removeEventListener('mousedown', handleMouseDown);
+                h.addEventListener('mousedown', handleMouseDown);
+            }); }
+            
+        function handleMouseDown(e) { if (!editMode) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const dir = this.dataset.dir;
+            const box = this.closest('.baris-box, .empty-box, .spacer-h, .spacer-v');
+            if (box.classList.contains('spacer-h') || box.classList.contains('spacer-v')) {
+                saveUndoState();
+                startSpacerResize(e, box, dir);
+            } else {
+                saveUndoState();
+                startResize(e, box, dir);
+            } }
+            
         function initAllEmptyBoxResize() { document.querySelectorAll('.empty-box').forEach(box => initBoxResizeSingle(box)); }
-        function startResize(e, box, direction) { const startX = e.clientX; const startY = e.clientY; const startWidth = box.offsetWidth; const startHeight = box.offsetHeight; const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;';
-            document.body.appendChild(overlay); function onMouseMove(e) { e.preventDefault(); const dx = e.clientX - startX; const dy = e.clientY - startY; if (direction.includes('right')) box.style.width = Math.max(40, Math.min(400, startWidth + dx)) + 'px'; if (direction.includes('left')) box.style.width = Math.max(40, Math.min(400, startWidth - dx)) + 'px'; if (direction.includes('bottom')) box.style.height = Math.max(40, Math.min(400, startHeight + dy)) + 'px'; if (direction.includes('top')) box.style.height = Math.max(40, Math.min(400, startHeight - dy)) + 'px'; } function onMouseUp() { document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp); if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        
+        function startResize(e, box, direction) { const startX = e.clientX; const startY = e.clientY; const startWidth = box.offsetWidth; const startHeight = box.offsetHeight; 
+            function onMouseMove(e) { e.preventDefault(); const dx = e.clientX - startX; const dy = e.clientY - startY; 
+                if (direction.includes('right')) box.style.width = Math.max(40, Math.min(400, startWidth + dx)) + 'px'; 
+                if (direction.includes('left')) box.style.width = Math.max(40, Math.min(400, startWidth - dx)) + 'px'; 
+                if (direction.includes('bottom')) box.style.height = Math.max(40, Math.min(400, startHeight + dy)) + 'px'; 
+                if (direction.includes('top')) box.style.height = Math.max(40, Math.min(400, startHeight - dy)) + 'px'; } 
+            function onMouseUp() { document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
                 showToast('✅ Ukuran diubah.'); }
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp); }
@@ -1425,35 +1839,63 @@
         // RESIZE SPACER
         function initAllSpacerResize() { document.querySelectorAll('.spacer-h, .spacer-v').forEach(s => initSpacerResize(s)); }
         function initSpacerResize(spacer) { const handles = spacer.querySelectorAll('.resize-handle');
-            handles.forEach(h => { h.addEventListener('mousedown', function(e) { if (!editMode) return;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation(); const dir = this.dataset.dir;
-                    saveUndoState();
-                    startSpacerResize(e, spacer, dir); }); }); }
-        function startSpacerResize(e, spacer, direction) { const startX = e.clientX; const startY = e.clientY; const startWidth = spacer.offsetWidth; const startHeight = spacer.offsetHeight; const isH = spacer.classList.contains('spacer-h'); const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;';
-            document.body.appendChild(overlay); function onMouseMove(e) { e.preventDefault(); const dx = e.clientX - startX; const dy = e.clientY - startY; if (direction.includes('right')) { const w = Math.max(10, Math.min(800, startWidth + dx));
+            handles.forEach(h => { 
+                h.removeEventListener('mousedown', spacerHandleMouseDown);
+                h.addEventListener('mousedown', spacerHandleMouseDown);
+            }); }
+            
+        function spacerHandleMouseDown(e) { if (!editMode) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            const dir = this.dataset.dir;
+            const spacer = this.closest('.spacer-h, .spacer-v');
+            saveUndoState();
+            startSpacerResize(e, spacer, dir); }
+            
+        function startSpacerResize(e, spacer, direction) { const startX = e.clientX; const startY = e.clientY; const startWidth = spacer.offsetWidth; const startHeight = spacer.offsetHeight; const isH = spacer.classList.contains('spacer-h');
+            function onMouseMove(e) { e.preventDefault(); const dx = e.clientX - startX; const dy = e.clientY - startY; 
+                if (direction.includes('right')) { const w = Math.max(10, Math.min(800, startWidth + dx));
                     spacer.style.width = w + 'px';
                     spacer.style.minWidth = w + 'px';
-                    spacer.style.flex = 'none'; } if (direction.includes('left')) { const w = Math.max(10, Math.min(800, startWidth - dx));
+                    spacer.style.flex = 'none'; } 
+                if (direction.includes('left')) { const w = Math.max(10, Math.min(800, startWidth - dx));
                     spacer.style.width = w + 'px';
                     spacer.style.minWidth = w + 'px';
-                    spacer.style.flex = 'none'; } if (direction.includes('bottom')) { const h = Math.max(10, Math.min(600, startHeight + dy));
+                    spacer.style.flex = 'none'; } 
+                if (direction.includes('bottom')) { const h = Math.max(10, Math.min(600, startHeight + dy));
                     spacer.style.height = h + 'px';
-                    spacer.style.minHeight = h + 'px'; if (!isH) spacer.style.flex = 'none'; } if (direction.includes('top')) { const h = Math.max(10, Math.min(600, startHeight - dy));
+                    spacer.style.minHeight = h + 'px'; 
+                    if (!isH) spacer.style.flex = 'none'; } 
+                if (direction.includes('top')) { const h = Math.max(10, Math.min(600, startHeight - dy));
                     spacer.style.height = h + 'px';
-                    spacer.style.minHeight = h + 'px'; if (!isH) spacer.style.flex = 'none'; } } function onMouseUp() { document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp); if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                    spacer.style.minHeight = h + 'px'; 
+                    if (!isH) spacer.style.flex = 'none'; } } 
+            function onMouseUp() { document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
                 showToast('✅ Spacer diubah.'); }
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp); }
 
         // ==================== SEARCH, DETAIL, INPUT, HISTORY, REKAP, MANAGE ====================
-        function renderSearch(keyword = '') { const allBaskets = []; for (const a of ['frozen', 'chiller']) { for (const [no, b] of Object.entries(appData[a].baskets)) { allBaskets.push({ area: a, no: parseInt(no), section: b.section, baris: b.baris, slot: b.slot, items: b.items || [] }); } } const now = new Date(); let allItems = [];
-            allBaskets.forEach(b => b.items.forEach(it => allItems.push({ ...it, area: b.area, no: b.no, section: b.section, baris: b.baris, slot: b.slot }))); let filtered = allItems; if (keyword.trim()) { const kw = keyword.toLowerCase().trim();
+        function renderSearch(keyword = '') { 
+            const allBaskets = []; 
+            for (const a of ['frozen', 'chiller']) { 
+                for (const [no, b] of Object.entries(appData[a].baskets)) { 
+                    allBaskets.push({ area: a, no: parseInt(no), section: b.section, baris: b.baris, slot: b.slot, items: b.items || [] }); 
+                } 
+            } 
+            const now = new Date(); 
+            let allItems = [];
+            allBaskets.forEach(b => b.items.forEach(it => allItems.push({ ...it, area: b.area, no: b.no, section: b.section, baris: b.baris, slot: b.slot }))); 
+            let filtered = allItems; 
+            if (keyword.trim()) { const kw = keyword.toLowerCase().trim();
                 filtered = allItems.filter(i => i.nama.toLowerCase().includes(kw) || (i.jenis && i.jenis.toLowerCase().includes(kw))); }
-            filtered.sort((a, b) => a.area.localeCompare(b.area) || a.section.localeCompare(b.section) || a.baris.localeCompare(b.baris) || a.slot - b.slot); function hl(t, kw) { if (!kw.trim()) return t; return t.replace(new RegExp(`(${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<span class="search-highlight">$1</span>'); } let html = ''; if (filtered.length === 0 && keyword.trim()) html = '<div class="empty-state">🔍 Tidak ditemukan.</div>'; else filtered.forEach(it => { const exp = it.expDate ? new Date(it.expDate) : null; const est = it.estOutDate ? new Date(it.estOutDate) : null; let st = '',
+            filtered.sort((a, b) => a.area.localeCompare(b.area) || a.section.localeCompare(b.section) || a.baris.localeCompare(b.baris) || a.slot - b.slot); 
+            function hl(t, kw) { if (!kw.trim()) return t; return t.replace(new RegExp(`(${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<span class="search-highlight">$1</span>'); } 
+            let html = ''; 
+            if (filtered.length === 0 && keyword.trim()) html = '<div class="empty-state">🔍 Tidak ditemukan.</div>'; 
+            else filtered.forEach(it => { const exp = it.expDate ? new Date(it.expDate) : null; const est = it.estOutDate ? new Date(it.estOutDate) : null; let st = '',
                     sc = ''; if (exp && exp < now) { st = '⚠️ EXPIRED';
                     sc = 'status-expired'; } else if (est && est < now) { st = '⏰ EST LEWAT';
                     sc = 'status-warning'; } else if (exp || est) { const d = exp ? Math.ceil((exp - now) / 86400000) : Math.ceil((est - now) / 86400000);
@@ -1461,30 +1903,41 @@
                     sc = d <= 7 ? 'status-warning' : 'status-safe'; }
                 html += `<div class="search-result-item" onclick="navigateToBasket(${it.no},'${it.area}')"><div class="item-name">${hl(it.nama,keyword)}</div><div class="item-detail">${it.qty} | ${it.jenis||'-'} | Masuk: ${it.tglMasuk?new Date(it.tglMasuk).toLocaleDateString('id-ID'):'-'}</div><div class="item-location"><i class="fas fa-map-marker-alt"></i> ${it.area==='frozen'?'❄️':'🌡️'} → ${it.section} ${it.baris} → Slot ${it.slot} → #${it.no} ${st?`<span class="item-status ${sc}">${st}</span>`:''}</div></div>`; });
             container.innerHTML = `<div class="card"><h3>🔍 Cari Barang</h3><div class="search-container"><i class="fas fa-search search-icon"></i><input id="searchInput" placeholder="Cari nama/jenis..." value="${keyword}" oninput="renderSearch(this.value)" autofocus></div>${keyword.trim()?`<div class="search-result-count">📊 <strong>${filtered.length}</strong> item</div>`:''}<div>${html}</div></div>`; }
-        function navigateToBasket(no, area) { if (area !== currentArea) { currentArea = area;
+            
+        function navigateToBasket(no, area) { if (editMode) { showToast('⚠️ Keluar dari edit mode terlebih dahulu'); return; }
+            if (area !== currentArea) { currentArea = area;
                 document.getElementById('areaSelect').value = area;
                 document.getElementById('areaTitle').textContent = area === 'frozen' ? 'Frozen' : 'Chiller'; }
             showBasketDetail(no); }
-        function showBasketDetail(no, moveIdx = null) { const b = currentBaskets()[no]; const cnt = itemCount(no); const now = new Date(); let items = b?.items.length ? b.items.map((it, idx) => { let cls = '',
+            
+        function showBasketDetail(no, moveIdx = null) { 
+            if (editMode) { showToast('⚠️ Keluar dari edit mode terlebih dahulu'); return; }
+            const b = currentBaskets()[no]; const cnt = itemCount(no); const now = new Date(); 
+            let items = b?.items.length ? b.items.map((it, idx) => { let cls = '',
                     lbl = ''; if (it.expDate && new Date(it.expDate) < now) { cls = 'expired';
                     lbl = ' ⚠️ EXP'; } else if (it.estOutDate && new Date(it.estOutDate) < now) { cls = 'expired';
                     lbl = ' ⚠️ EST LEWAT'; } const mf = moveIdx === idx ? renderMoveForm(no, idx) : ''; return `<div class="item-row ${cls}"><div><strong>${it.nama}</strong> (${it.qty})${lbl}<br><small>${it.jenis||''} | Masuk: ${it.tglMasuk?new Date(it.tglMasuk).toLocaleDateString('id-ID'):'-'} ${it.expDate?' | Exp: '+new Date(it.expDate).toLocaleDateString('id-ID'):''} ${it.estOutDate?' | Est: '+new Date(it.estOutDate).toLocaleDateString('id-ID'):''}</small></div><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showBasketDetail(${no},${idx})">Pindah</button><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editEstOutDate(${no},${idx})"><i class="fas fa-edit"></i></button><button class="btn btn-outline btn-sm" onclick="keluarkanItem(${no},${idx})">Keluar</button></div>${mf}</div>`; }).join('') : '<div class="empty-state">Keranjang kosong</div>';
             container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;"><h3>Keranjang ${no}${b?' — '+b.section+' '+b.baris+' Slot '+b.slot:''}</h3><button class="btn btn-outline btn-sm" onclick="renderDashboard()">← Denah</button></div><p>Total: ${cnt}/5</p>${items}</div>`; }
+            
         function editEstOutDate(no, idx) { const b = currentBaskets()[no]; if (!b?.items[idx]) return; const it = b.items[idx]; const exp = it.expDate ? new Date(it.expDate) : null; const cur = it.estOutDate ? new Date(it.estOutDate).toISOString().split('T')[0] : ''; const n = prompt(`Edit Estimasi "${it.nama}"\nExp: ${exp?exp.toLocaleDateString('id-ID'):'-'}\n(YYYY-MM-DD):`, cur); if (!n || !/^\d{4}-\d{2}-\d{2}$/.test(n)) return showToast('Format salah.'); const nd = new Date(n); if (isNaN(nd.getTime())) return showToast('Invalid.'); if (exp && nd > exp) return showToast('Tidak boleh > Exp.');
             it.estOutDate = n;
             logTransaction('edit', { nama: it.nama, qty: it.qty, jenis: it.jenis, keranjang: no, section: b.section, oldEstOutDate: cur, newEstOutDate: n });
             saveToFirestore();
             showToast('✅ Diperbarui.');
             showBasketDetail(no); }
+            
         function renderMoveForm(fromNo, fromIdx) { const secs = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join(''); return `<div class="move-form" onclick="event.stopPropagation();"><select id="moveSection" onchange="updateMoveBaris()">${secs}</select><select id="moveBaris" onchange="updateMoveKeranjang()"><option>-- Baris --</option></select><select id="moveKeranjang"><option>-- Keranjang --</option></select><button class="btn btn-sm btn-primary" onclick="pindahkanItem(${fromNo},${fromIdx})">Pindahkan</button></div>`; }
+            
         function updateMoveBaris() { const sec = document.getElementById('moveSection')?.value; const sel = document.getElementById('moveBaris'); if (!sel) return;
             sel.innerHTML = '<option value="">-- Baris --</option>'; if (!sec) return;
             Object.keys(currentSections()[sec] || {}).forEach((b, i) => sel.innerHTML += `<option value="${b}">${sec} ${String(i+1).padStart(2,'0')}</option>`);
             updateMoveKeranjang(); }
+            
         function updateMoveKeranjang() { const sec = document.getElementById('moveSection')?.value; const bar = document.getElementById('moveBaris')?.value; const sel = document.getElementById('moveKeranjang'); if (!sel) return;
             sel.innerHTML = '<option value="">-- Keranjang --</option>'; if (!sec || !bar) return;
             (currentSections()[sec]?.[bar] || []).forEach((no, i) => { if (no === null) return; const c = itemCount(no);
                 sel.innerHTML += `<option value="${no}" ${c>=5?'disabled':''}>Keranjang ${no} (Slot ${i+1}) ${c}/5</option>`; }); }
+                
         function pindahkanItem(fromNo, fromIdx) { const toNo = parseInt(document.getElementById('moveKeranjang')?.value); if (!toNo || toNo === fromNo) return showToast('Tujuan tidak valid.'); if (itemCount(toNo) >= 5) return showToast('Tujuan penuh.'); const fb = currentBaskets()[fromNo]; if (!fb?.items[fromIdx]) return; const it = fb.items[fromIdx];
             fb.items.splice(fromIdx, 1); if (!currentBaskets()[toNo]) currentBaskets()[toNo] = { items: [] };
             currentBaskets()[toNo].items.push(it);
@@ -1492,32 +1945,41 @@
             saveToFirestore();
             showToast('✅ Dipindahkan.');
             showBasketDetail(fromNo); }
+            
         function keluarkanItem(no, idx) { const b = currentBaskets()[no]; if (!b?.items[idx]) return; const it = b.items[idx]; if (!confirm(`Keluar "${it.nama}"?`)) return;
             b.items.splice(idx, 1);
             logTransaction('out', { nama: it.nama, qty: it.qty, jenis: it.jenis, keranjang: no, section: b.section });
             saveToFirestore();
             showToast('✅ Dikeluarkan.');
             showBasketDetail(no); }
-        function renderInputForm() { const secOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
+            
+        function renderInputForm() { 
+            if (editMode) { showToast('⚠️ Keluar dari edit mode terlebih dahulu'); return; }
+            const secOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
             container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3><form id="inForm" onsubmit="submitIn(event)"><div class="form-group"><label>Nama</label><input id="inNama" list="namaList" required><datalist id="namaList"></datalist></div><div class="form-group"><label>Jumlah</label><input id="inQty" placeholder="3 Pack" required></div><div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div><div class="form-group"><label>Exp (wajib)</label><input type="date" id="inExpDate" required></div><div class="form-group"><label>Est.Keluar (wajib)</label><input type="date" id="inEstOutDate" required></div><div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${secOpt}</select></div><div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option>-- Pilih --</option></select></div><div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option>-- Pilih --</option></select></div><div class="form-group"><label>No Keranjang Baru</label><input type="number" id="inKeranjangManual" placeholder="Isi jika slot kosong" min="1"></div><button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button></form></div>`;
             updateBarisSelect();
             updateNamaDatalist(); }
+            
         function handleSlotChange() { const slot = parseInt(document.getElementById('inSlot')?.value); const mi = document.getElementById('inKeranjangManual'); if (!mi) return; if (!slot) { mi.disabled = true;
                 mi.placeholder = 'Pilih slot dulu'; return; } const sec = document.getElementById('inSection')?.value; const bar = document.getElementById('inBaris')?.value; const slots = currentSections()[sec]?.[bar]; if (!slots) return; const no = slots[slot - 1]; if (no) { mi.disabled = true;
                 mi.value = '';
                 mi.placeholder = `Keranjang ${no}`; } else { mi.disabled = false;
                 mi.placeholder = 'Nomor baru (wajib)';
                 mi.focus(); } }
+                
         function updateBarisSelect() { const sec = document.getElementById('inSection')?.value; const sel = document.getElementById('inBaris'); if (!sel) return;
             sel.innerHTML = '<option value="">-- Pilih --</option>'; if (sec) { Object.keys(currentSections()[sec] || {}).forEach((b, i) => sel.innerHTML += `<option value="${b}">${sec} ${String(i+1).padStart(2,'0')}</option>`); if (Object.keys(currentSections()[sec] || {}).length) { sel.value = Object.keys(currentSections()[sec])[0];
                     updateSlotSelect(); } } else document.getElementById('inSlot').innerHTML = '<option>-- Pilih --</option>'; }
+                    
         function updateSlotSelect() { const sec = document.getElementById('inSection')?.value; const bar = document.getElementById('inBaris')?.value; const sel = document.getElementById('inSlot'); if (!sel) return;
             sel.innerHTML = '<option value="">-- Pilih --</option>'; if (!sec || !bar) return;
             (currentSections()[sec]?.[bar] || []).forEach((no, i) => { const label = `Slot ${i+1}` + (no ? `: ${no} (${itemCount(no)}/5)` : ' (kosong)');
                 sel.innerHTML += `<option value="${i+1}" ${no&&itemCount(no)>=5?'disabled':''}>${label}${no&&itemCount(no)>=5?' - PENUH':''}</option>`; }); }
+                
         function updateNamaDatalist() { const set = new Set();
             currentTransactions().forEach(t => { if (t.detail?.nama) set.add(t.detail.nama); });
             document.getElementById('namaList').innerHTML = [...set].map(n => `<option value="${n}">`).join(''); }
+            
         function submitIn(e) { e.preventDefault(); const nama = document.getElementById('inNama').value.trim(); const qty = document.getElementById('inQty').value.trim(); const jenis = document.getElementById('inJenis').value; const exp = document.getElementById('inExpDate').value; const est = document.getElementById('inEstOutDate').value; const sec = document.getElementById('inSection').value; const bar = document.getElementById('inBaris').value; const slotStr = document.getElementById('inSlot').value; const man = document.getElementById('inKeranjangManual')?.value.trim(); if (!nama || !qty || !bar || !slotStr || !exp || !est) return showToast('Lengkapi semua.'); const si = parseInt(slotStr) - 1; const slots = currentSections()[sec]?.[bar]; if (!slots) return showToast('Data invalid.'); let no = slots[si]; if (!no) { if (!man) return showToast('Slot kosong, isi nomor baru.'); const nn = parseInt(man); for (const [s, bo] of Object.entries(currentSections())) for (const sl of Object.values(bo)) if (sl.includes(nn)) return showToast(`No ${nn} sudah dipakai.`);
                 slots[si] = nn;
                 currentBaskets()[nn] = { section: sec, baris: bar, slot: si + 1, items: [] };
@@ -1527,7 +1989,10 @@
             saveToFirestore();
             showToast('✅ Masuk.');
             setTimeout(renderInputForm, 100); }
-        function renderHistory() { const list = currentTransactions().slice(0, 100).map(t => { let tc = '',
+            
+        function renderHistory() { 
+            if (editMode) { showToast('⚠️ Keluar dari edit mode terlebih dahulu'); return; }
+            const list = currentTransactions().slice(0, 100).map(t => { let tc = '',
                     bc = '',
                     ic = ''; if (t.type === 'in') { tc = 'type-in';
                     bc = 'badge-in';
@@ -1539,8 +2004,11 @@
                     bc = 'badge-out';
                     ic = '📤'; } const d = t.detail || {}; const ex = t.type === 'move' ? `Dari ${d.dari} → ${d.ke}` : t.type === 'edit' ? `Est: ${d.oldEstOutDate} → ${d.newEstOutDate}` : `Keranjang: ${d.keranjang||'-'} | ${d.section||'-'}`; return `<div class="history-item ${tc}"><div style="font-size:1.5rem;">${ic}</div><div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span class="history-badge ${bc}">${t.type==='in'?'MASUK':t.type==='move'?'PINDAH':t.type==='edit'?'EDIT':'KELUAR'}</span><small>${new Date(t.timestamp).toLocaleString('id-ID')}</small></div><strong>${d.nama||'-'}</strong> — ${d.qty||'-'} (${d.jenis||'-'})<br><small>${ex} | ${t.user}</small></div></div>`; }).join('');
             container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;"><h3>📋 Riwayat</h3><button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button></div>${list||'<div class="empty-state">Belum ada.</div>'}</div>`; }
-        function renderRekap() { const B = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; const trx = currentTransactions(); const ny = new Date().getFullYear(); const ys = [...new Set(trx.map(t => new Date(t.timestamp).getFullYear()))].sort((a, b) => b - a); const sy = parseInt(document.getElementById('rekapYearFilter')?.value || ny); let ti = 0,
-                to = 0;
+            
+        function renderRekap() { 
+            if (editMode) { showToast('⚠️ Keluar dari edit mode terlebih dahulu'); return; }
+            const B = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; const trx = currentTransactions(); const ny = new Date().getFullYear(); const ys = [...new Set(trx.map(t => new Date(t.timestamp).getFullYear()))].sort((a, b) => b - a); const sy = parseInt(document.getElementById('rekapYearFilter')?.value || ny); let ti = 0,
+                    to = 0;
             trx.forEach(t => t.type === 'in' ? ti++ : to++); const sb = `<div class="stat-grid"><div class="stat-box"><div class="val">${ti}</div><div class="lbl">Masuk</div></div><div class="stat-box out"><div class="val">${to}</div><div class="lbl">Keluar</div></div></div>`; const mt = `<div class="rekap-tabs"><button class="rekap-tab ${rekapMode==='bulanan'?'active':''}" onclick="rekapMode='bulanan';renderRekap()">📅 Bulanan</button><button class="rekap-tab ${rekapMode==='tahunan'?'active':''}" onclick="rekapMode='tahunan';renderRekap()">📆 Tahunan</button></div>`; if (rekapMode === 'bulanan') { const md = {};
                 trx.forEach(t => { const d = new Date(t.timestamp); if (d.getFullYear() !== sy) return; const m = d.getMonth(); if (!md[m]) md[m] = { in: 0, out: 0, bs: {} };
                     md[m][t.type]++; const s = t.detail.section || '-'; if (!md[m].bs[s]) md[m].bs[s] = { in: 0, out: 0 };
@@ -1553,32 +2021,50 @@
                 [...Object.keys(yd)].sort((a, b) => b - a).forEach(y => { const bd = Object.entries(yd[y].bs).map(([s, v]) => `<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');
                     rows += `<tr><td><strong>${y}</strong></td><td style="color:var(--primary);">+${yd[y].in}</td><td style="color:var(--danger);">-${yd[y].out}</td><td>${yd[y].in-yd[y].out>=0?'+':''}${yd[y].in-yd[y].out}</td><td>${bd}</td></tr>`; }); if (!rows) rows = '<tr><td colspan="5">Belum ada data.</td></tr>';
                 container.innerHTML = `<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${sb}${mt}<button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button><table class="rekap-table"><thead><tr><th>Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div>`; } }
+            
         function downloadExcel() { const trx = currentTransactions(); if (!trx.length) return showToast('Tidak ada.'); let h = '<html><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Tgl</th><th>Jenis</th><th>Item</th><th>Qty</th><th>Jenis</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est</th></tr>';
             trx.forEach(t => { const d = t.detail;
                 h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`; });
             h += '</table></body></html>';
             _dlBlob(h, `riwayat_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`); }
+            
         function downloadRekapExcel() { const B = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; const trx = currentTransactions(); if (!trx.length) return showToast('Tidak ada.'); let h = '<html><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Bulan/Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>'; const yd = {};
             trx.forEach(t => { const d = new Date(t.timestamp); const k = rekapMode === 'bulanan' ? B[d.getMonth()] + ' ' + d.getFullYear() : d.getFullYear(); if (!yd[k]) yd[k] = { in: 0, out: 0 };
                 yd[k][t.type]++; }); for (const [k, v] of Object.entries(yd)) h += `<tr><td>${k}</td><td>+${v.in}</td><td>-${v.out}</td><td>${v.in-v.out>=0?'+':''}${v.in-v.out}</td></tr>`;
             h += '</table></body></html>';
             _dlBlob(h, `rekap_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`); }
+            
         function _dlBlob(html, fn) { const b = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' }); const a = document.createElement('a');
             a.href = URL.createObjectURL(b);
             a.download = fn;
             a.click(); }
-        function renderManageBaskets() { if (!isAdmin()) { container.innerHTML = '<div class="card"><h3>⚙️ Atur</h3><p style="color:red;">🔒 Hanya admin.</p></div>'; return; } let h = '<div class="card"><h3>⚙️ Atur Slot</h3>'; for (const [sec, bo] of Object.entries(currentSections())) { h += `<div style="margin-bottom:20px;"><strong>📍 ${sec}</strong>`; for (const [bar, slots] of Object.entries(bo)) { h += `<div style="margin-left:8px;"><span class="baris-label">📌 ${bar}</span>`; for (let i = 0; i < 5; i++) { const no = slots[i]; if (no) h += `<div style="display:inline-flex;gap:6px;margin:4px;"><span class="chip">Slot ${i+1}: ${no} (${itemCount(no)}/5) <span style="cursor:pointer;color:red;" onclick="clearSlot('${sec}','${bar}',${i})">✕</span></span></div>`; else h += `<div style="display:inline-flex;gap:6px;margin:4px;"><span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span><input type="number" id="inp_${sec}_${bar}_${i}" placeholder="No" style="width:80px;padding:4px;"><button class="btn btn-sm btn-primary" onclick="fillSlot('${sec}','${bar}',${i})">Isi</button></div>`; } h += '</div>'; } h += `<div><button class="btn btn-sm btn-outline" onclick="addBaris('${sec}')">➕ Tambah Baris</button></div></div>`; } h += '</div>';
+            
+        function renderManageBaskets() { 
+            if (editMode) { showToast('⚠️ Keluar dari edit mode terlebih dahulu'); return; }
+            if (!isAdmin()) { container.innerHTML = '<div class="card"><h3>⚙️ Atur</h3><p style="color:red;">🔒 Hanya admin.</p></div>'; return; } 
+            let h = '<div class="card"><h3>⚙️ Atur Slot</h3>'; 
+            for (const [sec, bo] of Object.entries(currentSections())) { h += `<div style="margin-bottom:20px;"><strong>📍 ${sec}</strong>`; 
+                for (const [bar, slots] of Object.entries(bo)) { h += `<div style="margin-left:8px;"><span class="baris-label">📌 ${bar}</span>`; 
+                    for (let i = 0; i < 5; i++) { const no = slots[i]; 
+                        if (no) h += `<div style="display:inline-flex;gap:6px;margin:4px;"><span class="chip">Slot ${i+1}: ${no} (${itemCount(no)}/5) <span style="cursor:pointer;color:red;" onclick="clearSlot('${sec}','${bar}',${i})">✕</span></span></div>`; 
+                        else h += `<div style="display:inline-flex;gap:6px;margin:4px;"><span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span><input type="number" id="inp_${sec}_${bar}_${i}" placeholder="No" style="width:80px;padding:4px;"><button class="btn btn-sm btn-primary" onclick="fillSlot('${sec}','${bar}',${i})">Isi</button></div>`; } 
+                    h += '</div>'; } 
+                h += `<div><button class="btn btn-sm btn-outline" onclick="addBaris('${sec}')">➕ Tambah Baris</button></div></div>`; } 
+            h += '</div>';
             container.innerHTML = h; }
+            
         window.clearSlot = function(s, b, i) { if (!isAdmin()) return; const no = currentSections()[s][b][i]; if (no && itemCount(no) > 0) return showToast('Masih berisi.'); if (!confirm('Kosongkan?')) return; if (no) delete currentBaskets()[no];
             currentSections()[s][b][i] = null;
             saveToFirestore();
             renderManageBaskets(); };
+            
         window.fillSlot = function(s, b, i) { if (!isAdmin()) return; const no = parseInt(document.getElementById(`inp_${s}_${b}_${i}`).value); if (isNaN(no) || no <= 0) return showToast('Invalid.'); for (const [sec, bo] of Object.entries(currentSections())) for (const sl of Object.values(bo)) if (sl.includes(no)) return showToast(`No ${no} sudah dipakai.`);
             currentSections()[s][b][i] = no;
             currentBaskets()[no] = { section: s, baris: b, slot: i + 1, items: [] };
             saveToFirestore();
             renderManageBaskets();
             showToast('✅ Ditempatkan.'); };
+            
         window.addBaris = function(s) { if (!isAdmin()) return; const bo = currentSections()[s];
             bo[String.fromCharCode(65 + Object.keys(bo).length)] = [null, null, null, null, null];
             saveToFirestore();
@@ -1586,10 +2072,15 @@
 
         // ==================== INIT ====================
         document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', function() {
+            if (editMode && this.dataset.tab !== 'dashboard') {
+                showToast('⚠️ Selesaikan edit mode terlebih dahulu');
+                return;
+            }
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             currentTab = this.dataset.tab;
             renderCurrentTab(); }); });
+            
         document.getElementById('areaSelect').value = currentArea;
         document.getElementById('saveModal').addEventListener('click', function(e) { if (e.target === this) closeSaveModal(); });
 
