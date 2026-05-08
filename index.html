@@ -646,7 +646,7 @@
         }
         .baris-slots {
             display: flex;
-            flex-direction: column-reverse;
+            flex-direction: column;
             gap: 1px;
             flex: 1;
             min-height: 0;
@@ -1020,27 +1020,6 @@
             }
         }
 
-        /* TOAST UNDO */
-        .toast-undo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .toast-undo button {
-            background: var(--warning);
-            color: #000;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.8rem;
-        }
-        .toast-undo button:hover {
-            background: #e5a50a;
-        }
-
-        /* SAVING INDICATOR */
         .saving-indicator {
             position: fixed;
             bottom: 80px;
@@ -1086,6 +1065,9 @@
             </div>
             <div class="user-row">
                 <span id="currentUserName" style="font-size:0.8rem;color:white;"></span>
+                <button class="btn-outline" style="color:white;border-color:white;padding:4px 10px;" onclick="refreshData()" title="Refresh data">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
                 <button class="btn-outline" style="color:white;border-color:white;padding:4px 10px;" onclick="logout()">Keluar</button>
             </div>
         </div>
@@ -1102,7 +1084,6 @@
     <div class="toast" id="toast"></div>
     <div class="saving-indicator" id="savingIndicator">💾 Menyimpan...</div>
 
-    <!-- SAVE MODAL -->
     <div class="modal-overlay" id="saveModal">
         <div class="modal-box">
             <h3>💾 Simpan Layout sebagai Preset</h3>
@@ -1154,7 +1135,7 @@
         // ==================== FIX EDIT MODE ====================
         let preventRender = false;
         let pendingRender = false;
-        let isSaving = false;
+        let isSavingLayout = false;
         let renderTimeout = null;
 
         // ==================== UNDO/REDO ====================
@@ -1232,11 +1213,8 @@
         function showSavingIndicator(show) {
             const indicator = document.getElementById('savingIndicator');
             if (indicator) {
-                if (show) {
-                    indicator.classList.add('show');
-                } else {
-                    indicator.classList.remove('show');
-                }
+                if (show) indicator.classList.add('show');
+                else indicator.classList.remove('show');
             }
         }
 
@@ -1268,18 +1246,26 @@
         function login() { const email = document.getElementById('loginEmail').value.trim(); const pass = document.getElementById('loginPassword').value.trim(); if (!email || !pass) { document.getElementById('loginError').textContent = 'Email dan password harus diisi.'; return; } auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('loginError').textContent = 'Gagal: ' + e.message); }
         function loginWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => document.getElementById('loginError').textContent = 'Google login gagal: ' + e.message); }
         function logout() { auth.signOut(); }
-        auth.onAuthStateChanged(user => { if (user) { document.getElementById('loginScreen').style.display = 'none';
+        
+        auth.onAuthStateChanged(user => { 
+            if (user) { 
+                document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('appScreen').style.display = 'block';
                 document.getElementById('currentUserName').textContent = user.email;
-                listenToFirestore(); } else { document.getElementById('loginScreen').style.display = 'block';
-                document.getElementById('appScreen').style.display = 'none'; if (unsubscribe) unsubscribe(); } });
+                listenToFirestore(); 
+            } else { 
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('appScreen').style.display = 'none'; 
+                if (unsubscribe) unsubscribe(); 
+            } 
+        });
 
         // ==================== DATA ====================
         function listenToFirestore() { 
             if (unsubscribe) unsubscribe();
             
             unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => { 
-                if (preventRender || editMode) {
+                if (preventRender || editMode || isSavingLayout) {
                     pendingRender = true;
                     return;
                 }
@@ -1292,21 +1278,35 @@
                     fd.sections = convertSectionsToSlotFormat(fd.sections || {});
                     cd.sections = convertSectionsToSlotFormat(cd.sections || {});
                     
-                    appData.frozen = fd;
-                    appData.chiller = cd; 
+                    // Cek apakah ada perubahan
+                    const currentFrozenStr = JSON.stringify(appData.frozen.sections);
+                    const newFrozenStr = JSON.stringify(fd.sections);
+                    const currentChillerStr = JSON.stringify(appData.chiller.sections);
+                    const newChillerStr = JSON.stringify(cd.sections);
+                    
+                    let hasChanges = false;
+                    
+                    if (currentFrozenStr !== newFrozenStr) {
+                        appData.frozen = fd;
+                        hasChanges = true;
+                    }
+                    if (currentChillerStr !== newChillerStr) {
+                        appData.chiller = cd;
+                        hasChanges = true;
+                    }
                     
                     if (d.layoutPresets) layoutPresets = d.layoutPresets; 
                     if (d.activePreset) activePreset = d.activePreset;
                     
-                    syncBasketsWithSections('frozen');
-                    syncBasketsWithSections('chiller'); 
+                    if (hasChanges) {
+                        syncBasketsWithSections('frozen');
+                        syncBasketsWithSections('chiller'); 
+                    }
                     
                     if (!d.frozen) saveToFirestore();
                     
-                    if (!editMode) {
+                    if (!editMode && !preventRender && !isSavingLayout) {
                         safeRender();
-                    } else {
-                        pendingRender = true;
                     }
                 } else { 
                     appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
@@ -1315,10 +1315,8 @@
                     syncBasketsWithSections('chiller');
                     saveToFirestore();
                     
-                    if (!editMode) {
+                    if (!editMode && !preventRender && !isSavingLayout) {
                         safeRender();
-                    } else {
-                        pendingRender = true;
                     }
                 } 
             }); 
@@ -1327,7 +1325,7 @@
         function safeRender() {
             if (renderTimeout) clearTimeout(renderTimeout);
             renderTimeout = setTimeout(() => {
-                if (!editMode && !preventRender) {
+                if (!editMode && !preventRender && !isSavingLayout) {
                     renderCurrentTab();
                 }
             }, 50);
@@ -1346,62 +1344,62 @@
         async function saveCurrentLayoutToFirestore() {
             if (!isAdmin()) {
                 showToast('⚠️ Hanya admin yang bisa menyimpan layout');
-                return;
+                return false;
             }
             
-            if (isSaving) return;
-            isSaving = true;
+            if (isSavingLayout) {
+                showToast('⏳ Masih menyimpan, tunggu...');
+                return false;
+            }
+            
+            isSavingLayout = true;
             showSavingIndicator(true);
             
             try {
-                const layoutData = captureCurrentLayout();
+                const currentSectionsData = JSON.parse(JSON.stringify(currentSections()));
+                
                 const updateData = {};
-                updateData[`${currentArea}.layout`] = layoutData;
+                updateData[`${currentArea}.sections`] = currentSectionsData;
+                updateData[`${currentArea}.lastLayoutUpdate`] = firebase.firestore.FieldValue.serverTimestamp();
                 
                 await db.collection('shared').doc('data').update(updateData);
-                showToast('✅ Layout berhasil disimpan ke database');
-                console.log('Layout saved to Firestore');
+                
+                showToast('✅ Layout berhasil disimpan!');
+                console.log('Layout saved successfully');
+                return true;
+                
             } catch (err) {
                 console.error('Error saving layout:', err);
-                showToast('⚠️ Gagal menyimpan layout: ' + err.message);
+                showToast('⚠️ Gagal simpan: ' + err.message);
+                return false;
             } finally {
-                isSaving = false;
+                isSavingLayout = false;
                 setTimeout(() => showSavingIndicator(false), 500);
             }
         }
 
-        function updateSectionsFromDOM() {
-            const boxes = document.querySelectorAll('.baris-box');
-            const newSections = getDefaultSections(currentArea);
+        async function refreshData() {
+            if (editMode) {
+                showToast('⚠️ Keluar dari edit mode terlebih dahulu');
+                return;
+            }
             
-            boxes.forEach(box => {
-                const section = box.dataset.section;
-                const index = parseInt(box.dataset.index);
-                
-                if (section && !isNaN(index)) {
-                    const barisNames = Object.keys(currentSections()[section] || {});
-                    if (barisNames[index]) {
-                        const slots = box.querySelectorAll('.basket-slot');
-                        const barisName = barisNames[index];
-                        
-                        slots.forEach((slot, slotIdx) => {
-                            const slotNum = slot.querySelector('.slot-num');
-                            if (slotNum && slotNum.textContent && !isNaN(parseInt(slotNum.textContent))) {
-                                const no = parseInt(slotNum.textContent);
-                                if (!isNaN(no)) {
-                                    if (!newSections[section]) newSections[section] = {};
-                                    if (!newSections[section][barisName]) newSections[section][barisName] = [null, null, null, null, null];
-                                    newSections[section][barisName][slotIdx] = no;
-                                }
-                            }
-                        });
-                    }
+            showToast('🔄 Memuat ulang data...');
+            try {
+                const doc = await db.collection('shared').doc('data').get();
+                if (doc.exists) {
+                    const d = doc.data();
+                    appData.frozen = d.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
+                    appData.chiller = d.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+                    syncBasketsWithSections('frozen');
+                    syncBasketsWithSections('chiller');
+                    renderCurrentTab();
+                    showToast('✅ Data dimuat ulang');
                 }
-            });
-            
-            appData[currentArea].sections = newSections;
-            syncBasketsWithSections(currentArea);
-            saveToFirestore();
+            } catch (err) {
+                console.error('Refresh error:', err);
+                showToast('⚠️ Gagal memuat ulang');
+            }
         }
 
         function syncBasketsWithSections(area) { 
@@ -1583,88 +1581,6 @@
             currentArea === 'frozen' ? renderFrozenPlan() : renderChillerPlan(); 
         }
 
-        // ==================== ADD ELEMENTS ====================
-        function addEmptyBox() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
-            saveUndoState(); const row = document.createElement('div');
-            row.className = 'frz-row';
-            row.innerHTML = buildEmptyBox();
-            plan.appendChild(row);
-            setTimeout(() => {
-                initEmptyBoxDrag(row.querySelector('.empty-box'));
-                initBoxResizeSingle(row.querySelector('.empty-box'));
-            }, 50);
-            showToast('✅ Box kosong ditambahkan.'); }
-
-        function addSpacerH() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
-            saveUndoState(); const div = document.createElement('div');
-            div.innerHTML = buildSpacerH('— Area Kosong Baru —'); const spacer = div.firstElementChild;
-            plan.appendChild(spacer);
-            setTimeout(() => {
-                initSpacerDrag(spacer);
-                initSpacerResize(spacer);
-            }, 50);
-            showToast('✅ Spacer H ditambahkan.'); }
-
-        function addSpacerV() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); const rows = plan.querySelectorAll('.frz-row, .chl-row'); let target = rows[rows.length - 1]; if (!target) { target = document.createElement('div');
-                target.className = 'frz-row';
-                plan.appendChild(target); }
-            saveUndoState(); const div = document.createElement('div');
-            div.innerHTML = buildSpacerV('Area<br>Kosong'); const spacer = div.firstElementChild;
-            target.appendChild(spacer);
-            setTimeout(() => {
-                initSpacerDrag(spacer);
-                initSpacerResize(spacer);
-            }, 50);
-            showToast('✅ Spacer V ditambahkan.'); }
-
-        // ==================== PRESET ====================
-        function renderPresetPanel() { const presets = layoutPresets[currentArea]; let cards = ''; const colors = ['preset-1', 'preset-2', 'preset-3']; const names = ['Preset 1 🟣', 'Preset 2 🔵', 'Preset 3 🟡']; for (let i = 1; i <= 3; i++) { const preset = presets[i]; const isActive = activePreset[currentArea] === i;
-                cards += `<div class="preset-card ${colors[i-1]} ${isActive?'active-preset':''}" onclick="loadPreset(${i})">${isActive?'<span class="preset-badge">✓</span>':''}${preset?`<button class="preset-delete" onclick="event.stopPropagation();deletePreset(${i})">✕</button>`:''}<div class="preset-name">${names[i-1]}</div><div class="preset-info">${preset?preset.name||'Tersimpan':'Kosong'}</div></div>`; } return `<div class="preset-panel active"><span style="font-weight:700;width:100%;">📌 Preset:</span>${cards}</div>`; }
-        
-        function openSaveModal() { if (!isAdmin()) return;
-            selectedPresetSlot = null; for (let i = 1; i <= 3; i++) { const info = document.getElementById(`preset${i}Info`); if (info) info.textContent = layoutPresets[currentArea][i] ? (layoutPresets[currentArea][i].name || 'Tersimpan') : 'Kosong'; }
-            document.getElementById('presetName').value = '';
-            document.getElementById('saveModal').classList.add('active');
-            document.querySelectorAll('.preset-option').forEach(el => el.classList.remove('selected')); }
-            
-        function closeSaveModal() { document.getElementById('saveModal').classList.remove('active');
-            selectedPresetSlot = null; }
-            
-        function selectPresetSlot(slot) { selectedPresetSlot = slot;
-            document.querySelectorAll('.preset-option').forEach(el => el.classList.toggle('selected', parseInt(el.dataset.preset) === slot)); }
-            
-        function confirmSavePreset() { if (!selectedPresetSlot) { showToast('⚠️ Pilih slot preset.'); return; } const name = document.getElementById('presetName').value.trim() || `Layout ${new Date().toLocaleDateString('id-ID')}`; const layoutData = captureCurrentLayout();
-            layoutPresets[currentArea][selectedPresetSlot] = { name, savedAt: new Date().toISOString(), layout: layoutData };
-            activePreset[currentArea] = selectedPresetSlot;
-            saveToFirestore();
-            closeSaveModal();
-            renderDashboard();
-            showToast(`✅ Disimpan sebagai Preset ${selectedPresetSlot}`); }
-            
-        function loadPreset(slot) { if (!isAdmin()) return; const preset = layoutPresets[currentArea][slot]; if (!preset) { showToast('⚠️ Preset kosong.'); return; } if (!confirm(`Muat Preset ${slot}: "${preset.name}"?`)) return;
-            activePreset[currentArea] = slot;
-            saveToFirestore();
-            applyLayout(preset.layout);
-            renderDashboard();
-            showToast(`✅ Preset ${slot} dimuat.`); }
-            
-        function deletePreset(slot) { if (!isAdmin()) return; if (!confirm(`Hapus Preset ${slot}?`)) return;
-            layoutPresets[currentArea][slot] = null; if (activePreset[currentArea] === slot) activePreset[currentArea] = null;
-            saveToFirestore();
-            renderDashboard();
-            showToast(`🗑️ Preset ${slot} dihapus.`); }
-            
-        function captureCurrentLayout() { const layout = { boxes: {}, spacers: [], emptyBoxes: [] };
-            document.querySelectorAll('.baris-box').forEach(box => { const key = box.dataset.section + '_' + box.dataset.index;
-                layout.boxes[key] = { width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }; });
-            document.querySelectorAll('.spacer-h, .spacer-v').forEach((spacer, i) => { layout.spacers.push({ index: i, className: spacer.className, minHeight: spacer.style.minHeight || '', minWidth: spacer.style.minWidth || '', flex: spacer.style.flex || '', width: spacer.style.width || '', height: spacer.style.height || '' }); });
-            document.querySelectorAll('.empty-box').forEach((box, i) => { layout.emptyBoxes.push({ index: i, width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }); }); return layout; }
-            
-        function applyLayout(ld) { if (!ld) return;
-            setTimeout(() => { if (ld.boxes) { for (const [key, size] of Object.entries(ld.boxes)) { const [section, index] = key.split('_'); const box = document.querySelector(`.baris-box[data-section="${section}"][data-index="${index}"]`); if (box) { if (size.width) box.style.width = size.width; if (size.height) box.style.height = size.height; } } } if (ld.spacers) { const spacers = document.querySelectorAll('.spacer-h, .spacer-v');
-                    ld.spacers.forEach(s => { if (spacers[s.index]) { if (s.minHeight) spacers[s.index].style.minHeight = s.minHeight; if (s.minWidth) spacers[s.index].style.minWidth = s.minWidth; if (s.flex) spacers[s.index].style.flex = s.flex; if (s.width) spacers[s.index].style.width = s.width; if (s.height) spacers[s.index].style.height = s.height; } }); } if (ld.emptyBoxes) { const boxes = document.querySelectorAll('.empty-box');
-                    ld.emptyBoxes.forEach(s => { if (boxes[s.index]) { if (s.width) boxes[s.index].style.width = s.width; if (s.height) boxes[s.index].style.height = s.height; } }); } }, 200); }
-
         // ==================== EDIT MODE ====================
         function toggleEditMode() { 
             if (!isAdmin()) { 
@@ -1673,20 +1589,23 @@
             }
             
             if (editMode) {
-                // Keluar dari edit mode
-                editMode = false; 
-                undoStack = [];
-                redoStack = [];
-                preventRender = false;
+                showToast('💾 Menyimpan perubahan...');
                 
-                // Simpan layout ke Firestore
-                saveCurrentLayoutToFirestore().then(() => {
-                    showToast('✅ Edit mode NONAKTIF - Layout tersimpan');
-                    pendingRender = false;
-                    renderCurrentTab();
+                saveCurrentLayoutToFirestore().then((saved) => {
+                    if (saved) {
+                        editMode = false;
+                        preventRender = false;
+                        undoStack = [];
+                        redoStack = [];
+                        setTimeout(() => {
+                            renderCurrentTab();
+                            showToast('✅ Edit mode NONAKTIF - Layout tersimpan');
+                        }, 100);
+                    } else {
+                        showToast('⚠️ Gagal menyimpan, coba lagi');
+                    }
                 });
             } else {
-                // Masuk ke edit mode
                 editMode = true;
                 preventRender = true;
                 pendingRender = false;
@@ -1877,6 +1796,88 @@
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp); }
 
+        // ==================== ADD ELEMENTS ====================
+        function addEmptyBox() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
+            saveUndoState(); const row = document.createElement('div');
+            row.className = 'frz-row';
+            row.innerHTML = buildEmptyBox();
+            plan.appendChild(row);
+            setTimeout(() => {
+                initEmptyBoxDrag(row.querySelector('.empty-box'));
+                initBoxResizeSingle(row.querySelector('.empty-box'));
+            }, 50);
+            showToast('✅ Box kosong ditambahkan.'); }
+
+        function addSpacerH() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); if (!plan) return;
+            saveUndoState(); const div = document.createElement('div');
+            div.innerHTML = buildSpacerH('— Area Kosong Baru —'); const spacer = div.firstElementChild;
+            plan.appendChild(spacer);
+            setTimeout(() => {
+                initSpacerDrag(spacer);
+                initSpacerResize(spacer);
+            }, 50);
+            showToast('✅ Spacer H ditambahkan.'); }
+
+        function addSpacerV() { if (!isAdmin() || !editMode) return; const plan = document.getElementById('frzPlan') || document.getElementById('chlPlan'); const rows = plan.querySelectorAll('.frz-row, .chl-row'); let target = rows[rows.length - 1]; if (!target) { target = document.createElement('div');
+                target.className = 'frz-row';
+                plan.appendChild(target); }
+            saveUndoState(); const div = document.createElement('div');
+            div.innerHTML = buildSpacerV('Area<br>Kosong'); const spacer = div.firstElementChild;
+            target.appendChild(spacer);
+            setTimeout(() => {
+                initSpacerDrag(spacer);
+                initSpacerResize(spacer);
+            }, 50);
+            showToast('✅ Spacer V ditambahkan.'); }
+
+        // ==================== PRESET ====================
+        function renderPresetPanel() { const presets = layoutPresets[currentArea]; let cards = ''; const colors = ['preset-1', 'preset-2', 'preset-3']; const names = ['Preset 1 🟣', 'Preset 2 🔵', 'Preset 3 🟡']; for (let i = 1; i <= 3; i++) { const preset = presets[i]; const isActive = activePreset[currentArea] === i;
+                cards += `<div class="preset-card ${colors[i-1]} ${isActive?'active-preset':''}" onclick="loadPreset(${i})">${isActive?'<span class="preset-badge">✓</span>':''}${preset?`<button class="preset-delete" onclick="event.stopPropagation();deletePreset(${i})">✕</button>`:''}<div class="preset-name">${names[i-1]}</div><div class="preset-info">${preset?preset.name||'Tersimpan':'Kosong'}</div></div>`; } return `<div class="preset-panel active"><span style="font-weight:700;width:100%;">📌 Preset:</span>${cards}</div>`; }
+        
+        function openSaveModal() { if (!isAdmin()) return;
+            selectedPresetSlot = null; for (let i = 1; i <= 3; i++) { const info = document.getElementById(`preset${i}Info`); if (info) info.textContent = layoutPresets[currentArea][i] ? (layoutPresets[currentArea][i].name || 'Tersimpan') : 'Kosong'; }
+            document.getElementById('presetName').value = '';
+            document.getElementById('saveModal').classList.add('active');
+            document.querySelectorAll('.preset-option').forEach(el => el.classList.remove('selected')); }
+            
+        function closeSaveModal() { document.getElementById('saveModal').classList.remove('active');
+            selectedPresetSlot = null; }
+            
+        function selectPresetSlot(slot) { selectedPresetSlot = slot;
+            document.querySelectorAll('.preset-option').forEach(el => el.classList.toggle('selected', parseInt(el.dataset.preset) === slot)); }
+            
+        function confirmSavePreset() { if (!selectedPresetSlot) { showToast('⚠️ Pilih slot preset.'); return; } const name = document.getElementById('presetName').value.trim() || `Layout ${new Date().toLocaleDateString('id-ID')}`; const layoutData = captureCurrentLayout();
+            layoutPresets[currentArea][selectedPresetSlot] = { name, savedAt: new Date().toISOString(), layout: layoutData };
+            activePreset[currentArea] = selectedPresetSlot;
+            saveToFirestore();
+            closeSaveModal();
+            renderDashboard();
+            showToast(`✅ Disimpan sebagai Preset ${selectedPresetSlot}`); }
+            
+        function loadPreset(slot) { if (!isAdmin()) return; const preset = layoutPresets[currentArea][slot]; if (!preset) { showToast('⚠️ Preset kosong.'); return; } if (!confirm(`Muat Preset ${slot}: "${preset.name}"?`)) return;
+            activePreset[currentArea] = slot;
+            saveToFirestore();
+            applyLayout(preset.layout);
+            renderDashboard();
+            showToast(`✅ Preset ${slot} dimuat.`); }
+            
+        function deletePreset(slot) { if (!isAdmin()) return; if (!confirm(`Hapus Preset ${slot}?`)) return;
+            layoutPresets[currentArea][slot] = null; if (activePreset[currentArea] === slot) activePreset[currentArea] = null;
+            saveToFirestore();
+            renderDashboard();
+            showToast(`🗑️ Preset ${slot} dihapus.`); }
+            
+        function captureCurrentLayout() { const layout = { boxes: {}, spacers: [], emptyBoxes: [] };
+            document.querySelectorAll('.baris-box').forEach(box => { const key = box.dataset.section + '_' + box.dataset.index;
+                layout.boxes[key] = { width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }; });
+            document.querySelectorAll('.spacer-h, .spacer-v').forEach((spacer, i) => { layout.spacers.push({ index: i, className: spacer.className, minHeight: spacer.style.minHeight || '', minWidth: spacer.style.minWidth || '', flex: spacer.style.flex || '', width: spacer.style.width || '', height: spacer.style.height || '' }); });
+            document.querySelectorAll('.empty-box').forEach((box, i) => { layout.emptyBoxes.push({ index: i, width: box.style.width || box.offsetWidth + 'px', height: box.style.height || box.offsetHeight + 'px' }); }); return layout; }
+            
+        function applyLayout(ld) { if (!ld) return;
+            setTimeout(() => { if (ld.boxes) { for (const [key, size] of Object.entries(ld.boxes)) { const [section, index] = key.split('_'); const box = document.querySelector(`.baris-box[data-section="${section}"][data-index="${index}"]`); if (box) { if (size.width) box.style.width = size.width; if (size.height) box.style.height = size.height; } } } if (ld.spacers) { const spacers = document.querySelectorAll('.spacer-h, .spacer-v');
+                    ld.spacers.forEach(s => { if (spacers[s.index]) { if (s.minHeight) spacers[s.index].style.minHeight = s.minHeight; if (s.minWidth) spacers[s.index].style.minWidth = s.minWidth; if (s.flex) spacers[s.index].style.flex = s.flex; if (s.width) spacers[s.index].style.width = s.width; if (s.height) spacers[s.index].style.height = s.height; } }); } if (ld.emptyBoxes) { const boxes = document.querySelectorAll('.empty-box');
+                    ld.emptyBoxes.forEach(s => { if (boxes[s.index]) { if (s.width) boxes[s.index].style.width = s.width; if (s.height) boxes[s.index].style.height = s.height; } }); } }, 200); }
+
         // ==================== SEARCH, DETAIL, INPUT, HISTORY, REKAP, MANAGE ====================
         function renderSearch(keyword = '') { 
             const allBaskets = []; 
@@ -2013,7 +2014,7 @@
                 trx.forEach(t => { const d = new Date(t.timestamp); if (d.getFullYear() !== sy) return; const m = d.getMonth(); if (!md[m]) md[m] = { in: 0, out: 0, bs: {} };
                     md[m][t.type]++; const s = t.detail.section || '-'; if (!md[m].bs[s]) md[m].bs[s] = { in: 0, out: 0 };
                     md[m].bs[s][t.type]++; }); let rows = ''; for (let m = 0; m < 12; m++) { if (!md[m]) continue; const bd = Object.entries(md[m].bs).map(([s, v]) => `<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');
-                    rows += `<tr><td><strong>${B[m]} ${sy}</strong></td><td style="color:var(--primary);">+${md[m].in}</td><td style="color:var(--danger);">-${md[m].out}</td><td>${md[m].in-md[m].out>=0?'+':''}${md[m].in-md[m].out}</td><td>${bd}</td></tr>`; } if (!rows) rows = '<tr><td colspan="5">Tidak ada data.</td></tr>'; const yo = ys.map(y => `<option value="${y}" ${y===sy?'selected':''}>${y}</option>`).join('') || `<option>${ny}</option>`;
+                    rows += `<tr></td><strong>${B[m]} ${sy}</strong></td><td style="color:var(--primary);">+${md[m].in}</td><td style="color:var(--danger);">-${md[m].out}</td><td>${md[m].in-md[m].out>=0?'+':''}${md[m].in-md[m].out}</td><td>${bd}</td></tr>`; } if (!rows) rows = '<tr><td colspan="5">Tidak ada data.</td></tr>'; const yo = ys.map(y => `<option value="${y}" ${y===sy?'selected':''}>${y}</option>`).join('') || `<option>${ny}</option>`;
                 container.innerHTML = `<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${sb}${mt}<div class="filter-row"><label>Tahun: <select id="rekapYearFilter" onchange="renderRekap()">${yo}</select></label><button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button></div><table class="rekap-table"><thead><tr><th>Bulan</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div>`; } else { const yd = {};
                 trx.forEach(t => { const y = new Date(t.timestamp).getFullYear(); if (!yd[y]) yd[y] = { in: 0, out: 0, bs: {} };
                     yd[y][t.type]++; const s = t.detail.section || '-'; if (!yd[y].bs[s]) yd[y].bs[s] = { in: 0, out: 0 };
@@ -2024,7 +2025,7 @@
             
         function downloadExcel() { const trx = currentTransactions(); if (!trx.length) return showToast('Tidak ada.'); let h = '<html><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Tgl</th><th>Jenis</th><th>Item</th><th>Qty</th><th>Jenis</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est</th></tr>';
             trx.forEach(t => { const d = t.detail;
-                h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`; });
+                h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}                h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`; });
             h += '</table></body></html>';
             _dlBlob(h, `riwayat_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`); }
             
