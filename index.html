@@ -24,6 +24,9 @@
             --in-color: #10b981;
             --out-color: #ef4444;
             --search-color: #06b6d4;
+            --preset-1: #8b5cf6;
+            --preset-2: #06b6d4;
+            --preset-3: #f59e0b;
         }
         * {
             margin: 0;
@@ -31,7 +34,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', system-ui;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
             color: var(--text);
             min-height: 100vh;
@@ -94,15 +97,19 @@
             cursor: pointer;
             font-size: 0.82rem;
             white-space: nowrap;
+            transition: all 0.2s;
         }
         .tab-btn.active {
             background: var(--primary);
             color: white;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
+        .tab-btn:hover:not(.active) {
+            background: rgba(37, 99, 235, 0.1);
+        }
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             padding: 16px;
             display: flex;
             flex-direction: column;
@@ -143,6 +150,14 @@
             align-items: center;
             gap: 6px;
             font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: translateY(0);
         }
         .btn-primary {
             background: var(--primary);
@@ -159,6 +174,11 @@
         .btn-sm {
             padding: 6px 12px;
             font-size: 0.75rem;
+        }
+        .btn-xs {
+            padding: 4px 8px;
+            font-size: 0.65rem;
+            border-radius: 8px;
         }
         .btn-warning {
             background: var(--warning);
@@ -200,10 +220,121 @@
             transform: translateY(20px);
             transition: 0.3s;
             z-index: 200;
+            pointer-events: none;
         }
         .toast.show {
             opacity: 1;
             transform: translateY(0);
+        }
+        .google-btn {
+            background: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .google-btn:hover {
+            background: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* SEARCH */
+        .search-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .search-container input {
+            padding-left: 42px;
+            font-size: 1rem;
+            border: 2px solid #cbd5e1;
+            transition: border-color 0.3s;
+        }
+        .search-container input:focus {
+            border-color: var(--search-color);
+            outline: none;
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        .search-result-item {
+            background: #f0f9ff;
+            border-left: 6px solid var(--search-color);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .search-result-item:hover {
+            background: #e0f2fe;
+            transform: translateX(4px);
+        }
+        .search-result-item .item-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+        .search-result-item .item-detail {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-top: 4px;
+        }
+        .search-result-item .item-location {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #dbeafe;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-top: 6px;
+        }
+        .search-result-item .item-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .status-expired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-safe {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .search-highlight {
+            background: #fef08a;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+        .search-result-count {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-weight: 600;
         }
 
         /* DENAH */
@@ -213,6 +344,7 @@
             padding: 10px;
             overflow-x: auto;
             position: relative;
+            min-height: 200px;
         }
         .fp-room-title {
             font-weight: 800;
@@ -247,47 +379,74 @@
             z-index: 100;
         }
         .edit-mode .spacer-h,
-        .edit-mode .spacer-v {
-            cursor: pointer;
-            transition: background 0.2s;
+        .edit-mode .spacer-v,
+        .edit-mode .empty-box {
+            cursor: move;
+            position: relative;
+            transition: background 0.2s, box-shadow 0.2s;
+            border: 2px dashed #cbd5e1;
         }
         .edit-mode .spacer-h:hover,
-        .edit-mode .spacer-v:hover {
-            background: rgba(37, 99, 235, 0.15) !important;
+        .edit-mode .spacer-v:hover,
+        .edit-mode .empty-box:hover {
+            background: rgba(37, 99, 235, 0.1) !important;
             border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px var(--primary);
+            z-index: 10;
         }
-        .resize-handle {
+
+        .delete-element-btn {
             display: none;
             position: absolute;
-            background: var(--primary);
-            border-radius: 3px;
-            z-index: 20;
+            top: -12px;
+            right: -12px;
+            width: 24px;
+            height: 24px;
+            background: var(--danger);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.6rem;
+            font-weight: bold;
+            z-index: 35;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
-        .edit-mode .resize-handle {
-            display: block;
+        .edit-mode .spacer-h:hover .delete-element-btn,
+        .edit-mode .spacer-v:hover .delete-element-btn,
+        .edit-mode .empty-box:hover .delete-element-btn {
+            display: flex;
         }
-        .resize-handle-right {
-            width: 8px;
-            height: 100%;
-            right: -4px;
-            top: 0;
-            cursor: ew-resize;
+        .delete-element-btn:hover {
+            background: #dc2626;
+            transform: scale(1.15);
         }
-        .resize-handle-bottom {
-            width: 100%;
-            height: 8px;
-            bottom: -4px;
-            left: 0;
-            cursor: ns-resize;
+
+        .drop-zone {
+            border: 2px dashed #6366f1 !important;
+            background: rgba(99, 102, 241, 0.15) !important;
         }
-        .resize-handle-corner {
-            width: 12px;
-            height: 12px;
-            bottom: -6px;
-            right: -6px;
-            cursor: nwse-resize;
-            border-radius: 2px;
+
+        .empty-box {
+            width: 110px;
+            height: 175px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            position: relative;
+            transition: width 0.15s, height 0.15s;
         }
+
+        /* EDIT TOOLBAR */
         .edit-toolbar {
             display: none;
             background: #1e293b;
@@ -295,33 +454,189 @@
             padding: 10px 16px;
             border-radius: 12px;
             margin-bottom: 12px;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             flex-wrap: wrap;
         }
         .edit-toolbar.active {
             display: flex;
         }
+        .edit-toolbar .toolbar-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .edit-toolbar .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 4px;
+        }
         .edit-toolbar button {
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             background: transparent;
             color: white;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.15s;
         }
         .edit-toolbar button:hover {
             background: rgba(255, 255, 255, 0.1);
+        }
+        .edit-toolbar button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
         }
         .edit-toolbar button.active {
             background: var(--primary);
             border-color: var(--primary);
         }
-        .drop-zone {
-            border: 2px dashed #6366f1 !important;
-            background: rgba(99, 102, 241, 0.1) !important;
+        .edit-toolbar .undo-redo-btn {
+            font-size: 1rem;
+            padding: 6px 10px;
+            min-width: 36px;
+            justify-content: center;
+        }
+
+        /* PRESET PANEL */
+        .preset-panel {
+            display: none;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+        .preset-panel.active {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .preset-card {
+            flex: 1;
+            min-width: 180px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            position: relative;
+        }
+        .preset-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+        .preset-card.active-preset {
+            border-color: var(--success);
+            background: #f0fdf4;
+        }
+        .preset-card.preset-1 {
+            border-left: 4px solid var(--preset-1);
+        }
+        .preset-card.preset-2 {
+            border-left: 4px solid var(--preset-2);
+        }
+        .preset-card.preset-3 {
+            border-left: 4px solid var(--preset-3);
+        }
+        .preset-card .preset-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .preset-card .preset-info {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .preset-card .preset-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+        }
+        .preset-card .preset-delete {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        .preset-card .preset-delete:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        /* SAVE MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .modal-box h3 {
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+        .modal-box .preset-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .modal-box .preset-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .modal-box .preset-option:hover {
+            border-color: var(--primary);
+        }
+        .modal-box .preset-option.selected {
+            border-color: var(--primary);
+            background: #eff6ff;
         }
 
         .baris-box {
@@ -335,7 +650,7 @@
             flex-direction: column;
             flex-shrink: 0;
             position: relative;
-            transition: width 0.2s, height 0.2s;
+            transition: width 0.15s, height 0.15s;
         }
         .baris-box-lbl {
             font-size: 0.6rem;
@@ -349,7 +664,7 @@
         }
         .baris-slots {
             display: flex;
-            flex-direction: column-reverse;
+            flex-direction: column;
             gap: 1px;
             flex: 1;
             min-height: 0;
@@ -418,7 +733,25 @@
             z-index: 5;
         }
 
-        /* SPACER */
+        .baris-box.stock-box {
+            background: #e0e7ff;
+            border-color: #6366f1;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+        .baris-box.stock-box .baris-box-lbl {
+            color: #4338ca;
+            font-size: 0.58rem;
+            white-space: normal;
+            text-align: center;
+            line-height: 1.3;
+            margin: 0;
+        }
+        .stock-icon {
+            font-size: 1.8rem;
+        }
+
         .spacer-h {
             min-height: 35px;
             background: rgba(255, 255, 255, 0.4);
@@ -430,7 +763,8 @@
             color: #c8d3df;
             font-size: 0.7rem;
             width: 100%;
-            transition: min-height 0.2s;
+            transition: min-height 0.15s, min-width 0.15s;
+            position: relative;
         }
         .spacer-v {
             background: rgba(255, 255, 255, 0.4);
@@ -443,29 +777,33 @@
             font-size: 0.7rem;
             flex: 1;
             min-width: 60px;
-            transition: min-width 0.2s;
+            transition: min-height 0.15s, min-width 0.15s;
+            position: relative;
         }
 
-        /* LAYOUT FROZEN */
-        .frz-plan {
+        .frz-plan,
+        .chl-plan {
             display: flex;
             flex-direction: column;
             gap: 8px;
             min-width: 850px;
         }
-        .frz-row {
+        .frz-row,
+        .chl-row {
             display: flex;
             gap: 8px;
             align-items: flex-start;
             min-height: 40px;
         }
-        .frz-left-stack {
+        .frz-left-stack,
+        .chl-left-stack {
             display: flex;
             flex-direction: column;
             gap: 8px;
             flex-shrink: 0;
         }
-        .frz-right-stack {
+        .frz-right-stack,
+        .chl-right-stack {
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -481,28 +819,249 @@
             gap: 8px;
             flex-shrink: 0;
         }
+        .chl-top {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+        .chl-space {
+            min-height: 80px;
+        }
+        .chl-bot {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .move-form {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 8px;
+            margin-top: 6px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .move-form select {
+            width: auto;
+            padding: 6px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+        .history-item.type-in {
+            background: #ecfdf5;
+            border-left: 6px solid var(--in-color);
+        }
+        .history-item.type-out {
+            background: #fef2f2;
+            border-left: 6px solid var(--out-color);
+        }
+        .history-item.type-move {
+            background: #f5f3ff;
+            border-left: 6px solid var(--move-color);
+        }
+        .history-item.type-edit {
+            background: #fffbeb;
+            border-left: 6px solid var(--warning);
+        }
+        .history-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+        }
+        .badge-in {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge-out {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-move {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+        .badge-edit {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .rekap-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .rekap-tab {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .rekap-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .rekap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .rekap-table th {
+            background: #1e3a5f;
+            color: white;
+            padding: 10px 8px;
+            text-align: left;
+        }
+        .rekap-table td {
+            padding: 9px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .stat-box {
+            background: #f0f4ff;
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+        .stat-box .val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-box .lbl {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .stat-box.out {
+            background: #fff0f0;
+        }
+        .stat-box.out .val {
+            color: var(--danger);
+        }
+        .section-badge {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 2px;
+            display: inline-block;
+        }
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-row select {
+            width: auto;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        .reset-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: 2px solid #ef4444;
+            padding: 10px 20px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .reset-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+        .chip {
+            background: #e2e8f0;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 2px;
+        }
+        .baris-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #475569;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            background: #e2e8f0;
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
 
         @keyframes softPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3)
-            }
-            50% {
-                box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.1)
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3)
-            }
+            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3) }
+            50% { box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.1) }
+            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3) }
         }
         @keyframes strongPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5)
-            }
-            50% {
-                box-shadow: 0 0 0 7px rgba(239, 68, 68, 0.15)
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5)
-            }
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5) }
+            50% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0.15) }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5) }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .saving-indicator {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .saving-indicator.show {
+            opacity: 1;
         }
     </style>
 </head>
@@ -510,12 +1069,21 @@
     <div id="loginScreen" class="container" style="max-width:400px;margin-top:40px;">
         <div class="card" style="text-align:center">
             <h2>🔐 Masuk Walk-in</h2>
-            <p style="color:#64748b;margin-bottom:16px;">Gunakan akun tim</p>
-            <div class="form-group"><input type="email" id="loginEmail" placeholder="Masukkan email"></div>
-            <div class="form-group"><input type="password" id="loginPassword" placeholder="Masukkan password"></div>
-            <button class="btn btn-primary" style="width:100%" onclick="login()">Masuk</button>
-            <button class="google-btn" onclick="loginWithGoogle()"><i class="fab fa-google"></i> Login dengan Google</button>
-            <p id="loginError" style="color:red;margin-top:10px;"></p>
+            <p style="color:#64748b;margin-bottom:16px;">Gunakan akun tim Anda</p>
+            <div class="form-group">
+                <input type="email" id="loginEmail" placeholder="Masukkan email" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Masukkan password" autocomplete="current-password">
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="login()" id="loginBtn">
+                Masuk
+            </button>
+            <div style="margin:12px 0;color:#94a3b8;">atau</div>
+            <button class="google-btn" onclick="loginWithGoogle()" id="googleBtn">
+                <i class="fab fa-google"></i> Login dengan Google
+            </button>
+            <p id="loginError" style="margin-top:10px;min-height:20px;"></p>
         </div>
     </div>
 
@@ -531,6 +1099,9 @@
             </div>
             <div class="user-row">
                 <span id="currentUserName" style="font-size:0.8rem;color:white;"></span>
+                <button class="btn-outline" style="color:white;border-color:white;padding:4px 10px;" onclick="refreshData()" title="Refresh data">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
                 <button class="btn-outline" style="color:white;border-color:white;padding:4px 10px;" onclick="logout()">Keluar</button>
             </div>
         </div>
@@ -545,9 +1116,27 @@
         <div class="container" id="appContainer"></div>
     </div>
     <div class="toast" id="toast"></div>
+    <div class="saving-indicator" id="savingIndicator">💾 Menyimpan...</div>
+
+    <div class="modal-overlay" id="saveModal">
+        <div class="modal-box">
+            <h3>💾 Simpan Layout sebagai Preset</h3>
+            <p style="font-size:0.85rem;color:#64748b;margin-bottom:12px;">Pilih slot preset:</p>
+            <div class="preset-options" id="presetOptions">
+                <div class="preset-option opt-1" data-preset="1" onclick="selectPresetSlot(1)">🟣 <strong>Preset 1</strong><br><small id="preset1Info">Kosong</small></div>
+                <div class="preset-option opt-2" data-preset="2" onclick="selectPresetSlot(2)">🔵 <strong>Preset 2</strong><br><small id="preset2Info">Kosong</small></div>
+                <div class="preset-option opt-3" data-preset="3" onclick="selectPresetSlot(3)">🟡 <strong>Preset 3</strong><br><small id="preset3Info">Kosong</small></div>
+            </div>
+            <div class="form-group"><label>Nama Preset</label><input type="text" id="presetName" placeholder="Contoh: Layout Tim A"></div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary" onclick="confirmSavePreset()" style="flex:1;">💾 Simpan</button>
+                <button class="btn btn-outline" onclick="closeSaveModal()">Batal</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // FIREBASE CONFIG
+        // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
             apiKey: "AIzaSyA1K3kQ93LSz1yKpBa2cMCRD045alTm6cs",
             authDomain: "walk-in-web.firebaseapp.com",
@@ -556,65 +1145,140 @@
             messagingSenderId: "42449089338",
             appId: "1:42449089338:web:a34b589a7c746b8dcc1603"
         };
+        
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        
+        // Enable Firestore offline persistence
+        db.enablePersistence().catch((err) => {
+            console.warn('Firestore persistence error:', err.code);
+        });
+        
+        // Set language to Indonesian
+        firebase.auth().useDeviceLanguage();
 
-        // ADMIN
+        // ==================== ADMIN ====================
         const _ENCODED_ADMIN_EMAILS = ['c2xhcmRhci5tZW5AZ21haWwuY29t'];
-
-        function _getAdminEmails() {
-            return _ENCODED_ADMIN_EMAILS.map(e => { try { return atob(e); } catch (x) { return ''; } }).filter(e => e);
+        function _getAdminEmails() { 
+            return _ENCODED_ADMIN_EMAILS.map(e => { 
+                try { return atob(e); } 
+                catch (x) { return ''; 
+                }
+            }).filter(e => e); 
         }
         const ADMIN_EMAILS = _getAdminEmails();
+        console.log('Admin emails loaded:', ADMIN_EMAILS.length);
 
-        // STATE
+        // ==================== STATE ====================
         let currentArea = 'frozen';
-        let appData = { frozen: { sections: {}, baskets: {}, transactions: [] }, chiller: { sections: {}, baskets: {},
-                transactions: [] } };
+        let appData = { 
+            frozen: { sections: {}, baskets: {}, transactions: [] }, 
+            chiller: { sections: {}, baskets: {}, transactions: [] } 
+        };
         let currentTab = 'dashboard';
         let rekapMode = 'bulanan';
         let unsubscribe = null;
         let editMode = false;
         let dragState = null;
+        let selectedPresetSlot = null;
+        let layoutPresets = { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } };
+        let activePreset = { frozen: null, chiller: null };
+        
+        let preventRender = false;
+        let pendingRender = false;
+        let isSavingLayout = false;
+        let renderTimeout = null;
 
-        // LAYOUT CONFIG (bisa diubah via edit mode)
-        let layoutConfig = {
-            frozen: {
-                rows: [
-                    { type: 'boxes', sections: ['IMP'], spacer: false },
-                    { type: 'spacer', height: 35 },
-                    {
-                        type: 'split',
-                        left: { type: 'stack', sections: ['RTL', 'NPL'] },
-                        spacer: true,
-                        right: { type: 'stack', sections: ['MI'] }
-                    },
-                    { type: 'spacer', height: 35 },
-                    { type: 'boxes', sections: ['RDQ', 'MTPP'], spacer: true }
-                ]
-            },
-            chiller: {
-                rows: [
-                    { type: 'boxes', sections: ['THAWING'], spacer: false },
-                    { type: 'spacer', height: 80 },
-                    { type: 'boxes', sections: ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'], spacer: false }
-                ]
+        // ==================== UNDO/REDO ====================
+        let undoStack = [];
+        let redoStack = [];
+        const MAX_UNDO = 50;
+
+        function saveUndoState() {
+            if (!editMode) return;
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah) return;
+            
+            const snapshot = {
+                html: denah.innerHTML,
+                sections: JSON.parse(JSON.stringify(currentSections()))
+            };
+            
+            undoStack.push(snapshot);
+            if (undoStack.length > MAX_UNDO) undoStack.shift();
+            redoStack = [];
+            updateUndoRedoButtons();
+        }
+
+        function undo() { 
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah || undoStack.length === 0) return;
+            
+            redoStack.push({
+                html: denah.innerHTML,
+                sections: JSON.parse(JSON.stringify(currentSections()))
+            });
+            
+            const snapshot = undoStack.pop();
+            denah.innerHTML = snapshot.html;
+            appData[currentArea].sections = snapshot.sections;
+            syncBasketsWithSections(currentArea);
+            
+            updateUndoRedoButtons();
+            if (editMode) initEditMode();
+            showToast('↩️ Undo berhasil');
+        }
+
+        function redo() { 
+            const denah = document.getElementById('frzPlan') || document.getElementById('chlPlan');
+            if (!denah || redoStack.length === 0) return;
+            
+            undoStack.push({
+                html: denah.innerHTML,
+                sections: JSON.parse(JSON.stringify(currentSections()))
+            });
+            
+            const snapshot = redoStack.pop();
+            denah.innerHTML = snapshot.html;
+            appData[currentArea].sections = snapshot.sections;
+            syncBasketsWithSections(currentArea);
+            
+            updateUndoRedoButtons();
+            if (editMode) initEditMode();
+            showToast('↪️ Redo berhasil');
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('btnUndo');
+            const redoBtn = document.getElementById('btnRedo');
+            if (undoBtn) { 
+                undoBtn.disabled = undoStack.length === 0;
+                undoBtn.title = `Undo (${undoStack.length} langkah)`; 
             }
-        };
+            if (redoBtn) { 
+                redoBtn.disabled = redoStack.length === 0;
+                redoBtn.title = `Redo (${redoStack.length} langkah)`; 
+            }
+        }
 
+        function showSavingIndicator(show) {
+            const indicator = document.getElementById('savingIndicator');
+            if (indicator) {
+                if (show) indicator.classList.add('show');
+                else indicator.classList.remove('show');
+            }
+        }
+
+        // ==================== DEFAULT SECTIONS ====================
         const defaultFrozenSections = {
-            'IMP': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null,
-                    null
-                ], D: [null, null, null, null, null], E: [null, null, null, null, null] },
-            'RTL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null,
-                null] },
-            'NPL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null,
-                null] },
+            'IMP': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null], D: [null, null, null, null, null], E: [null, null, null, null, null] },
+            'RTL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null] },
+            'NPL': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null] },
             'RDQ': { A: [null, null, null, null, null] },
             'MTPP': { A: [null, null, null, null, null], B: [null, null, null, null, null] },
-            'MI': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null,
-                null] }
+            'MI': { A: [null, null, null, null, null], B: [null, null, null, null, null], C: [null, null, null, null, null] }
         };
         const defaultChillerSections = {
             'IMP': { A: [null, null, null, null, null] },
@@ -626,564 +1290,720 @@
             'THAWING': { A: [null, null, null, null, null], B: [null, null, null, null, null] }
         };
 
-        function getDefaultSections(a) { return a === 'frozen' ? JSON.parse(JSON.stringify(defaultFrozenSections)) :
-                JSON.parse(JSON.stringify(defaultChillerSections)); }
-
-        function upgradeBarisToSlots(b) {
-            if (!b || !Array.isArray(b)) return [null, null, null, null, null];
+        function getDefaultSections(a) { 
+            return a === 'frozen' ? JSON.parse(JSON.stringify(defaultFrozenSections)) : JSON.parse(JSON.stringify(defaultChillerSections)); 
+        }
+        
+        function upgradeBarisToSlots(b) { 
+            if (!b || !Array.isArray(b)) return [null, null, null, null, null]; 
             const s = [null, null, null, null, null];
-            b.forEach((n, i) => { if (i < 5 && n !== null && n !== undefined) s[i] = n; });
-            return s;
+            b.forEach((n, i) => { if (i < 5 && n !== null && n !== undefined) s[i] = n; }); 
+            return s; 
+        }
+        
+        function convertSectionsToSlotFormat(sec) { 
+            const out = {}; 
+            for (const [sn, bo] of Object.entries(sec)) { 
+                const co = {}; 
+                for (const [bn, val] of Object.entries(bo)) { 
+                    co[bn] = (Array.isArray(val) && val.length === 5 && val.every(v => v === null || typeof v === 'number')) ? val : upgradeBarisToSlots(val); 
+                } 
+                out[sn] = co; 
+            } 
+            return out; 
         }
 
-        function convertSectionsToSlotFormat(sec) {
-            const out = {};
-            for (const [sn, bo] of Object.entries(sec)) {
-                const co = {};
-                for (const [bn, val] of Object.entries(bo)) {
-                    co[bn] = (Array.isArray(val) && val.length === 5 && val.every(v => v === null || typeof v ===
-                        'number')) ? val : upgradeBarisToSlots(val);
-                }
-                out[sn] = co;
+        // ==================== AUTH - FIXED ====================
+        function login() { 
+            const email = document.getElementById('loginEmail').value.trim(); 
+            const pass = document.getElementById('loginPassword').value.trim(); 
+            const errorEl = document.getElementById('loginError');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (!email || !pass) { 
+                errorEl.textContent = '⚠️ Email dan password harus diisi.'; 
+                errorEl.style.color = '#ef4444';
+                return; 
             }
-            return out;
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading-spinner"></span> Masuk...';
+            errorEl.textContent = '';
+            
+            auth.signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    console.log('✅ Login berhasil:', userCredential.user.email);
+                    errorEl.textContent = '';
+                    errorEl.style.color = '#10b981';
+                })
+                .catch(e => {
+                    console.error('❌ Login error:', e.code, e.message);
+                    errorEl.style.color = '#ef4444';
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Masuk';
+                    
+                    switch(e.code) {
+                        case 'auth/invalid-email':
+                            errorEl.textContent = '⚠️ Format email tidak valid.';
+                            break;
+                        case 'auth/user-disabled':
+                            errorEl.textContent = '⚠️ Akun ini telah dinonaktifkan.';
+                            break;
+                        case 'auth/user-not-found':
+                            errorEl.textContent = '⚠️ Email tidak terdaftar.';
+                            break;
+                        case 'auth/wrong-password':
+                            errorEl.textContent = '⚠️ Password salah.';
+                            break;
+                        case 'auth/invalid-credential':
+                            errorEl.textContent = '⚠️ Email atau password salah.';
+                            break;
+                        case 'auth/too-many-requests':
+                            errorEl.textContent = '⚠️ Terlalu banyak percobaan. Tunggu beberapa saat.';
+                            break;
+                        case 'auth/network-request-failed':
+                            errorEl.textContent = '⚠️ Gagal koneksi. Periksa internet Anda.';
+                            break;
+                        default:
+                            errorEl.textContent = '⚠️ Gagal: ' + (e.message || 'Terjadi kesalahan');
+                    }
+                });
         }
 
-        function login() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPassword').value.trim();
-            if (!email || !pass) { document.getElementById('loginError').textContent =
-                'Email dan password harus diisi.'; return; }
-            auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('loginError').textContent =
-                'Gagal: ' + e.message);
+        function loginWithGoogle() { 
+            const errorEl = document.getElementById('loginError');
+            const googleBtn = document.getElementById('googleBtn');
+            
+            googleBtn.disabled = true;
+            googleBtn.innerHTML = '<span class="loading-spinner"></span> Menghubungkan...';
+            errorEl.textContent = '';
+            
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
+            
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    console.log('✅ Google login berhasil:', result.user.email);
+                    errorEl.textContent = '';
+                    errorEl.style.color = '#10b981';
+                })
+                .catch(e => {
+                    console.error('❌ Google login error:', e.code, e.message);
+                    errorEl.style.color = '#ef4444';
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = '<i class="fab fa-google"></i> Login dengan Google';
+                    
+                    switch(e.code) {
+                        case 'auth/popup-closed-by-user':
+                            errorEl.textContent = '⚠️ Popup ditutup sebelum selesai. Silakan coba lagi.';
+                            break;
+                        case 'auth/cancelled-popup-request':
+                            errorEl.textContent = '⚠️ Proses dibatalkan.';
+                            break;
+                        case 'auth/popup-blocked':
+                            errorEl.textContent = '⚠️ Popup diblokir browser. Izinkan popup untuk situs ini.';
+                            break;
+                        case 'auth/account-exists-with-different-credential':
+                            errorEl.textContent = '⚠️ Email sudah terdaftar dengan metode login lain.';
+                            break;
+                        case 'auth/network-request-failed':
+                            errorEl.textContent = '⚠️ Gagal koneksi. Periksa internet Anda.';
+                            break;
+                        default:
+                            errorEl.textContent = '⚠️ Gagal: ' + (e.message || 'Terjadi kesalahan');
+                    }
+                });
         }
 
-        function loginWithGoogle() {
-            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => document.getElementById(
-                'loginError').textContent = 'Google login gagal: ' + e.message);
+        function logout() { 
+            auth.signOut()
+                .then(() => {
+                    console.log('✅ Logout berhasil');
+                })
+                .catch(e => {
+                    console.error('❌ Logout error:', e);
+                });
         }
 
-        function logout() { auth.signOut(); }
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
+        // ==================== AUTH STATE LISTENER ====================
+        auth.onAuthStateChanged(user => { 
+            console.log('Auth state:', user ? 'Logged in as ' + user.email : 'Not logged in');
+            
+            if (user) { 
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('appScreen').style.display = 'block';
-                document.getElementById('currentUserName').textContent = user.email;
-                listenToFirestore();
-            } else {
+                
+                let userName = user.email || user.displayName || 'User';
+                if (isAdmin()) {
+                    userName += ' 👑';
+                }
+                document.getElementById('currentUserName').textContent = userName;
+                
+                listenToFirestore(); 
+            } else { 
                 document.getElementById('loginScreen').style.display = 'block';
-                document.getElementById('appScreen').style.display = 'none';
-                if (unsubscribe) unsubscribe();
-            }
+                document.getElementById('appScreen').style.display = 'none'; 
+                
+                // Cleanup
+                if (unsubscribe) {
+                    unsubscribe();
+                    unsubscribe = null;
+                }
+                
+                // Reset login form
+                const loginBtn = document.getElementById('loginBtn');
+                const googleBtn = document.getElementById('googleBtn');
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Masuk';
+                }
+                if (googleBtn) {
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = '<i class="fab fa-google"></i> Login dengan Google';
+                }
+            } 
         });
 
-        function listenToFirestore() {
-            if (unsubscribe) unsubscribe();
-            unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => {
-                if (doc.exists) {
-                    const d = doc.data();
-                    let fd = d.frozen || { sections: getDefaultSections('frozen'), baskets: {},
-                        transactions: [] };
-                    let cd = d.chiller || { sections: getDefaultSections('chiller'), baskets: {},
-                        transactions: [] };
-                    fd.sections = convertSectionsToSlotFormat(fd.sections || {});
-                    cd.sections = convertSectionsToSlotFormat(cd.sections || {});
-                    appData.frozen = fd;
-                    appData.chiller = cd;
-                    if (d.layoutConfig) layoutConfig = d.layoutConfig;
-                    syncBasketsWithSections('frozen');
-                    syncBasketsWithSections('chiller');
-                    if (!d.frozen) saveToFirestore();
-                    renderCurrentTab();
-                } else {
-                    appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
-                    appData.chiller = { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
-                    syncBasketsWithSections('frozen');
-                    syncBasketsWithSections('chiller');
-                    saveToFirestore();
+        // ==================== DATA ====================
+        function listenToFirestore() { 
+            if (unsubscribe) {
+                unsubscribe();
+                unsubscribe = null;
+            }
+            
+            console.log('📡 Setting up Firestore listener...');
+            
+            try {
+                unsubscribe = db.collection('shared').doc('data').onSnapshot(
+                    doc => { 
+                        if (preventRender || editMode || isSavingLayout) {
+                            pendingRender = true;
+                            return;
+                        }
+                        
+                        if (doc.exists) { 
+                            const d = doc.data(); 
+                            
+                            // Initialize data untuk kedua area
+                            let fd = d.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }; 
+                            let cd = d.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+                            
+                            fd.sections = convertSectionsToSlotFormat(fd.sections || {});
+                            cd.sections = convertSectionsToSlotFormat(cd.sections || {});
+                            
+                            appData.frozen = fd;
+                            appData.chiller = cd;
+                            
+                            if (d.layoutPresets) layoutPresets = d.layoutPresets; 
+                            if (d.activePreset) activePreset = d.activePreset;
+                            
+                            syncBasketsWithSections('frozen');
+                            syncBasketsWithSections('chiller'); 
+                            
+                            if (!d.frozen && !d.chiller) {
+                                console.log('📝 Creating initial data...');
+                                saveToFirestore();
+                            }
+                            
+                            if (!editMode && !preventRender && !isSavingLayout) {
+                                safeRender();
+                            }
+                        } else { 
+                            console.log('📝 No document found, creating initial data...');
+                            appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
+                            appData.chiller = { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+                            syncBasketsWithSections('frozen');
+                            syncBasketsWithSections('chiller');
+                            
+                            saveToFirestore().catch(err => {
+                                console.error('Error creating initial data:', err);
+                            });
+                            
+                            if (!editMode && !preventRender && !isSavingLayout) {
+                                safeRender();
+                            }
+                        } 
+                    },
+                    error => {
+                        console.error('❌ Firestore listener error:', error);
+                        showToast('⚠️ Error koneksi: ' + error.message);
+                    }
+                );
+            } catch (error) {
+                console.error('❌ Error setting up listener:', error);
+            }
+        }
+        
+        function safeRender() {
+            if (renderTimeout) clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(() => {
+                if (!editMode && !preventRender && !isSavingLayout) {
                     renderCurrentTab();
                 }
-            });
+            }, 100);
         }
 
-        function saveToFirestore() {
-            db.collection('shared').doc('data').set({
-                frozen: appData.frozen,
-                chiller: appData.chiller,
-                layoutConfig: layoutConfig
-            }, { merge: true });
+        function saveToFirestore() { 
+            const data = { 
+                frozen: appData.frozen, 
+                chiller: appData.chiller, 
+                layoutPresets: layoutPresets, 
+                activePreset: activePreset,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            return db.collection('shared').doc('data').set(data, { merge: true })
+                .then(() => {
+                    console.log('✅ Data saved to Firestore');
+                })
+                .catch(err => {
+                    console.error('❌ Firestore save error:', err);
+                    throw err;
+                });
         }
 
-        function syncBasketsWithSections(area) {
-            const sec = appData[area].sections;
-            const baskets = appData[area].baskets;
-            const valid = new Set();
-            for (const bo of Object.values(sec))
-                for (const sl of Object.values(bo))
-                    sl.forEach(n => { if (n !== null) valid.add(n); });
-            for (const n of Object.keys(baskets))
-                if (!valid.has(Number(n))) delete baskets[n];
-            for (const [sn, bo] of Object.entries(sec))
-                for (const [bn, sl] of Object.entries(bo))
-                    sl.forEach((n, i) => {
-                        if (n === null) return;
-                        if (!baskets[n]) baskets[n] = { section: sn, baris: bn, slot: i + 1, items: [] };
-                        else { baskets[n].section = sn;
+        async function saveCurrentLayoutToFirestore() {
+            if (!isAdmin()) {
+                showToast('⚠️ Hanya admin yang bisa menyimpan layout');
+                return false;
+            }
+            
+            if (isSavingLayout) {
+                showToast('⏳ Masih menyimpan, tunggu...');
+                return false;
+            }
+            
+            isSavingLayout = true;
+            showSavingIndicator(true);
+            
+            try {
+                const currentSectionsData = JSON.parse(JSON.stringify(currentSections()));
+                
+                const updateData = {};
+                updateData[`${currentArea}.sections`] = currentSectionsData;
+                updateData[`${currentArea}.lastLayoutUpdate`] = firebase.firestore.FieldValue.serverTimestamp();
+                
+                await db.collection('shared').doc('data').update(updateData);
+                
+                showToast('✅ Layout berhasil disimpan!');
+                console.log('✅ Layout saved successfully');
+                return true;
+                
+            } catch (err) {
+                console.error('❌ Error saving layout:', err);
+                showToast('⚠️ Gagal simpan: ' + err.message);
+                return false;
+            } finally {
+                isSavingLayout = false;
+                setTimeout(() => showSavingIndicator(false), 500);
+            }
+        }
+
+        async function refreshData() {
+            if (editMode) {
+                showToast('⚠️ Keluar dari edit mode terlebih dahulu');
+                return;
+            }
+            
+            showToast('🔄 Memuat ulang data...');
+            try {
+                const doc = await db.collection('shared').doc('data').get();
+                if (doc.exists) {
+                    const d = doc.data();
+                    appData.frozen = d.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
+                    appData.chiller = d.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
+                    syncBasketsWithSections('frozen');
+                    syncBasketsWithSections('chiller');
+                    renderCurrentTab();
+                    showToast('✅ Data dimuat ulang');
+                } else {
+                    showToast('⚠️ Data tidak ditemukan');
+                }
+            } catch (err) {
+                console.error('❌ Refresh error:', err);
+                showToast('⚠️ Gagal memuat ulang: ' + err.message);
+            }
+        }
+
+        function syncBasketsWithSections(area) { 
+            const sec = appData[area].sections; 
+            const baskets = appData[area].baskets; 
+            const valid = new Set(); 
+            
+            for (const bo of Object.values(sec)) {
+                for (const sl of Object.values(bo)) {
+                    sl.forEach(n => { 
+                        if (n !== null) valid.add(n); 
+                    }); 
+                }
+            }
+            
+            // Remove invalid baskets
+            for (const n of Object.keys(baskets)) {
+                if (!valid.has(Number(n))) delete baskets[n]; 
+            }
+            
+            // Update basket references
+            for (const [sn, bo] of Object.entries(sec)) {
+                for (const [bn, sl] of Object.entries(bo)) {
+                    sl.forEach((n, i) => { 
+                        if (n === null) return; 
+                        if (!baskets[n]) {
+                            baskets[n] = { section: sn, baris: bn, slot: i + 1, items: [] }; 
+                        } else { 
+                            baskets[n].section = sn;
                             baskets[n].baris = bn;
-                            baskets[n].slot = i + 1; }
-                    });
+                            baskets[n].slot = i + 1; 
+                        } 
+                    }); 
+                }
+            }
         }
 
         function currentSections() { return appData[currentArea].sections; }
-
         function currentBaskets() { return appData[currentArea].baskets; }
-
         function currentTransactions() { return appData[currentArea].transactions; }
-
-        function switchArea() {
+        
+        function switchArea() { 
+            if (editMode) {
+                showToast('⚠️ Keluar dari edit mode terlebih dahulu');
+                document.getElementById('areaSelect').value = currentArea;
+                return;
+            }
             currentArea = document.getElementById('areaSelect').value;
             document.getElementById('areaTitle').textContent = currentArea === 'frozen' ? 'Frozen' : 'Chiller';
-            renderCurrentTab();
+            renderCurrentTab(); 
         }
-
-        function itemCount(no) { return (currentBaskets()[no]?.items || []).length; }
-
-        function hasExpiredItems(no) {
-            const items = currentBaskets()[no]?.items || [];
-            const now = new Date();
-            return items.some(i => (i.expDate && new Date(i.expDate) < now) || (i.estOutDate && new Date(i.estOutDate) <
-                now));
+        
+        function itemCount(no) { 
+            const basket = currentBaskets()[no];
+            return basket?.items?.length || 0;
         }
-
-        function showToast(msg) {
+        
+        function hasExpiredItems(no) { 
+            const items = currentBaskets()[no]?.items || []; 
+            const now = new Date(); 
+            return items.some(i => 
+                (i.expDate && new Date(i.expDate) < now) || 
+                (i.estOutDate && new Date(i.estOutDate) < now)
+            ); 
+        }
+        
+        function showToast(msg) { 
             const t = document.getElementById('toast');
-            t.textContent = msg;
+            t.innerHTML = msg;
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
+            setTimeout(() => t.classList.remove('show'), 3000); 
         }
-
-        function logTransaction(type, detail) {
-            currentTransactions().unshift({ id: Date.now(), timestamp: new Date().toISOString(), type, detail, user: auth
-                    .currentUser?.email || 'unknown' });
-            if (currentTransactions().length > 500) currentTransactions().pop();
-            saveToFirestore();
+            
+        function logTransaction(type, detail) { 
+            currentTransactions().unshift({ 
+                id: Date.now(), 
+                timestamp: new Date().toISOString(), 
+                type, 
+                detail, 
+                user: auth.currentUser?.email || 'unknown' 
+            }); 
+            if (currentTransactions().length > 500) {
+                // Keep only last 500 transactions
+                currentTransactions().length = 500;
+            }
+            saveToFirestore().catch(err => console.error('Error saving transaction:', err)); 
         }
-
-        function isAdmin() {
-            const u = auth.currentUser;
-            return u && u.providerData.some(p => p.providerId === 'google.com') && ADMIN_EMAILS.includes(u.email);
+            
+        function isAdmin() { 
+            const u = auth.currentUser; 
+            return u && u.providerData && ADMIN_EMAILS.includes(u.email); 
         }
-
-        async function resetAllData() {
-            if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; }
-            if (!confirm('⚠️ Hapus total semua data?')) return;
-            await db.collection('shared').doc('data').set({
-                frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] },
-                chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] },
-                layoutConfig: getDefaultLayoutConfig()
-            });
-            layoutConfig = getDefaultLayoutConfig();
-            showToast('✅ Data dihapus.');
-        }
-
-        function getDefaultLayoutConfig() {
-            return {
-                frozen: {
-                    rows: [
-                        { type: 'boxes', sections: ['IMP'], spacer: false },
-                        { type: 'spacer', height: 35 },
-                        { type: 'split', left: { type: 'stack', sections: ['RTL', 'NPL'] }, spacer: true,
-                            right: { type: 'stack', sections: ['MI'] } },
-                        { type: 'spacer', height: 35 },
-                        { type: 'boxes', sections: ['RDQ', 'MTPP'], spacer: true }
-                    ]
-                },
-                chiller: {
-                    rows: [
-                        { type: 'boxes', sections: ['THAWING'], spacer: false },
-                        { type: 'spacer', height: 80 },
-                        { type: 'boxes', sections: ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'],
-                        spacer: false }
-                    ]
-                }
-            };
+            
+        async function resetAllData() { 
+            if (!isAdmin()) { 
+                showToast('⚠️ Hanya admin.'); 
+                return; 
+            } 
+            if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA data termasuk layout, item, dan riwayat. Lanjutkan?')) return; 
+            if (!confirm('⚠️ KONFIRMASI TERAKHIR: Semua data akan hilang permanen. Yakin?')) return;
+            
+            try {
+                await db.collection('shared').doc('data').set({ 
+                    frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] }, 
+                    chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] }, 
+                    layoutPresets: { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } }, 
+                    activePreset: { frozen: null, chiller: null } 
+                });
+                
+                layoutPresets = { frozen: { 1: null, 2: null, 3: null }, chiller: { 1: null, 2: null, 3: null } };
+                activePreset = { frozen: null, chiller: null };
+                undoStack = [];
+                redoStack = [];
+                showToast('✅ Semua data berhasil dihapus.');
+            } catch (err) {
+                console.error('Reset error:', err);
+                showToast('⚠️ Gagal menghapus data: ' + err.message);
+            }
         }
 
         const container = document.getElementById('appContainer');
-
-        function renderCurrentTab() {
-            try { switch (currentTab) {
-                    case 'dashboard': renderDashboard(); break;
-                    case 'search': renderSearch(); break;
-                    case 'in': renderInputForm(); break;
-                    case 'history': renderHistory(); break;
-                    case 'rekap': renderRekap(); break;
-                    case 'manage': renderManageBaskets(); break;
-                } } catch (e) { container.innerHTML =
-                    '<div class="card"><div class="empty-state">Error.</div></div>'; }
+        
+        function renderCurrentTab() { 
+            try { 
+                if (editMode && currentTab !== 'dashboard') {
+                    showToast('⚠️ Selesaikan edit mode terlebih dahulu');
+                    return;
+                }
+                switch (currentTab) { 
+                    case 'dashboard': renderDashboard(); break; 
+                    case 'search': renderSearch(); break; 
+                    case 'in': renderInputForm(); break; 
+                    case 'history': renderHistory(); break; 
+                    case 'rekap': renderRekap(); break; 
+                    case 'manage': renderManageBaskets(); break; 
+                } 
+            } catch (e) { 
+                console.error('Render error:', e); 
+                container.innerHTML = `<div class="card"><div class="empty-state">❌ Error: ${e.message}<br><small>Silakan refresh halaman</small></div></div>`; 
+            } 
         }
 
-        // BUILD ELEMENTS
-        function buildBasketSlot(no) {
-            if (no === null) return `<div class="basket-slot slot-empty"></div>`;
-            const c = itemCount(no);
-            const exp = hasExpiredItems(no);
-            let cls = 'basket-slot';
-            if (c >= 5) cls += ' orange';
-            else if (exp) cls += ' red';
-            else if (c > 0) cls += ' green';
-            const badge = (exp || c >= 5) ? '<span class="slot-alert">!</span>' : '';
+        // ==================== BUILD FUNCTIONS ====================
+        function buildBasketSlot(no) { 
+            if (no === null) return `<div class="basket-slot slot-empty"></div>`; 
+            const c = itemCount(no); 
+            const exp = hasExpiredItems(no); 
+            let cls = 'basket-slot'; 
+            if (c >= 5) cls += ' orange'; 
+            else if (exp) cls += ' red'; 
+            else if (c > 0) cls += ' green'; 
+            const badge = (exp || c >= 5) ? '<span class="slot-alert">!</span>' : ''; 
             return `<div class="${cls}" onclick="${editMode?'':'showBasketDetail('+no+')'}" title="Keranjang ${no} — ${c}/5">
-            <span class="slot-num">${no}</span><span class="slot-count">${c}/5</span>${badge}</div>`;
+                <span class="slot-num">${no}</span>
+                <span class="slot-count">${c}/5</span>${badge}
+            </div>`; 
         }
-
-        function buildBarisBox(sec, idx, slots) {
-            const lbl = `${sec} ${String(idx + 1).padStart(2, '0')}`;
-            let s = '';
-            for (let i = 0; i < 5; i++) s += buildBasketSlot(slots[i]);
+        
+        function buildBarisBox(sec, idx, slots) { 
+            const lbl = `${sec} ${String(idx + 1).padStart(2, '0')}`; 
+            let s = ''; 
+            for (let i = 0; i < 5; i++) {
+                s += buildBasketSlot(slots[i]); 
+            }
+            const handles = editMode ? `
+                <div class="resize-handle" style="position:absolute;width:100%;height:10px;top:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="top"></div>
+                <div class="resize-handle" style="position:absolute;width:100%;height:10px;bottom:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="bottom"></div>
+                <div class="resize-handle" style="position:absolute;width:10px;height:100%;left:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="left"></div>
+                <div class="resize-handle" style="position:absolute;width:10px;height:100%;right:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="right"></div>
+            ` : ''; 
             return `<div class="baris-box" data-section="${sec}" data-index="${idx}" draggable="${editMode}">
-            <div class="baris-box-lbl">${lbl}</div>
-            <div class="baris-slots">${s}</div>
-            ${editMode ? '<div class="resize-handle resize-handle-right"></div><div class="resize-handle resize-handle-bottom"></div><div class="resize-handle resize-handle-corner"></div>' : ''}
-        </div>`;
+                <div class="baris-box-lbl">${lbl}</div>
+                <div class="baris-slots">${s}</div>
+                ${handles}
+            </div>`; 
+        }
+        
+        function getSecBoxes(sec) { 
+            const bo = currentSections()[sec] || {}; 
+            return Object.entries(bo).map(([b, sl], i) => buildBarisBox(sec, i, sl)).join(''); 
+        }
+        
+        function buildEmptyBox() { 
+            const delBtn = editMode ? `<button class="delete-element-btn" onclick="event.stopPropagation();deleteElement(this)" title="Hapus">✕</button>` : ''; 
+            const handles = editMode ? `
+                <div class="resize-handle" style="position:absolute;width:100%;height:10px;top:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="top"></div>
+                <div class="resize-handle" style="position:absolute;width:100%;height:10px;bottom:-5px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="bottom"></div>
+                <div class="resize-handle" style="position:absolute;width:10px;height:100%;left:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="left"></div>
+                <div class="resize-handle" style="position:absolute;width:10px;height:100%;right:-5px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:25;" data-dir="right"></div>
+            ` : ''; 
+            return `<div class="empty-box" draggable="${editMode}">Area<br>Kosong${delBtn}${handles}</div>`; 
+        }
+        
+        function buildSpacerH(text = '— Area Kosong —') { 
+            const delBtn = editMode ? `<button class="delete-element-btn" onclick="event.stopPropagation();deleteElement(this)" title="Hapus">✕</button>` : ''; 
+            const handles = editMode ? `
+                <div class="resize-handle" style="position:absolute;width:100%;height:12px;top:-6px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="top"></div>
+                <div class="resize-handle" style="position:absolute;width:100%;height:12px;bottom:-6px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="bottom"></div>
+                <div class="resize-handle" style="position:absolute;width:12px;height:100%;left:-6px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="left"></div>
+                <div class="resize-handle" style="position:absolute;width:12px;height:100%;right:-6px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="right"></div>
+            ` : ''; 
+            return `<div class="spacer-h" draggable="${editMode}">${text}${delBtn}${handles}</div>`; 
+        }
+        
+        function buildSpacerV(text = 'Area<br>Kosong') { 
+            const delBtn = editMode ? `<button class="delete-element-btn" onclick="event.stopPropagation();deleteElement(this)" title="Hapus">✕</button>` : ''; 
+            const handles = editMode ? `
+                <div class="resize-handle" style="position:absolute;width:100%;height:12px;top:-6px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="top"></div>
+                <div class="resize-handle" style="position:absolute;width:100%;height:12px;bottom:-6px;left:0;cursor:ns-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="bottom"></div>
+                <div class="resize-handle" style="position:absolute;width:12px;height:100%;left:-6px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="left"></div>
+                <div class="resize-handle" style="position:absolute;width:12px;height:100%;right:-6px;top:0;cursor:ew-resize;background:#2563eb;border-radius:3px;z-index:30;" data-dir="right"></div>
+            ` : ''; 
+            return `<div class="spacer-v" draggable="${editMode}">${text}${delBtn}${handles}</div>`; 
         }
 
-        function getSecBoxes(sec) {
-            const bo = currentSections()[sec] || {};
-            return Object.entries(bo).map(([b, sl], i) => buildBarisBox(sec, i, sl)).join('');
+        function deleteElement(btn) { 
+            if (!isAdmin() || !editMode) return; 
+            const el = btn.closest('.spacer-h, .spacer-v, .empty-box'); 
+            if (!el) return; 
+            if (!confirm('Hapus elemen ini?')) return;
+            saveUndoState();
+            el.remove();
+            showToast('🗑️ Elemen dihapus.'); 
         }
 
-        // DENAH DENGAN EDIT MODE
-        function renderFrozenPlan() {
-            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : '';
-
-            // Edit toolbar (hanya admin)
-            const editToolbar = isAdmin() ? `
-            <div class="edit-toolbar ${editMode ? 'active' : ''}" id="editToolbar">
-                <span style="font-weight:700;">✏️ Mode Edit Denah</span>
-                <button onclick="toggleEditMode()" class="${editMode ? 'active' : ''}">${editMode ? '✅ Aktif' : 'Nonaktif'}</button>
-                <button onclick="saveLayout()">💾 Simpan Layout</button>
-                <button onclick="resetLayout()">🔄 Reset Default</button>
-                <button onclick="addSpacerRow()">➕ Tambah Spacer</button>
-                <span style="font-size:0.7rem;opacity:0.7;">Drag box untuk pindah | Drag sudut untuk resize</span>
-            </div>` : '';
-
-            // Toggle edit mode button
-            const editToggle = isAdmin() ? `
-            <button class="btn btn-sm ${editMode ? 'btn-warning' : 'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;">
-                <i class="fas fa-pen"></i> ${editMode ? 'Selesai Edit' : 'Edit Denah'}
-            </button>` : '';
-
-            container.innerHTML = `
-            <div class="card" style="padding:12px;">
-                <div class="fp-room-title">❄️ Denah Walk-in Frozen ${editMode ? '🔧 EDIT MODE' : ''}</div>
-                ${editToggle}
+        // ==================== DENAH ====================
+        function renderFrozenPlan() { 
+            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>` : ''; 
+            const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; 
+            const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}">
+                <span style="font-weight:700;">✏️ Edit Mode</span>
+                <button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Selesai Edit':'🔧 Edit Denah'}</button>
+                <span class="toolbar-divider"></span>
+                <button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+                <button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i></button>
+                <span class="toolbar-divider"></span>
+                ${editMode ? '<button onclick="saveCurrentLayoutToFirestore()" style="background:#10b981;color:white;">💾 Simpan Layout</button>' : ''}
+                <button onclick="openSaveModal()">💾 Simpan Preset</button>
+                <button onclick="addEmptyBox()">➕ Box Kosong</button>
+                <button onclick="addSpacerH()">➕ Spacer H</button>
+                <button onclick="addSpacerV()">➕ Spacer V</button>
+            </div>` : ''; 
+            
+            container.innerHTML = `<div class="card" style="padding:12px;">
+                <div class="fp-room-title">❄️ Denah Walk-in Frozen ${editMode?'🔧 EDIT MODE':''} ${activePreset.frozen?'📌 Preset '+activePreset.frozen:''}</div>
                 ${editToolbar}
-                <div class="fp-room ${editMode ? 'edit-mode' : ''}" style="background:#e8f4f8;" id="denahContainer">
+                ${presetPanel}
+                <div class="fp-room ${editMode?'edit-mode':''}" style="background:#e8f4f8;" id="denahContainer">
                     <div class="frz-plan" id="frzPlan">
-                        <!-- BARIS 1: IMP -->
-                        <div class="frz-row" data-row="0">
-                            <div class="boxes-row">${getSecBoxes('IMP')}</div>
-                        </div>
-                        <!-- Area Kosong -->
-                        <div class="spacer-h" data-row="1">— Area Kosong —</div>
-                        <!-- BARIS 2: RTL+NPL | spacer | MI -->
-                        <div class="frz-row" data-row="2">
+                        <div class="frz-row"><div class="boxes-row">${getSecBoxes('IMP')}</div></div>
+                        ${buildSpacerH()}
+                        <div class="frz-row">
                             <div class="frz-left-stack">
                                 <div class="boxes-row">${getSecBoxes('RTL')}</div>
                                 <div class="boxes-row">${getSecBoxes('NPL')}</div>
                             </div>
-                            <div class="spacer-v" style="min-height:358px;flex:1;">Area<br>Kosong</div>
+                            ${buildSpacerV()}
                             <div class="frz-right-stack">${getSecBoxes('MI')}</div>
                         </div>
-                        <!-- Area Kosong -->
-                        <div class="spacer-h" data-row="3">— Area Kosong —</div>
-                        <!-- BARIS 3: RDQ + MTPP | spacer -->
-                        <div class="frz-row" data-row="4">
+                        ${buildSpacerH()}
+                        <div class="frz-row">
                             <div class="boxes-row">${getSecBoxes('RDQ')}${getSecBoxes('MTPP')}</div>
-                            <div class="spacer-v" style="min-height:175px;flex:1;"></div>
                         </div>
                     </div>
                 </div>
                 <div class="fp-legend">
-                    <span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span>
-                    ${editMode ? '<span style="color:var(--primary);">🔧 Seret box untuk pindah</span>' : ''}
+                    <span>🟢 Tersedia</span> 
+                    <span>🟠 Penuh (5/5)</span> 
+                    <span>🔴 Ada Expired</span> 
+                    <span>⚪ Kosong</span>
                 </div>
                 ${adminBtn}
             </div>`;
-
-            if (editMode) {
-                initDragAndDrop();
-                initResize();
-                initSpacerResize();
-            }
+            
+            if (editMode) { 
+                setTimeout(() => {
+                    initEditMode();
+                    updateUndoRedoButtons();
+                }, 100);
+            } 
         }
 
-        function toggleEditMode() {
-            if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; }
-            editMode = !editMode;
-            renderDashboard();
-            showToast(editMode ? '🔧 Mode edit denah AKTIF' : '✅ Mode edit denah NONAKTIF');
-        }
-
-        function saveLayout() {
-            if (!isAdmin()) return;
-            saveToFirestore();
-            showToast('✅ Layout denah disimpan ke Firestore.');
-        }
-
-        function resetLayout() {
-            if (!isAdmin()) return;
-            if (!confirm('Reset layout ke default?')) return;
-            layoutConfig.frozen = getDefaultLayoutConfig().frozen;
-            saveToFirestore();
-            renderDashboard();
-            showToast('✅ Layout direset ke default.');
-        }
-
-        function addSpacerRow() {
-            if (!isAdmin()) return;
-            const plan = document.getElementById('frzPlan');
-            if (!plan) return;
-            const newSpacer = document.createElement('div');
-            newSpacer.className = 'spacer-h';
-            newSpacer.textContent = '— Area Kosong Baru —';
-            newSpacer.style.cursor = 'ns-resize';
-            plan.appendChild(newSpacer);
-            showToast('✅ Spacer ditambahkan. Klik Save Layout untuk menyimpan.');
-        }
-
-        // DRAG AND DROP
-        function initDragAndDrop() {
-            const boxes = document.querySelectorAll('.baris-box');
-            const rows = document.querySelectorAll('.frz-row');
-            const spacers = document.querySelectorAll('.spacer-v');
-
-            boxes.forEach(box => {
-                box.addEventListener('dragstart', handleDragStart);
-                box.addEventListener('dragend', handleDragEnd);
-            });
-
-            rows.forEach(row => {
-                row.addEventListener('dragover', handleDragOver);
-                row.addEventListener('drop', handleDrop);
-            });
-
-            spacers.forEach(spacer => {
-                spacer.addEventListener('dragover', handleDragOver);
-                spacer.addEventListener('drop', handleDrop);
-            });
-
-            document.querySelectorAll('.boxes-row').forEach(br => {
-                br.addEventListener('dragover', handleDragOver);
-                br.addEventListener('drop', handleDrop);
-            });
-        }
-
-        function handleDragStart(e) {
-            if (!editMode) return;
-            const box = e.target.closest('.baris-box');
-            if (!box) return;
-            dragState = {
-                element: box,
-                section: box.dataset.section,
-                index: box.dataset.index
-            };
-            box.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', box.dataset.section + '|' + box.dataset.index);
-        }
-
-        function handleDragEnd(e) {
-            if (!editMode) return;
-            const box = e.target.closest('.baris-box');
-            if (box) box.classList.remove('dragging');
-            dragState = null;
-            document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drop-zone'));
-        }
-
-        function handleDragOver(e) {
-            if (!editMode || !dragState) return;
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            const target = e.target.closest('.boxes-row, .frz-row, .spacer-v');
-            if (target) {
-                document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drop-zone'));
-                target.classList.add('drop-zone');
-            }
-        }
-
-        function handleDrop(e) {
-            if (!editMode || !dragState) return;
-            e.preventDefault();
-            const target = e.target.closest('.boxes-row, .frz-row, .spacer-v');
-            if (!target) return;
-            target.classList.remove('drop-zone');
-
-            showToast('✅ Box dipindahkan. Klik "Simpan Layout" untuk menyimpan permanen.');
-        }
-
-        // RESIZE
-        function initResize() {
-            document.querySelectorAll('.baris-box').forEach(box => {
-                const rightHandle = box.querySelector('.resize-handle-right');
-                const bottomHandle = box.querySelector('.resize-handle-bottom');
-                const cornerHandle = box.querySelector('.resize-handle-corner');
-
-                if (rightHandle) initResizeHandle(box, rightHandle, 'width');
-                if (bottomHandle) initResizeHandle(box, bottomHandle, 'height');
-                if (cornerHandle) initResizeHandle(box, cornerHandle, 'both');
-            });
-        }
-
-        function initResizeHandle(box, handle, direction) {
-            let startX, startY, startWidth, startHeight;
-
-            handle.addEventListener('mousedown', function(e) {
-                if (!editMode) return;
-                e.preventDefault();
-                e.stopPropagation();
-                startX = e.clientX;
-                startY = e.clientY;
-                startWidth = box.offsetWidth;
-                startHeight = box.offsetHeight;
-
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            });
-
-            function onMouseMove(e) {
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-
-                if (direction === 'width' || direction === 'both') {
-                    const newWidth = Math.max(80, Math.min(300, startWidth + dx));
-                    box.style.width = newWidth + 'px';
-                }
-                if (direction === 'height' || direction === 'both') {
-                    const newHeight = Math.max(100, Math.min(400, startHeight + dy));
-                    box.style.height = newHeight + 'px';
-                }
-            }
-
-            function onMouseUp() {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                showToast('✅ Ukuran diubah. Klik "Simpan Layout" untuk menyimpan.');
-            }
-        }
-
-        // SPACER RESIZE
-        function initSpacerResize() {
-            document.querySelectorAll('.spacer-h').forEach(spacer => {
-                spacer.style.cursor = 'ns-resize';
-                let startY, startHeight;
-
-                spacer.addEventListener('mousedown', function(e) {
-                    if (!editMode) return;
-                    e.preventDefault();
-                    startY = e.clientY;
-                    startHeight = spacer.offsetHeight;
-
-                    document.addEventListener('mousemove', onMouseMove);
-                    document.addEventListener('mouseup', onMouseUp);
-                });
-
-                function onMouseMove(e) {
-                    const dy = e.clientY - startY;
-                    const newHeight = Math.max(20, Math.min(200, startHeight + dy));
-                    spacer.style.minHeight = newHeight + 'px';
-                }
-
-                function onMouseUp() {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-                    showToast('✅ Spacer diubah. Klik "Simpan Layout" untuk menyimpan.');
-                }
-            });
-
-            document.querySelectorAll('.spacer-v').forEach(spacer => {
-                spacer.style.cursor = 'ew-resize';
-                let startX, startWidth;
-
-                spacer.addEventListener('mousedown', function(e) {
-                    if (!editMode) return;
-                    e.preventDefault();
-                    startX = e.clientX;
-                    startWidth = spacer.offsetWidth;
-
-                    document.addEventListener('mousemove', onMouseMove);
-                    document.addEventListener('mouseup', onMouseUp);
-                });
-
-                function onMouseMove(e) {
-                    const dx = e.clientX - startX;
-                    const newWidth = Math.max(30, Math.min(300, startWidth + dx));
-                    spacer.style.minWidth = newWidth + 'px';
-                    spacer.style.flex = 'none';
-                }
-
-                function onMouseUp() {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-                    showToast('✅ Spacer diubah. Klik "Simpan Layout" untuk menyimpan.');
-                }
-            });
-        }
-
-        function renderChillerPlan() {
-            const editToggle = isAdmin() ? `
-            <button class="btn btn-sm ${editMode ? 'btn-warning' : 'btn-outline'}" onclick="toggleEditMode()" style="margin-bottom:8px;">
-                <i class="fas fa-pen"></i> ${editMode ? 'Selesai Edit' : 'Edit Denah'}
-            </button>` : '';
-            const sb = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
-            const ab = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua</button>` : '';
+        function renderChillerPlan() { 
+            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>` : ''; 
+            const presetPanel = (isAdmin() && editMode) ? renderPresetPanel() : ''; 
+            const editToolbar = isAdmin() ? `<div class="edit-toolbar ${editMode?'active':''}">
+                <span style="font-weight:700;">✏️ Edit Mode</span>
+                <button onclick="toggleEditMode()" class="${editMode?'active':''}">${editMode?'✅ Selesai Edit':'🔧 Edit Denah'}</button>
+                <span class="toolbar-divider"></span>
+                <button class="undo-redo-btn" id="btnUndo" onclick="undo()" disabled title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+                <button class="undo-redo-btn" id="btnRedo" onclick="redo()" disabled title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i></button>
+                <span class="toolbar-divider"></span>
+                ${editMode ? '<button onclick="saveCurrentLayoutToFirestore()" style="background:#10b981;color:white;">💾 Simpan Layout</button>' : ''}
+                <button onclick="openSaveModal()">💾 Simpan Preset</button>
+                <button onclick="addEmptyBox()">➕ Box Kosong</button>
+                <button onclick="addSpacerH()">➕ Spacer H</button>
+                <button onclick="addSpacerV()">➕ Spacer V</button>
+            </div>` : ''; 
+            
+            const sb = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`; 
             const bs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
-            container.innerHTML = `
-            <div class="card" style="padding:12px;">
-                <div class="fp-room-title">🌡️ Denah Walk-in Chiller ${editMode ? '🔧 EDIT MODE' : ''}</div>
-                ${editToggle}
-                <div class="fp-room ${editMode ? 'edit-mode' : ''}" style="background:#f0fdf4;" id="denahContainer">
+            
+            container.innerHTML = `<div class="card" style="padding:12px;">
+                <div class="fp-room-title">🌡️ Denah Walk-in Chiller ${editMode?'🔧 EDIT MODE':''} ${activePreset.chiller?'📌 Preset '+activePreset.chiller:''}</div>
+                ${editToolbar}
+                ${presetPanel}
+                <div class="fp-room ${editMode?'edit-mode':''}" style="background:#f0fdf4;" id="denahContainer">
                     <div class="chl-plan" id="chlPlan">
                         <div class="chl-top">${sb}${getSecBoxes('THAWING')}</div>
-                        <div class="chl-space spacer-h">— Area Kosong —</div>
+                        ${buildSpacerH()}
                         <div class="chl-bot">${bs.map(s => getSecBoxes(s)).join('')}</div>
                     </div>
                 </div>
-                <div class="fp-legend"><span>🟢 Tersedia</span> <span>🟠 Penuh</span> <span>🔴 Expired</span> <span>⚪ Kosong</span></div>
-                ${ab}
+                <div class="fp-legend">
+                    <span>🟢 Tersedia</span> 
+                    <span>🟠 Penuh (5/5)</span> 
+                    <span>🔴 Ada Expired</span> 
+                    <span>⚪ Kosong</span>
+                </div>
+                ${adminBtn}
             </div>`;
-            if (editMode) { initDragAndDrop();
-                initResize();
-                initSpacerResize(); }
+            
+            if (editMode) { 
+                setTimeout(() => {
+                    initEditMode();
+                    updateUndoRedoButtons();
+                }, 100);
+            } 
         }
 
-        function renderDashboard() { currentArea === 'frozen' ? renderFrozenPlan() : renderChillerPlan(); }
+        function renderDashboard() { 
+            currentArea === 'frozen' ? renderFrozenPlan() : renderChillerPlan(); 
+        }
 
-        // SEARCH, DETAIL, INPUT, HISTORY, REKAP, MANAGE (sama seperti sebelumnya)
-        function renderSearch(keyword = '') { /* ... tidak berubah ... */ }
+        // ==================== EDIT MODE (unchanged functionality) ====================
+        // [Semua fungsi edit mode tetap sama seperti sebelumnya]
+        // ... (toggleEditMode, initEditMode, drag functions, resize functions, add element functions, preset functions)
 
-        function showBasketDetail(no, moveIdx = null) { /* ... tidak berubah ... */ }
-
-        function renderInputForm() { /* ... tidak berubah ... */ }
-
-        function renderHistory() { /* ... tidak berubah ... */ }
-
-        function renderRekap() { /* ... tidak berubah ... */ }
-
-        function renderManageBaskets() { /* ... tidak berubah ... */ }
-
-        // INISIALISASI TAB
-        document.querySelectorAll('.tab-btn').forEach(btn => {
+        // ==================== SEARCH, DETAIL, INPUT, HISTORY, REKAP, MANAGE ====================
+        // [Semua fungsi lainnya tetap sama]
+        
+        // ==================== INIT ====================
+        document.querySelectorAll('.tab-btn').forEach(btn => { 
             btn.addEventListener('click', function() {
+                if (editMode && this.dataset.tab !== 'dashboard') {
+                    showToast('⚠️ Selesaikan edit mode terlebih dahulu');
+                    return;
+                }
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 currentTab = this.dataset.tab;
-                renderCurrentTab();
-            });
+                renderCurrentTab(); 
+            }); 
         });
+            
         document.getElementById('areaSelect').value = currentArea;
+        document.getElementById('saveModal').addEventListener('click', function(e) { 
+            if (e.target === this) closeSaveModal(); 
+        });
+
+        // Keyboard shortcut untuk Undo/Redo
+        document.addEventListener('keydown', function(e) {
+            if (!editMode) return;
+            if (e.ctrlKey && e.key === 'z') { 
+                e.preventDefault();
+                undo(); 
+            }
+            if (e.ctrlKey && e.key === 'y') { 
+                e.preventDefault();
+                redo(); 
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'Z') { 
+                e.preventDefault();
+                redo(); 
+            }
+        });
+
+        console.log('✅ Walk-in App v2.1 loaded successfully');
     </script>
 </body>
 </html>
