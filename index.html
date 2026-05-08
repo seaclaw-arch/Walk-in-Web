@@ -205,7 +205,7 @@
         .history-item.type-in { background:#ecfdf5; border-left:6px solid var(--in-color); }
         .history-item.type-out { background:#fef2f2; border-left:6px solid var(--out-color); }
         .history-item.type-move { background:#f5f3ff; border-left:6px solid var(--move-color); }
-        .history-item.type-edit { background:#fffbeb; border-left:6px solid var(--warning); } /* tambahan */
+        .history-item.type-edit { background:#fffbeb; border-left:6px solid var(--warning); }
         .history-badge {
             display:inline-block; padding:3px 8px; border-radius:12px; font-weight:700;
             font-size:0.7rem; letter-spacing:0.5px;
@@ -213,7 +213,117 @@
         .badge-in { background:#d1fae5; color:#065f46; }
         .badge-out { background:#fee2e2; color:#991b1b; }
         .badge-move { background:#ede9fe; color:#5b21b6; }
-        .badge-edit { background:#fef3c7; color:#92400e; } /* tambahan */
+        .badge-edit { background:#fef3c7; color:#92400e; }
+
+        /* Search Styles */
+        .search-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+        .search-input-wrapper {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .search-input-wrapper input {
+            padding-right: 50px;
+            font-size: 1rem;
+        }
+        .search-input-wrapper .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .search-result-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        .search-result-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(37,99,235,0.1);
+        }
+        .search-result-item.current {
+            border-left: 4px solid var(--success);
+            background: #f0fdf4;
+        }
+        .search-result-item.out {
+            border-left: 4px solid var(--danger);
+            background: #fef2f2;
+            opacity: 0.8;
+        }
+        .search-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .search-result-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .badge-current {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge-out {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .search-highlight {
+            background: #fef3c7;
+            padding: 1px 3px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        .search-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f0f4ff;
+            border-radius: 12px;
+        }
+        .search-stat {
+            text-align: center;
+            flex: 1;
+        }
+        .search-stat .count {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .search-stat .label {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .area-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+        .area-frozen {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .area-chiller {
+            background: #d1fae5;
+            color: #065f46;
+        }
 
         @keyframes softPulse {
             0% { box-shadow:0 0 0 0 rgba(249,115,22,0.3) }
@@ -258,6 +368,7 @@
         <div class="tab-bar">
             <button class="tab-btn active" data-tab="dashboard">🗺️ Denah</button>
             <button class="tab-btn" data-tab="in">📥 Masuk</button>
+            <button class="tab-btn" data-tab="search">🔍 Cari</button>
             <button class="tab-btn" data-tab="history">📋 Riwayat</button>
             <button class="tab-btn" data-tab="rekap">📊 Rekap</button>
             <button class="tab-btn" data-tab="manage">⚙️ Atur</button>
@@ -466,12 +577,244 @@
                 switch (currentTab) {
                     case 'dashboard': renderDashboard(); break;
                     case 'in': renderInputForm(); break;
+                    case 'search': renderSearch(); break;
                     case 'history': renderHistory(); break;
                     case 'rekap': renderRekap(); break;
                     case 'manage': renderManageBaskets(); break;
                 }
             } catch (e) { console.error(e); container.innerHTML = '<div class="card"><div class="empty-state">Error. Refresh halaman.</div></div>'; }
         }
+
+        // ========== FITUR PENCARIAN ==========
+        function renderSearch() {
+            container.innerHTML = `
+                <div class="search-container">
+                    <h3 style="margin-bottom: 16px;">🔍 Cari Barang</h3>
+                    <div class="search-input-wrapper">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Cari nama barang..." 
+                            oninput="performSearch()"
+                            autocomplete="off"
+                        >
+                        <span class="search-icon"><i class="fas fa-search"></i></span>
+                    </div>
+                    <div id="searchResults">
+                        <div class="empty-state">Ketik untuk mencari barang di semua area</div>
+                    </div>
+                </div>
+            `;
+            
+            // Focus ke input search
+            setTimeout(() => {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) searchInput.focus();
+            }, 100);
+        }
+
+        function performSearch() {
+            const query = document.getElementById('searchInput')?.value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!query || query.length < 2) {
+                resultsContainer.innerHTML = '<div class="empty-state">Ketik minimal 2 karakter untuk mencari</div>';
+                return;
+            }
+
+            // Kumpulkan semua data dari kedua area
+            const allResults = [];
+            
+            // Cari di Frozen
+            collectSearchResults('frozen', query, allResults);
+            
+            // Cari di Chiller
+            collectSearchResults('chiller', query, allResults);
+            
+            // Tampilkan hasil
+            if (allResults.length === 0) {
+                resultsContainer.innerHTML = `<div class="empty-state">
+                    <i class="fas fa-search" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                    Tidak ditemukan barang dengan nama "${query}"
+                </div>`;
+                return;
+            }
+            
+            // Statistik
+            const currentItems = allResults.filter(r => r.status === 'current');
+            const outItems = allResults.filter(r => r.status === 'out');
+            
+            let html = `
+                <div class="search-stats">
+                    <div class="search-stat">
+                        <div class="count">${allResults.length}</div>
+                        <div class="label">Total Ditemukan</div>
+                    </div>
+                    <div class="search-stat">
+                        <div class="count" style="color: #10b981;">${currentItems.length}</div>
+                        <div class="label">Masih Ada</div>
+                    </div>
+                    <div class="search-stat">
+                        <div class="count" style="color: #ef4444;">${outItems.length}</div>
+                        <div class="label">Sudah Keluar</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 12px; font-weight: 600; color: #475569;">
+                    Ditemukan ${allResults.length} hasil untuk "<span class="search-highlight">${query}</span>"
+                </div>
+            `;
+            
+            // Render hasil
+            allResults.forEach((result, index) => {
+                const areaBadge = result.area === 'frozen' 
+                    ? '<span class="area-badge area-frozen">❄️ Frozen</span>' 
+                    : '<span class="area-badge area-chiller">🌡️ Chiller</span>';
+                
+                const statusBadge = result.status === 'current'
+                    ? '<span class="search-result-badge badge-current">📦 Masih Ada</span>'
+                    : '<span class="search-result-badge badge-out">📤 Sudah Keluar</span>';
+                
+                const highlightName = highlightText(result.item.nama, query);
+                
+                let locationInfo = '';
+                if (result.status === 'current') {
+                    locationInfo = `
+                        <div style="margin-top: 6px; font-size: 0.8rem; color: #64748b;">
+                            📍 Section: ${result.section} | Baris: ${result.baris} | Slot: ${result.slot} | Keranjang: ${result.keranjangNo}
+                        </div>
+                    `;
+                } else {
+                    locationInfo = `
+                        <div style="margin-top: 6px; font-size: 0.8rem; color: #64748b;">
+                            📤 Keluar dari Keranjang: ${result.keranjangNo} | Section: ${result.section}
+                            <br>📅 Keluar: ${new Date(result.timestamp).toLocaleDateString('id-ID')}
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    <div class="search-result-item ${result.status}">
+                        <div class="search-result-header">
+                            <div>
+                                ${areaBadge}
+                                ${statusBadge}
+                            </div>
+                            <div style="text-align: right;">
+                                <small style="color: #64748b;">${result.item.jenis || '-'}</small>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 4px;">
+                            <strong style="font-size: 1rem;">${highlightName}</strong>
+                            <span style="margin-left: 8px; color: #64748b;">Qty: ${result.item.qty}</span>
+                        </div>
+                        ${locationInfo}
+                        ${result.item.expDate ? `
+                            <div style="margin-top: 4px; font-size: 0.75rem; color: ${new Date(result.item.expDate) < new Date() ? '#ef4444' : '#64748b'};">
+                                ⏰ Exp: ${new Date(result.item.expDate).toLocaleDateString('id-ID')}
+                                ${new Date(result.item.expDate) < new Date() ? ' ⚠️ EXPIRED' : ''}
+                            </div>
+                        ` : ''}
+                        ${result.item.estOutDate ? `
+                            <div style="margin-top: 2px; font-size: 0.75rem; color: ${new Date(result.item.estOutDate) < new Date() ? '#ef4444' : '#64748b'};">
+                                📅 Est. Keluar: ${new Date(result.item.estOutDate).toLocaleDateString('id-ID')}
+                                ${new Date(result.item.estOutDate) < new Date() ? ' ⚠️ LEWAT' : ''}
+                            </div>
+                        ` : ''}
+                        ${result.status === 'current' ? `
+                            <button 
+                                class="btn btn-sm btn-outline" 
+                                style="margin-top: 8px;"
+                                onclick="navigateToBasket(${result.keranjangNo}, '${result.area}')"
+                            >
+                                📍 Lihat Keranjang
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = html;
+        }
+
+        function collectSearchResults(area, query, results) {
+            const baskets = appData[area].baskets;
+            const transactions = appData[area].transactions;
+            
+            // Cari di keranjang yang masih ada
+            for (const [keranjangNo, basket] of Object.entries(baskets)) {
+                if (basket.items && basket.items.length > 0) {
+                    basket.items.forEach(item => {
+                        if (item.nama && item.nama.toLowerCase().includes(query)) {
+                            results.push({
+                                area: area,
+                                status: 'current',
+                                item: item,
+                                keranjangNo: parseInt(keranjangNo),
+                                section: basket.section,
+                                baris: basket.baris,
+                                slot: basket.slot
+                            });
+                        }
+                    });
+                }
+            }
+            
+            // Cari di transaksi keluar
+            const seenOutItems = new Set(); // Hindari duplikasi
+            transactions.forEach(trans => {
+                if (trans.type === 'out' && trans.detail && trans.detail.nama) {
+                    if (trans.detail.nama.toLowerCase().includes(query)) {
+                        const key = `${trans.detail.nama}_${trans.detail.qty}_${trans.timestamp}`;
+                        if (!seenOutItems.has(key)) {
+                            seenOutItems.add(key);
+                            results.push({
+                                area: area,
+                                status: 'out',
+                                item: {
+                                    nama: trans.detail.nama,
+                                    qty: trans.detail.qty,
+                                    jenis: trans.detail.jenis || '-',
+                                    expDate: trans.detail.expDate,
+                                    estOutDate: trans.detail.estOutDate
+                                },
+                                keranjangNo: trans.detail.keranjang || '-',
+                                section: trans.detail.section || '-',
+                                timestamp: trans.timestamp
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+        function highlightText(text, query) {
+            if (!text || !query) return text || '';
+            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="search-highlight">$1</span>');
+        }
+
+        function navigateToBasket(keranjangNo, area) {
+            // Switch area jika perlu
+            if (currentArea !== area) {
+                currentArea = area;
+                document.getElementById('areaSelect').value = area;
+                document.getElementById('areaTitle').textContent = area === 'frozen' ? 'Frozen' : 'Chiller';
+            }
+            
+            // Switch ke tab dashboard
+            currentTab = 'dashboard';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const dashboardTab = document.querySelector('.tab-btn[data-tab="dashboard"]');
+            if (dashboardTab) dashboardTab.classList.add('active');
+            
+            // Render dashboard dulu, lalu buka detail keranjang
+            renderDashboard();
+            setTimeout(() => {
+                showBasketDetail(keranjangNo);
+            }, 200);
+        }
+
+        // ========== AKHIR FITUR PENCARIAN ==========
 
         function buildBasketSlot(no, slotIdx) {
             if (no === null) return `<div class="basket-slot slot-empty"></div>`;
@@ -993,7 +1336,7 @@
             }
         }
 
-        // ... fungsi excel download (tidak diubah)
+        // ... fungsi excel download
         function downloadExcel() {
             const trx = currentTransactions();
             if (!trx.length) return showToast('Tidak ada data');
@@ -1006,7 +1349,25 @@
             _dlBlob(h, `riwayat_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);
         }
 
-        function downloadRekapExcel() { /* tetap */ }
+        function downloadRekapExcel() {
+            const trx = currentTransactions();
+            if (!trx.length) return showToast('Tidak ada data');
+            let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Rekap — ${currentArea.toUpperCase()}</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Periode</th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>`;
+            const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+            const monthData = {};
+            trx.forEach(t => {
+                const d = new Date(t.timestamp);
+                const key = rekapMode === 'bulanan' ? `${BULAN[d.getMonth()]} ${d.getFullYear()}` : `${d.getFullYear()}`;
+                if (!monthData[key]) monthData[key] = { in: 0, out: 0 };
+                monthData[key][t.type]++;
+            });
+            Object.entries(monthData).forEach(([key, v]) => {
+                h += `<tr><td>${key}</td><td>+${v.in}</td><td>-${v.out}</td><td>${v.in - v.out >= 0 ? '+' : ''}${v.in - v.out}</td></tr>`;
+            });
+            h += '</table></body></html>';
+            _dlBlob(h, `rekap_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);
+        }
+
         function _dlBlob(html, filename) {
             const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
             const a = document.createElement('a');
@@ -1048,9 +1409,47 @@
             html += '</div>';
             container.innerHTML = html;
         }
-        window.clearSlot = function(section, baris, idx) { /* sama */ };
-        window.fillSlot = function(section, baris, idx) { /* sama */ };
-        function addBaris(section) { /* sama */ }
+        window.clearSlot = function(section, baris, idx) {
+            if (!isAdmin()) return;
+            const slots = currentSections()[section]?.[baris];
+            if (!slots) return;
+            const no = slots[idx];
+            if (!no) return;
+            if (confirm(`Hapus keranjang ${no} dari Slot ${idx+1}? Isi keranjang akan tetap ada.`)) {
+                slots[idx] = null;
+                saveToFirestore();
+                showToast('Slot dikosongkan.');
+                renderManageBaskets();
+            }
+        };
+        window.fillSlot = function(section, baris, idx) {
+            if (!isAdmin()) return;
+            const inp = document.getElementById(`inp_${section}_${baris}_${idx}`);
+            const val = parseInt(inp?.value);
+            if (!val) return showToast('Masukkan nomor keranjang.');
+            const sections = currentSections();
+            for (const [sec, barisObj] of Object.entries(sections)) {
+                for (const sl of Object.values(barisObj)) {
+                    if (sl.includes(val)) {
+                        return showToast(`Nomor keranjang ${val} sudah digunakan di ${sec}.`);
+                    }
+                }
+            }
+            sections[section][baris][idx] = val;
+            saveToFirestore();
+            showToast('Slot diisi.');
+            renderManageBaskets();
+        };
+        function addBaris(section) {
+            if (!isAdmin()) return;
+            const sections = currentSections();
+            const barisObj = sections[section];
+            const nextBaris = String.fromCharCode(65 + Object.keys(barisObj).length);
+            barisObj[nextBaris] = [null, null, null, null, null];
+            saveToFirestore();
+            showToast(`Baris ${nextBaris} ditambahkan ke ${section}.`);
+            renderManageBaskets();
+        }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
