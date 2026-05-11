@@ -506,6 +506,80 @@
     background: #f5f3ff;
     color: #7c3aed;
 }
+                .move-type-badge.basket-move {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .move-type-badge.item-move {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+
+        /* ========== TAMBAHKAN CSS BARU DI SINI ========== */
+        
+        /* Container untuk ikon-ikon status di pojok kanan atas */
+        .slot-status-icons {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 5;
+        }
+
+        /* Ikon status individual */
+        .status-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.5rem;
+            color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Warna background spesifik */
+        .status-icon.full {
+            background: rgba(245, 158, 11, 0.9);
+            border: 1.5px solid #d97706;
+        }
+
+        .status-icon.expired {
+            background: rgba(239, 68, 68, 0.9);
+            border: 1.5px solid #dc2626;
+            animation: blink 0.8s infinite;
+        }
+
+        .status-icon.est-lewat {
+            background: rgba(249, 115, 22, 0.9);
+            border: 1.5px solid #ea580c;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        /* Ganti warna oranye menjadi kuning untuk slot penuh */
+        .basket-slot.yellow {
+            border-color: #f59e0b;
+            background: #fffbeb;
+            animation: softPulseYellow 1.8s infinite;
+        }
+
+        @keyframes softPulseYellow {
+            0% { box-shadow:0 0 0 0 rgba(245,158,11,0.3) }
+            50% { box-shadow:0 0 0 5px rgba(245,158,11,0.15) }
+            100% { box-shadow:0 0 0 0 rgba(245,158,11,0.3) }
+        }
+
+        /* ================================================== */
+    </style>
     </style>
 </head>
 <body>
@@ -1004,22 +1078,78 @@
 
         // ========== AKHIR FITUR PENCARIAN ==========
 
-        function buildBasketSlot(no, slotIdx) {
-            if (no === null) return `<div class="basket-slot slot-empty"></div>`;
-            const count = itemCount(no);
-            const expired = hasExpiredItems(no);
-            let cls = 'basket-slot';
-            if (count >= 5) cls += ' orange';
-            else if (expired) cls += ' red';
-            else if (count > 0) cls += ' green';
-            else cls += ' slot-empty';
-            const badge = (expired || count >= 5) ? '<span class="slot-alert">!</span>' : '';
-            return `<div class="${cls}" onclick="showBasketDetail(${no})" title="Keranjang ${no} — ${count}/5${expired?' ⚠️':''}">
-                <span class="slot-num">${no}</span>
-                <span class="slot-count">${count}/5</span>
-                ${badge}
-            </div>`;
-        }
+       function buildBasketSlot(no, slotIdx) {
+    if (no === null) return `<div class="basket-slot slot-empty"></div>`;
+    
+    const count = itemCount(no);
+    const items = currentBaskets()[no]?.items || [];
+    const now = new Date();
+    
+    // Cek berbagai kondisi
+    const isFull = count >= 5;
+    const hasExpired = items.some(i => i.expDate && new Date(i.expDate) < now);
+    const hasEstLewat = items.some(i => i.estOutDate && new Date(i.estOutDate) < now);
+    
+    // Tentukan class warna slot
+    let cls = 'basket-slot';
+    if (hasExpired || hasEstLewat) {
+        cls += ' red';  // Prioritas: expired/est lewat = merah
+    } else if (isFull) {
+        cls += ' yellow';  // Penuh = kuning
+    } else if (count > 0) {
+        cls += ' green';  // Ada isi = hijau
+    } else {
+        cls += ' slot-empty';  // Kosong
+    }
+    
+    // Build ikon-ikon status
+    let statusIcons = '';
+    const icons = [];
+    
+    // Ikon Penuh - Dilarang
+    if (isFull) {
+        icons.push(`
+            <span class="status-icon full" title="Keranjang Penuh (5/5)">
+                <i class="fas fa-ban"></i>
+            </span>
+        `);
+    }
+    
+    // Ikon Expired - Tengkorak
+    if (hasExpired) {
+        icons.push(`
+            <span class="status-icon expired" title="Ada barang EXPIRED!">
+                <i class="fas fa-skull"></i>
+            </span>
+        `);
+    }
+    
+    // Ikon Est Lewat - Jam Pasir
+    if (hasEstLewat) {
+        icons.push(`
+            <span class="status-icon est-lewat" title="Estimasi keluar LEWAT!">
+                <i class="fas fa-hourglass-end"></i>
+            </span>
+        `);
+    }
+    
+    if (icons.length > 0) {
+        statusIcons = `<div class="slot-status-icons">${icons.join('')}</div>`;
+    }
+    
+    // Build tooltip
+    let tooltipParts = [`Keranjang ${no} — ${count}/5`];
+    if (isFull) tooltipParts.push('🚫 PENUH');
+    if (hasExpired) tooltipParts.push('☠️ EXPIRED');
+    if (hasEstLewat) tooltipParts.push('⏳ EST LEWAT');
+    const tooltip = tooltipParts.join(' | ');
+    
+    return `<div class="${cls}" onclick="showBasketDetail(${no})" title="${tooltip}">
+        ${statusIcons}
+        <span class="slot-num">${no}</span>
+        <span class="slot-count">${count}/5</span>
+    </div>`;
+}
 
        function buildBarisBox(secName, barisKey, slots) {
     // Gunakan key baris asli (A, B, C, D, E) untuk label yang konsisten
@@ -1045,7 +1175,7 @@
     return sortedKeys.map(key => buildBarisBox(secName, key, barisObj[key])).join('');
 }
 
-        function renderFrozenPlan() {
+       function renderFrozenPlan() {
     const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
     
     container.innerHTML = `
@@ -1094,10 +1224,11 @@
             </div>
         </div>
         <div class="fp-legend">
-            <span>🟢 Tersedia</span>
-            <span>🟠 Penuh (5/5)</span>
-            <span>🔴 Expired / Est Lewat</span>
-            <span>⚪ Kosong</span>
+            <span><i class="fas fa-circle" style="color:#10b981; font-size:0.7rem;"></i> Tersedia</span>
+            <span><span class="status-icon full" style="display:inline-flex; position:static; width:16px; height:16px; margin-right:4px;"><i class="fas fa-ban" style="font-size:0.45rem;"></i></span> Penuh (5/5)</span>
+            <span><span class="status-icon expired" style="display:inline-flex; position:static; width:16px; height:16px; margin-right:4px;"><i class="fas fa-skull" style="font-size:0.45rem;"></i></span> Expired</span>
+            <span><span class="status-icon est-lewat" style="display:inline-flex; position:static; width:16px; height:16px; margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.45rem;"></i></span> Est Lewat</span>
+            <span><i class="far fa-square" style="color:#d1d5db; font-size:0.7rem;"></i> Kosong</span>
         </div>
         ${adminBtn}
     </div>`;
@@ -1111,28 +1242,30 @@ function getSingleBarisBox(secName, baris) {
 }
        
         function renderChillerPlan() {
-            const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
-            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
-            const bottomSecs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
-            container.innerHTML = `
-            <div class="card" style="padding:12px;">
-                <div class="fp-room-title">🌡️ Denah Walk-in Chiller</div>
-                <div class="fp-room" style="background:#f0fdf4;">
-                    <div class="chl-plan">
-                        <div class="chl-top">${stockBox}${getSecBoxes('THAWING')}</div>
-                        <div class="chl-space">— Area Kosong —</div>
-                        <div class="chl-bot">${bottomSecs.map(s => getSecBoxes(s)).join('')}</div>
-                    </div>
-                </div>
-                <div class="fp-legend">
-                    <span>🟢 Tersedia</span>
-                    <span>🟠 Penuh (5/5)</span>
-                    <span>🔴 Expired / Est Lewat</span>
-                    <span>⚪ Kosong</span>
-                </div>
-                ${adminBtn}
-            </div>`;
-        }
+    const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
+    const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
+    const bottomSecs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
+    
+    container.innerHTML = `
+    <div class="card" style="padding:12px;">
+        <div class="fp-room-title">🌡️ Denah Walk-in Chiller</div>
+        <div class="fp-room" style="background:#f0fdf4;">
+            <div class="chl-plan">
+                <div class="chl-top">${stockBox}${getSecBoxes('THAWING')}</div>
+                <div class="chl-space">— Area Kosong —</div>
+                <div class="chl-bot">${bottomSecs.map(s => getSecBoxes(s)).join('')}</div>
+            </div>
+        </div>
+        <div class="fp-legend">
+            <span><i class="fas fa-circle" style="color:#10b981; font-size:0.7rem;"></i> Tersedia</span>
+            <span><span class="status-icon full" style="display:inline-flex; position:static; width:16px; height:16px; margin-right:4px;"><i class="fas fa-ban" style="font-size:0.45rem;"></i></span> Penuh (5/5)</span>
+            <span><span class="status-icon expired" style="display:inline-flex; position:static; width:16px; height:16px; margin-right:4px;"><i class="fas fa-skull" style="font-size:0.45rem;"></i></span> Expired</span>
+            <span><span class="status-icon est-lewat" style="display:inline-flex; position:static; width:16px; height:16px; margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.45rem;"></i></span> Est Lewat</span>
+            <span><i class="far fa-square" style="color:#d1d5db; font-size:0.7rem;"></i> Kosong</span>
+        </div>
+        ${adminBtn}
+    </div>`;
+}
 
         function renderDashboard() {
             if (currentArea === 'frozen') renderFrozenPlan();
