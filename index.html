@@ -382,6 +382,130 @@
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
 }
+        /* Style untuk tombol aksi di item */
+.item-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.action-btn.move-btn {
+    color: #8b5cf6;
+    border-color: #cbd5e1;
+}
+
+.action-btn.move-btn:hover {
+    background: #f5f3ff;
+    border-color: #8b5cf6;
+}
+
+.action-btn.edit-btn {
+    color: #f59e0b;
+    border-color: #cbd5e1;
+}
+
+.action-btn.edit-btn:hover {
+    background: #fffbeb;
+    border-color: #f59e0b;
+}
+
+.action-btn.out-btn {
+    color: #ef4444;
+    border-color: #cbd5e1;
+}
+
+.action-btn.out-btn:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+/* Tooltip untuk tombol aksi */
+.action-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    margin-bottom: 4px;
+}
+
+.action-btn:hover::after {
+    opacity: 1;
+}
+
+/* Style untuk tombol pindah keranjang di header */
+.basket-move-btn {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.basket-move-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.basket-move-btn i {
+    font-size: 1rem;
+}
+
+/* Badge untuk membedakan tipe pemindahan */
+.move-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 6px;
+}
+
+.move-type-badge.basket-move {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.move-type-badge.item-move {
+    background: #f5f3ff;
+    color: #7c3aed;
+}
     </style>
 </head>
 <body>
@@ -1010,42 +1134,88 @@ function getSingleBarisBox(secName, baris, idx) {
         }
 
         // ─── DETAIL KERANJANG + PINDAH + KELUAR + EDIT ESTIMASI ───
-        function showBasketDetail(no, moveItemIdx = null) {
-            const basket = currentBaskets()[no];
-            const count = itemCount(no);
-            const now = new Date();
-            let itemsHtml = basket && basket.items.length ?
-                basket.items.map((item, idx) => {
-                    let cls = '', lbl = '';
-                    if (item.expDate && new Date(item.expDate) < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
-                    else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
-                    const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
-                    return `<div class="item-row ${cls}">
-                        <div>
-                            <strong>${item.nama}</strong> (${item.qty})${lbl}
-                            <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
-                            ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
-                            ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
-                        </div>
-                        <div style="display:flex; gap:4px; align-items:center;">
-                            <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); showBasketDetail(${no}, ${idx})">Pindah</button>
-                            <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); editEstOutDate(${no}, ${idx})" title="Edit Estimasi Keluar"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-outline btn-sm" onclick="keluarkanItem(${no}, ${idx})">Keluar</button>
-                        </div>
-                        ${moveFormHtml}
-                    </div>`;
-                }).join('') :
-                '<div class="empty-state">Keranjang kosong</div>';
-
-            container.innerHTML = `<div class="card">
-                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-                    <h3>Keranjang ${no}${basket?' — Baris '+basket.baris+' Slot '+basket.slot+' ('+basket.section+')':''}</h3>
-                    <button class="btn btn-outline btn-sm" onclick="renderDashboard()">← Denah</button>
+       function showBasketDetail(no, moveItemIdx = null) {
+    const basket = currentBaskets()[no];
+    const count = itemCount(no);
+    const now = new Date();
+    
+    let itemsHtml = basket && basket.items.length ?
+        basket.items.map((item, idx) => {
+            let cls = '', lbl = '';
+            if (item.expDate && new Date(item.expDate) < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
+            else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
+            const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
+            
+            return `<div class="item-row ${cls}">
+                <div style="flex:1;">
+                    <strong>${item.nama}</strong> (${item.qty})${lbl}
+                    <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
+                    ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
+                    ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
                 </div>
-                <p style="margin-bottom:12px;">Total item: ${count}/5</p>
-                ${itemsHtml}
+                
+                <!-- ===== TOMBOL AKSI DENGAN IKON & TOOLTIP ===== -->
+                <div class="item-actions">
+                    <button class="action-btn move-btn" 
+                            data-tooltip="Pindah Barang"
+                            onclick="event.stopPropagation(); showBasketDetail(${no}, ${idx})"
+                            title="Pindahkan barang ini ke keranjang lain">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                    
+                    <button class="action-btn edit-btn" 
+                            data-tooltip="Edit Est. Keluar"
+                            onclick="event.stopPropagation(); editEstOutDate(${no}, ${idx})"
+                            title="Edit estimasi tanggal keluar">
+                        <i class="fas fa-calendar-alt"></i>
+                    </button>
+                    
+                    <button class="action-btn out-btn" 
+                            data-tooltip="Keluarkan Barang"
+                            onclick="keluarkanItem(${no}, ${idx})"
+                            title="Keluarkan barang dari keranjang">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+                ${moveFormHtml}
             </div>`;
-        }
+        }).join('') :
+        '<div class="empty-state">Keranjang kosong</div>';
+
+    container.innerHTML = `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div>
+                <h3 style="display:inline;">Keranjang ${no}</h3>
+                ${basket ? `<span style="font-size:0.8rem; color:#64748b; margin-left:8px;">
+                    📍 ${basket.section} Baris ${basket.baris} Slot ${basket.slot}
+                </span>` : ''}
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="renderDashboard()">
+                    <i class="fas fa-arrow-left"></i> Denah
+                </button>
+                
+                <!-- ===== TOMBOL PINDAH KERANJANG (BESERTA ISI) ===== -->
+                <button class="basket-move-btn" 
+                        onclick="showMoveBasketForm(${no})"
+                        title="Pindahkan seluruh keranjang beserta isinya ke lokasi lain">
+                    <i class="fas fa-truck"></i> Pindah Keranjang
+                    <span class="move-type-badge basket-move">📦 SEMUA ISI</span>
+                </button>
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <p style="margin:0;">Total item: <strong>${count}/5</strong></p>
+            <div style="display:flex; gap:12px; font-size:0.7rem; color:#64748b;">
+                <span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> = Pindah Barang</span>
+                <span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> = Keluarkan</span>
+            </div>
+        </div>
+        
+        ${itemsHtml}
+    </div>`;
+}
 
         // Fungsi baru: edit estimasi tanggal keluar
         function editEstOutDate(no, idx) {
@@ -1099,23 +1269,44 @@ function getSingleBarisBox(secName, baris, idx) {
         }
 
         // ─── MOVE FUNCTION ───
-      function renderMoveForm(fromNo, fromIdx) {
+     function renderMoveForm(fromNo, fromIdx) {
     const sections = Object.keys(currentSections());
     const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
+    const basket = currentBaskets()[fromNo];
+    const item = basket?.items[fromIdx];
     
     return `<div class="move-form" onclick="event.stopPropagation();">
         <div style="width:100%;">
+            <div style="background:#f5f3ff; border-radius:8px; padding:8px 12px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-exchange-alt" style="color:#8b5cf6; font-size:1.2rem;"></i>
+                <div>
+                    <strong style="color:#5b21b6; font-size:0.85rem;">🔄 Pindah Barang: ${item?.nama || ''}</strong>
+                    <br><small style="color:#64748b;">Pilih keranjang tujuan untuk barang ini saja</small>
+                </div>
+            </div>
+            
             <div style="display:flex; gap:6px; margin-bottom:6px; align-items:center;">
-                <select id="moveSection" onchange="updateMoveBaris()" style="flex:1;">${sectionOpts}</select>
-                <select id="moveBaris" onchange="updateMoveKeranjang()" style="flex:1;"><option value="">-- Baris --</option></select>
+                <select id="moveSection" onchange="updateMoveBaris()" style="flex:1;">
+                    <option value="">-- Section --</option>
+                    ${sectionOpts}
+                </select>
+                <select id="moveBaris" onchange="updateMoveKeranjang()" style="flex:1;">
+                    <option value="">-- Baris --</option>
+                </select>
             </div>
+            
             <div style="margin-bottom:6px;">
-                <label style="font-size:0.7rem; margin-bottom:2px;">Pilih Keranjang yang Sudah Ada (Prioritas):</label>
-                <select id="moveKeranjang" style="width:100%;"><option value="">-- Pilih Keranjang --</option></select>
+                <label style="font-size:0.75rem; margin-bottom:4px; display:block; color:#475569;">
+                    <i class="fas fa-box"></i> Pilih Keranjang yang Sudah Ada (Prioritas):
+                </label>
+                <select id="moveKeranjang" style="width:100%;">
+                    <option value="">-- Pilih Keranjang --</option>
+                </select>
             </div>
-            <div style="margin-bottom:6px;">
-                <label style="font-size:0.7rem; margin-bottom:2px; color:#f59e0b;">
-                    ⚠️ Atau Buat Keranjang Baru:
+            
+            <div style="margin-bottom:8px;">
+                <label style="font-size:0.75rem; margin-bottom:4px; display:block; color:#f59e0b;">
+                    <i class="fas fa-plus-circle"></i> Atau Buat Keranjang Baru:
                 </label>
                 <input type="number" id="moveKeranjangBaru" 
                        placeholder="Nomor keranjang baru" 
@@ -1124,9 +1315,15 @@ function getSingleBarisBox(secName, baris, idx) {
                        oninput="validateMoveKeranjangBaru()">
                 <small id="moveKeranjangWarning" style="display:block; margin-top:4px; font-size:0.7rem;"></small>
             </div>
-            <button class="btn btn-sm btn-primary" style="width:100%;" onclick="pindahkanItem(${fromNo}, ${fromIdx})">
-                📦 Pindahkan
-            </button>
+            
+            <div style="display:flex; gap:6px;">
+                <button class="btn btn-sm btn-primary" style="flex:1;" onclick="pindahkanItem(${fromNo}, ${fromIdx})">
+                    <i class="fas fa-exchange-alt"></i> Pindahkan Barang Ini
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="showBasketDetail(${fromNo})">
+                    Batal
+                </button>
+            </div>
         </div>
     </div>`;
 }
@@ -1331,6 +1528,202 @@ function removeEmptyBasketNumber(keranjangNo) {
         showToast('✅ Barang dikeluarkan');
         showBasketDetail(no);
     }
+}
+        function showMoveBasketForm(fromNo) {
+    const basket = currentBaskets()[fromNo];
+    if (!basket) return;
+    
+    const sections = Object.keys(currentSections());
+    const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
+    
+    container.innerHTML = `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+                <h3 style="display:inline;">
+                    <i class="fas fa-truck" style="color:#8b5cf6;"></i> 
+                    Pindahkan Keranjang ${fromNo}
+                </h3>
+                <span class="move-type-badge basket-move" style="font-size:0.8rem;">📦 BESERTA ISI</span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${fromNo})">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </button>
+        </div>
+        
+        <div style="background:linear-gradient(135deg, #ede9fe, #f5f3ff); border:2px solid #8b5cf6; border-radius:12px; padding:16px; margin-bottom:16px;">
+            <div style="display:flex; gap:12px; align-items:center;">
+                <i class="fas fa-info-circle" style="font-size:2rem; color:#7c3aed;"></i>
+                <div>
+                    <strong style="color:#5b21b6;">⚠️ Perhatian! Ini berbeda dengan "Pindah Barang"</strong>
+                    <br><small style="color:#64748b;">
+                        • <strong>Pindah Keranjang</strong>: Memindahkan SELURUH isi keranjang (${basket.items.length} item) ke lokasi baru<br>
+                        • <strong>Pindah Barang</strong>: Hanya memindahkan SATU barang ke keranjang lain
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px; margin-bottom:16px;">
+            <strong>📍 Lokasi Saat Ini:</strong>
+            <br>Keranjang ${fromNo} berada di <strong>${basket.section}</strong> Baris <strong>${basket.baris}</strong> Slot <strong>${basket.slot}</strong>
+            <br>Jumlah item: <strong>${basket.items.length}/5</strong>
+        </div>
+        
+        <div style="border-left: 4px solid #8b5cf6; padding-left: 12px; margin-bottom:16px;">
+            <strong style="color:#5b21b6;">Pilih Lokasi Tujuan:</strong>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-building"></i> Section Tujuan</label>
+            <select id="moveBasketSection" onchange="updateMoveBasketBaris()">
+                <option value="">-- Pilih Section --</option>
+                ${sectionOpts}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-grip-lines"></i> Baris Tujuan</label>
+            <select id="moveBasketBaris" onchange="updateMoveBasketSlot()">
+                <option value="">-- Pilih Baris --</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-th"></i> Slot Tujuan (1-5)</label>
+            <select id="moveBasketSlot">
+                <option value="">-- Pilih Slot --</option>
+            </select>
+        </div>
+        
+        <div id="moveBasketInfo" style="margin-bottom:16px;"></div>
+        
+        <button class="btn" style="width:100%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color:white; font-size:1rem; padding:14px;" 
+                onclick="executeMoveBasket(${fromNo})">
+            <i class="fas fa-truck"></i> Pindahkan Seluruh Keranjang ${fromNo}
+        </button>
+        
+        <button class="btn btn-outline" style="width:100%; margin-top:8px;" onclick="showBasketDetail(${fromNo})">
+            <i class="fas fa-times"></i> Batal
+        </button>
+    </div>`;
+}
+
+function updateMoveBasketBaris() {
+    const section = document.getElementById('moveBasketSection')?.value;
+    const barisSelect = document.getElementById('moveBasketBaris');
+    if (!barisSelect) return;
+    
+    barisSelect.innerHTML = '<option value="">-- Pilih Baris --</option>';
+    if (!section) return;
+    
+    const barisObj = currentSections()[section] || {};
+    Object.keys(barisObj).forEach((baris, idx) => {
+        const label = `${section} ${String(idx+1).padStart(2,'0')}`;
+        barisSelect.innerHTML += `<option value="${baris}">${label}</option>`;
+    });
+    
+    const slotSelect = document.getElementById('moveBasketSlot');
+    if (slotSelect) slotSelect.innerHTML = '<option value="">-- Pilih Slot --</option>';
+}
+
+function updateMoveBasketSlot() {
+    const section = document.getElementById('moveBasketSection')?.value;
+    const baris = document.getElementById('moveBasketBaris')?.value;
+    const slotSelect = document.getElementById('moveBasketSlot');
+    const infoDiv = document.getElementById('moveBasketInfo');
+    
+    if (!slotSelect) return;
+    slotSelect.innerHTML = '<option value="">-- Pilih Slot --</option>';
+    if (infoDiv) infoDiv.innerHTML = '';
+    
+    if (!section || !baris) return;
+    
+    const slots = currentSections()[section]?.[baris];
+    if (!slots) return;
+    
+    for (let i = 0; i < 5; i++) {
+        const no = slots[i];
+        const slotNumber = i + 1;
+        
+        if (no === null) {
+            slotSelect.innerHTML += `<option value="${slotNumber}">Slot ${slotNumber} (kosong) ✅</option>`;
+        } else {
+            const count = itemCount(no);
+            slotSelect.innerHTML += `<option value="${slotNumber}" disabled>Slot ${slotNumber}: Keranjang ${no} (${count}/5) ❌</option>`;
+        }
+    }
+    
+    slotSelect.onchange = function() {
+        const selectedSlot = parseInt(this.value);
+        if (selectedSlot && infoDiv) {
+            infoDiv.innerHTML = `
+                <div style="background:#ecfdf5; border:1px solid #10b981; border-radius:8px; padding:12px;">
+                    <strong>✅ Slot ${selectedSlot} tersedia</strong>
+                    <br>Keranjang akan dipindahkan ke ${section} Baris ${baris} Slot ${selectedSlot}
+                </div>
+            `;
+        }
+    };
+}
+        function executeMoveBasket(fromNo) {
+    const toSection = document.getElementById('moveBasketSection')?.value;
+    const toBaris = document.getElementById('moveBasketBaris')?.value;
+    const toSlot = parseInt(document.getElementById('moveBasketSlot')?.value);
+    
+    if (!toSection || !toBaris || !toSlot) {
+        return showToast('❌ Lengkapi semua pilihan!');
+    }
+    
+    const fromBasket = currentBaskets()[fromNo];
+    if (!fromBasket) return showToast('❌ Keranjang asal tidak ditemukan!');
+    
+    // Validasi: tidak bisa pindah ke tempat yang sama
+    if (fromBasket.section === toSection && fromBasket.baris === toBaris && fromBasket.slot === toSlot) {
+        return showToast('❌ Tidak bisa pindah ke lokasi yang sama!');
+    }
+    
+    const toSlots = currentSections()[toSection]?.[toBaris];
+    if (!toSlots) return showToast('❌ Baris tujuan tidak valid!');
+    
+    // Validasi: slot tujuan harus kosong
+    if (toSlots[toSlot - 1] !== null) {
+        return showToast('❌ Slot tujuan sudah terisi keranjang lain! Pilih slot kosong.');
+    }
+    
+    // Cari lokasi lama dan hapus
+    const fromSection = fromBasket.section;
+    const fromBaris = fromBasket.baris;
+    const fromSlot = fromBasket.slot;
+    
+    const fromSlots = currentSections()[fromSection]?.[fromBaris];
+    if (fromSlots) {
+        fromSlots[fromSlot - 1] = null; // Hapus dari slot lama
+    }
+    
+    // Pasang di lokasi baru
+    toSlots[toSlot - 1] = fromNo;
+    
+    // Update data basket
+    fromBasket.section = toSection;
+    fromBasket.baris = toBaris;
+    fromBasket.slot = toSlot;
+    
+    // Log transaksi
+    logTransaction('move', {
+        nama: `[KERANJANG ${fromNo}]`,
+        qty: `${fromBasket.items.length} item`,
+        jenis: 'KERANJANG',
+        dari: `${fromSection} ${fromBaris} Slot ${fromSlot}`,
+        ke: `${toSection} ${toBaris} Slot ${toSlot}`,
+        keranjang: fromNo,
+        section: toSection
+    });
+    
+    saveToFirestore();
+    showToast(`✅ Keranjang ${fromNo} berhasil dipindahkan ke ${toSection} ${toBaris} Slot ${toSlot}!`);
+    
+    // Kembali ke detail keranjang
+    setTimeout(() => showBasketDetail(fromNo), 500);
 }
         
         // ─── INPUT BARANG ───
@@ -1720,32 +2113,59 @@ function removeEmptyBasketNumber(keranjangNo) {
 }
 
         // ─── RIWAYAT dengan badge warna ───
-        function renderHistory() {
-            const list = currentTransactions().slice(0, 100).map(t => {
-                let typeClass = '', badgeClass = '', icon = '';
-                if (t.type === 'in') { typeClass = 'type-in'; badgeClass = 'badge-in'; icon = '📥'; }
-                else if (t.type === 'move') { typeClass = 'type-move'; badgeClass = 'badge-move'; icon = '🔄'; }
-                else if (t.type === 'edit') { typeClass = 'type-edit'; badgeClass = 'badge-edit'; icon = '✏️'; }
-                else { typeClass = 'type-out'; badgeClass = 'badge-out'; icon = '📤'; }
-                const detail = t.detail || {};
-                const extraInfo = t.type === 'move' ? ` | Dari: ${detail.dari} → Ke: ${detail.ke}` :
-                    t.type === 'edit' ? ` | Est: ${detail.oldEstOutDate} → ${detail.newEstOutDate}` :
-                    ` | Keranjang: ${detail.keranjang||'-'} | Section: ${detail.section||'-'}`;
-                return `<div class="history-item ${typeClass}">
-                    <div style="font-size:1.5rem;flex-shrink:0;">${icon}</div>
-                    <div style="flex:1;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
-                            <span class="history-badge ${badgeClass}">${t.type==='in'?'MASUK':t.type==='move'?'PINDAH':t.type==='edit'?'EDIT EST':'KELUAR'}</span>
-                            <small style="color:#64748b;">${new Date(t.timestamp).toLocaleString('id-ID')}</small>
-                        </div>
-                        <strong>${detail.nama||'-'}</strong> — ${detail.qty||'-'} (${detail.jenis||'-'})
-                        <br><small style="color:#64748b;">${extraInfo} | User: ${t.user}</small>
-                    </div>
-                </div>`;
-            }).join('');
-            container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📋 Riwayat</h3><button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button></div>${list||'<div class="empty-state">Belum ada aktivitas</div>'}</div>`;
+       function renderHistory() {
+    const list = currentTransactions().slice(0, 100).map(t => {
+        let typeClass = '', badgeClass = '', icon = '', typeLabel = '';
+        
+        if (t.type === 'in') { 
+            typeClass = 'type-in'; badgeClass = 'badge-in'; icon = '📥'; typeLabel = 'MASUK'; 
         }
-
+        else if (t.type === 'move') { 
+            typeClass = 'type-move'; badgeClass = 'badge-move'; icon = '🔄'; 
+            // Cek apakah ini pindah keranjang atau pindah barang
+            typeLabel = t.detail?.jenis === 'KERANJANG' ? 'PINDAH KERANJANG' : 'PINDAH BARANG';
+        }
+        else if (t.type === 'edit') { 
+            typeClass = 'type-edit'; badgeClass = 'badge-edit'; icon = '✏️'; typeLabel = 'EDIT EST'; 
+        }
+        else { 
+            typeClass = 'type-out'; badgeClass = 'badge-out'; icon = '📤'; typeLabel = 'KELUAR'; 
+        }
+        
+        const detail = t.detail || {};
+        const extraInfo = t.type === 'move' ? 
+            ` | Dari: ${detail.dari} → Ke: ${detail.ke}` :
+            t.type === 'edit' ? 
+            ` | Est: ${detail.oldEstOutDate} → ${detail.newEstOutDate}` :
+            ` | Keranjang: ${detail.keranjang||'-'} | Section: ${detail.section||'-'}`;
+            
+        return `<div class="history-item ${typeClass}">
+            <div style="font-size:1.5rem;flex-shrink:0;">${icon}</div>
+            <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+                    <span class="history-badge ${badgeClass}">${typeLabel}</span>
+                    <small style="color:#64748b;">${new Date(t.timestamp).toLocaleString('id-ID')}</small>
+                </div>
+                <strong>${detail.nama||'-'}</strong> — ${detail.qty||'-'} (${detail.jenis||'-'})
+                <br><small style="color:#64748b;">${extraInfo} | User: ${t.user}</small>
+            </div>
+        </div>`;
+    }).join('');
+    
+    container.innerHTML = `<div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+            <h3>📋 Riwayat</h3>
+            <button class="btn btn-sm btn-outline" onclick="downloadExcel()">
+                <i class="fas fa-download"></i> Excel
+            </button>
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:12px; font-size:0.75rem;">
+            <span><span class="history-badge badge-move">PINDAH BARANG</span> = Pindah 1 item</span>
+            <span><span class="history-badge" style="background:#ede9fe; color:#5b21b6;">PINDAH KERANJANG</span> = Pindah semua isi</span>
+        </div>
+        ${list||'<div class="empty-state">Belum ada aktivitas</div>'}
+    </div>`;
+}
         // ─── REKAP & DOWNLOAD ───
         function renderRekap() {
             const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
