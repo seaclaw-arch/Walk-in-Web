@@ -858,39 +858,36 @@
         <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
         <div class="fp-room" style="background:#e8f4f8;">
             <div style="display: grid; grid-template-columns: repeat(6, 110px); gap: 8px;">
-                <!-- Baris 1: IMP 01-05 -->
+                <!-- Baris 1: IMP 01-05 + MI 01 -->
                 ${getSingleBarisBox('IMP', 'A', 0)}
                 ${getSingleBarisBox('IMP', 'B', 1)}
                 ${getSingleBarisBox('IMP', 'C', 2)}
                 ${getSingleBarisBox('IMP', 'D', 3)}
                 ${getSingleBarisBox('IMP', 'E', 4)}
+                ${getSingleBarisBox('MI', 'A', 0)}
                 
                 <!-- Baris 2: Kosong -->
                 <div style="grid-column: 1 / -1;" class="spacer">— Area Kosong —</div>
                 
-                <!-- Baris 3: RTL 01-03 + area kosong + MI 01 -->
+                <!-- Baris 3: RTL 01-03 + MI 02-03 + spacer -->
                 ${getSingleBarisBox('RTL', 'A', 0)}
                 ${getSingleBarisBox('RTL', 'B', 1)}
                 ${getSingleBarisBox('RTL', 'C', 2)}
+                ${getSingleBarisBox('MI', 'B', 1)}
+                ${getSingleBarisBox('MI', 'C', 2)}
                 <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'A', 0)}
                 
-                <!-- Baris 4: NPL 01-03 + area kosong + MI 02 -->
+                <!-- Baris 4: NPL 01-03 + spacer -->
                 ${getSingleBarisBox('NPL', 'A', 0)}
                 ${getSingleBarisBox('NPL', 'B', 1)}
                 ${getSingleBarisBox('NPL', 'C', 2)}
-                <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'B', 1)}
-
-                 <!-- Baris 5: Kosong -->
-                <div style="grid-column: 5 / -5;" class="spacer">— Area Kosong —</div>
+                <div style="grid-column: 4 / -1;" class="spacer">— Area Kosong —</div>
                 
-                <!-- Baris 6: RDQ 01 + MTPP 01-02 + area kosong + MI 03 -->
+                <!-- Baris 5: RDQ 01 + MTPP 01-02 + spacer -->
                 ${getSingleBarisBox('RDQ', 'A', 0)}
                 ${getSingleBarisBox('MTPP', 'A', 0)}
                 ${getSingleBarisBox('MTPP', 'B', 1)}
-                <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'C', 2)}
+                <div style="grid-column: 4 / -1;" class="spacer">— Area Kosong —</div>
             </div>
         </div>
         <div class="fp-legend">
