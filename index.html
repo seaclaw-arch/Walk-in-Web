@@ -1021,23 +1021,29 @@
             </div>`;
         }
 
-        function buildBarisBox(secName, barisIdx, slots) {
-            const num = String(barisIdx + 1).padStart(2, '0');
-            const lbl = `${secName} ${num}`;
-            let slotElements = '';
-            for (let i = 0; i < 5; i++) {
-                slotElements += buildBasketSlot(slots[i], i);
-            }
-            return `<div class="baris-box">
-                <div class="baris-box-lbl">${lbl}</div>
-                <div class="baris-slots">${slotElements}</div>
-            </div>`;
-        }
+       function buildBarisBox(secName, barisKey, slots) {
+    // Gunakan key baris asli (A, B, C, D, E) untuk label yang konsisten
+    const barisOrder = ['A', 'B', 'C', 'D', 'E'];
+    const barisNumber = barisOrder.indexOf(barisKey) + 1;
+    const num = String(barisNumber).padStart(2, '0');
+    const lbl = `${secName} ${num}`;
+    
+    let slotElements = '';
+    for (let i = 0; i < 5; i++) {
+        slotElements += buildBasketSlot(slots[i], i);
+    }
+    return `<div class="baris-box">
+        <div class="baris-box-lbl">${lbl}</div>
+        <div class="baris-slots">${slotElements}</div>
+    </div>`;
+}
 
-        function getSecBoxes(secName) {
-            const barisObj = currentSections()[secName] || {};
-            return Object.entries(barisObj).map(([b, slots], idx) => buildBarisBox(secName, idx, slots)).join('');
-        }
+       function getSecBoxes(secName) {
+    const barisObj = currentSections()[secName] || {};
+    // Urutkan berdasarkan key (A, B, C, D, E)
+    const sortedKeys = Object.keys(barisObj).sort();
+    return sortedKeys.map(key => buildBarisBox(secName, key, barisObj[key])).join('');
+}
 
         function renderFrozenPlan() {
     const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
@@ -1053,38 +1059,38 @@
                         margin: 0 auto;">
                 
                 <!-- Baris 1: IMP 01-05 -->
-                ${getSingleBarisBox('IMP', 'A', 0)}
-                ${getSingleBarisBox('IMP', 'B', 1)}
-                ${getSingleBarisBox('IMP', 'C', 2)}
-                ${getSingleBarisBox('IMP', 'D', 3)}
-                ${getSingleBarisBox('IMP', 'E', 4)}
+                ${getSingleBarisBox('IMP', 'A')}
+                ${getSingleBarisBox('IMP', 'B')}
+                ${getSingleBarisBox('IMP', 'C')}
+                ${getSingleBarisBox('IMP', 'D')}
+                ${getSingleBarisBox('IMP', 'E')}
                 
                 <!-- Baris 2: Spacer horizontal -->
                 <div style="grid-column: 1 / 6; height: 40px;" class="spacer">— Area Kosong —</div>
                 
                 <!-- Baris 3: RTL 01-03 + Kosong + MI 01 -->
-                ${getSingleBarisBox('RTL', 'A', 0)}
-                ${getSingleBarisBox('RTL', 'B', 1)}
-                ${getSingleBarisBox('RTL', 'C', 2)}
+                ${getSingleBarisBox('RTL', 'A')}
+                ${getSingleBarisBox('RTL', 'B')}
+                ${getSingleBarisBox('RTL', 'C')}
                 <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'A', 0)}
+                ${getSingleBarisBox('MI', 'A')}
                 
                 <!-- Baris 4: NPL 01-03 + Kosong + MI 02 -->
-                ${getSingleBarisBox('NPL', 'A', 0)}
-                ${getSingleBarisBox('NPL', 'B', 1)}
-                ${getSingleBarisBox('NPL', 'C', 2)}
+                ${getSingleBarisBox('NPL', 'A')}
+                ${getSingleBarisBox('NPL', 'B')}
+                ${getSingleBarisBox('NPL', 'C')}
                 <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'B', 1)}
+                ${getSingleBarisBox('MI', 'B')}
                 
                 <!-- Baris 5: Spacer horizontal -->
                 <div style="grid-column: 1 / 6; height: 40px;" class="spacer">— Area Kosong —</div>
                 
                 <!-- Baris 6: RDQ 01 + MTPP 01-02 + Kosong + MI 03 -->
-                ${getSingleBarisBox('RDQ', 'A', 0)}
-                ${getSingleBarisBox('MTPP', 'A', 0)}
-                ${getSingleBarisBox('MTPP', 'B', 1)}
+                ${getSingleBarisBox('RDQ', 'A')}
+                ${getSingleBarisBox('MTPP', 'A')}
+                ${getSingleBarisBox('MTPP', 'B')}
                 <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'C', 2)}
+                ${getSingleBarisBox('MI', 'C')}
             </div>
         </div>
         <div class="fp-legend">
@@ -1098,10 +1104,10 @@
 }
 
 // Helper function untuk membuat single baris box
-function getSingleBarisBox(secName, baris, idx) {
+function getSingleBarisBox(secName, baris) {
     const sections = currentSections();
     const slots = sections[secName]?.[baris] || [null,null,null,null,null];
-    return buildBarisBox(secName, idx, slots);
+    return buildBarisBox(secName, baris, slots);
 }
        
         function renderChillerPlan() {
