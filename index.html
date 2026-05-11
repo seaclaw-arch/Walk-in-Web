@@ -1158,33 +1158,45 @@ function getSingleBarisBox(secName, baris, idx) {
         }
 
         // ─── INPUT BARANG ───
-        function renderInputForm() {
-            const sectionOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
-            container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3>
-                <form id="inForm" onsubmit="submitIn(event)">
-                    <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
-                    <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="3 Pack" required></div>
-                    <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
-                    <div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required></div>
-                    <div class="form-group"><label>Estimasi Keluar (wajib)</label><input type="date" id="inEstOutDate" required></div>
-                    <div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select></div>
-                    <div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option value="">-- Pilih --</option></select></div>
-                    <div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option value="">-- Pilih Slot --</option></select></div>
-                    <div class="form-group">
-    <label>Nomor Keranjang Baru</label>
-    <input type="number" id="inKeranjangManual" 
-           placeholder="⚠️ Pilih slot dulu" 
-           min="1"
-           style="transition: all 0.3s;">
-    <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
-        💡 Isi hanya jika slot kosong. Jika sudah ada nomor, akan otomatis terisi
-    </small>
-</div>
-                    <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
-                </form></div>`;
-            updateBarisSelect();
-            updateNamaDatalist();
-        }
+       function renderInputForm() {
+    const sectionOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
+    container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3>
+        <form id="inForm" onsubmit="submitIn(event)">
+            <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
+            <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="3 Pack" required></div>
+            <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
+            <div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateEstOutDate()"></div>
+            
+            <!-- ========== UPDATE INPUT EST OUT ========== -->
+            <div class="form-group">
+                <label>Estimasi Keluar (wajib)</label>
+                <input type="date" id="inEstOutDate" required onchange="validateEstOutDate()">
+                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
+                    ⚠️ Tidak boleh lebih dari Tanggal Exp
+                </small>
+            </div>
+            <!-- ========================================== -->
+            
+            <div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select></div>
+            <div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option value="">-- Pilih Slot --</option></select></div>
+            
+            <div class="form-group">
+                <label>Nomor Keranjang Baru</label>
+                <input type="number" id="inKeranjangManual" 
+                       placeholder="⚠️ Pilih slot dulu" 
+                       min="1"
+                       style="transition: all 0.3s;">
+                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
+                    💡 Isi hanya jika slot kosong. Jika sudah ada nomor, akan otomatis terisi
+                </small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
+        </form></div>`;
+    updateBarisSelect();
+    updateNamaDatalist();
+}
 
         function handleSlotChange() {
     const slot = parseInt(document.getElementById('inSlot')?.value);
@@ -1306,6 +1318,65 @@ function getSingleBarisBox(secName, baris, idx) {
             }
         }
 
+        function validateEstOutDate() {
+    const expDate = document.getElementById('inExpDate')?.value;
+    const estOutDate = document.getElementById('inEstOutDate')?.value;
+    const estOutInput = document.getElementById('inEstOutDate');
+    const estOutGroup = estOutInput?.closest('.form-group');
+    
+    // Hapus pesan sebelumnya
+    const existingWarning = document.getElementById('estOutWarning');
+    if (existingWarning) existingWarning.remove();
+    
+    // Reset styling
+    estOutInput?.classList.remove('input-warning', 'input-success');
+    
+    if (!expDate || !estOutDate) return;
+    
+    const expDateObj = new Date(expDate);
+    const estOutDateObj = new Date(estOutDate);
+    
+    if (estOutDateObj > expDateObj) {
+        // Estimasi keluar lebih dari exp
+        estOutInput?.classList.add('input-warning');
+        
+        const warningDiv = document.createElement('div');
+        warningDiv.id = 'estOutWarning';
+        warningDiv.className = 'warning-message';
+        warningDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i> 
+            ❌ Estimasi Keluar (${estOutDate}) tidak boleh lebih dari Tanggal Exp (${expDate})
+        `;
+        estOutGroup?.appendChild(warningDiv);
+        
+    } else if (estOutDateObj.getTime() === expDateObj.getTime()) {
+        // Sama dengan exp
+        estOutInput?.classList.add('input-success');
+        
+        const warningDiv = document.createElement('div');
+        warningDiv.id = 'estOutWarning';
+        warningDiv.className = 'success-message';
+        warningDiv.innerHTML = `
+            <i class="fas fa-info-circle"></i> 
+            ⚠️ Estimasi Keluar sama dengan Tanggal Exp
+        `;
+        estOutGroup?.appendChild(warningDiv);
+        
+    } else {
+        // Valid
+        estOutInput?.classList.add('input-success');
+        
+        const successDiv = document.createElement('div');
+        successDiv.id = 'estOutWarning';
+        successDiv.className = 'success-message';
+        successDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i> 
+            ✅ Estimasi Keluar valid (sebelum Exp)
+        `;
+        estOutGroup?.appendChild(successDiv);
+    }
+}
+        
         function updateBarisSelect() {
             const section = document.getElementById('inSection')?.value;
             const barisSelect = document.getElementById('inBaris');
@@ -1366,7 +1437,7 @@ function getSingleBarisBox(secName, baris, idx) {
             if (dl) dl.innerHTML = [...set].map(n => `<option value="${n}">`).join('');
         }
 
-        function submitIn(e) {
+     function submitIn(e) {
     e.preventDefault();
     const nama = document.getElementById('inNama').value.trim();
     const qty = document.getElementById('inQty').value.trim();
@@ -1383,6 +1454,36 @@ function getSingleBarisBox(secName, baris, idx) {
     if (!slotStr) return showToast('Pilih Slot (1-5).');
     if (!expDate) return showToast('Tanggal Exp wajib diisi.');
     if (!estOutDate) return showToast('Estimasi Keluar wajib diisi.');
+
+    // ========== VALIDASI TAMBAHAN: Est Out tidak boleh > Exp ==========
+    if (estOutDate && expDate) {
+        const expDateObj = new Date(expDate);
+        const estOutDateObj = new Date(estOutDate);
+        
+        if (estOutDateObj > expDateObj) {
+            // Highlight input yang error
+            const estOutInput = document.getElementById('inEstOutDate');
+            estOutInput?.classList.add('input-warning');
+            estOutInput?.focus();
+            
+            // Tampilkan pesan error di bawah input
+            const estOutGroup = estOutInput?.closest('.form-group');
+            const existingWarning = document.getElementById('estOutWarning');
+            if (existingWarning) existingWarning.remove();
+            
+            const warningDiv = document.createElement('div');
+            warningDiv.id = 'estOutWarning';
+            warningDiv.className = 'warning-message';
+            warningDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i> 
+                ❌ Estimasi Keluar (${estOutDate}) tidak boleh lebih dari Tanggal Exp (${expDate})
+            `;
+            estOutGroup?.appendChild(warningDiv);
+            
+            return showToast('❌ Estimasi Keluar tidak boleh lebih dari Tanggal Exp!');
+        }
+    }
+    // =================================================================
 
     const slotIndex = parseInt(slotStr) - 1;
     const slots = currentSections()[section]?.[baris];
