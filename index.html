@@ -1134,7 +1134,7 @@ function getSingleBarisBox(secName, baris, idx) {
         }
 
         // ─── DETAIL KERANJANG + PINDAH + KELUAR + EDIT ESTIMASI ───
-       function showBasketDetail(no, moveItemIdx = null) {
+      function showBasketDetail(no, moveItemIdx = null) {
     const basket = currentBaskets()[no];
     const count = itemCount(no);
     const now = new Date();
@@ -1146,40 +1146,41 @@ function getSingleBarisBox(secName, baris, idx) {
             else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
             const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
             
-           // Di dalam item.map(), ubah bagian qty:
-return `<div class="item-row ${cls}">
-    <div style="flex:1;">
-        <strong>${item.nama}</strong> 
-        <span style="font-size:1rem; font-weight:700; color:var(--primary);">(${item.qty})</span>${lbl}
-        <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
-        ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
-        ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
-    </div>
-    
-    <div class="item-actions">
-        <button class="action-btn move-btn" 
-                data-tooltip="Pindah Barang"
-                onclick="event.stopPropagation(); showBasketDetail(${no}, ${idx})"
-                title="Pindahkan barang ini ke keranjang lain">
-            <i class="fas fa-exchange-alt"></i>
-        </button>
-        
-        <button class="action-btn edit-btn" 
-                data-tooltip="Edit Est. Keluar"
-                onclick="event.stopPropagation(); editEstOutDate(${no}, ${idx})"
-                title="Edit estimasi tanggal keluar">
-            <i class="fas fa-calendar-alt"></i>
-        </button>
-        
-        <button class="action-btn out-btn" 
-                data-tooltip="Keluarkan Barang"
-                onclick="keluarkanItem(${no}, ${idx})"
-                title="Keluarkan sebagian atau semua barang">
-            <i class="fas fa-sign-out-alt"></i>
-        </button>
-    </div>
-    ${moveFormHtml}
-</div>`;
+            return `<div class="item-row ${cls}">
+                <div style="flex:1;">
+                    <strong>${item.nama}</strong> 
+                    <span style="font-size:1rem; font-weight:700; color:var(--primary);">(${item.qty})</span>${lbl}
+                    <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
+                    ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
+                    ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
+                </div>
+                
+                <div class="item-actions">
+                    <button class="action-btn move-btn" 
+                            data-tooltip="Pindah Barang"
+                            onclick="event.stopPropagation(); showBasketDetail(${no}, ${idx})"
+                            title="Pindahkan barang ini ke keranjang lain">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                    
+                    <button class="action-btn edit-btn" 
+                            data-tooltip="Edit Est. Keluar"
+                            onclick="event.stopPropagation(); editEstOutDate(${no}, ${idx})"
+                            title="Edit estimasi tanggal keluar">
+                        <i class="fas fa-calendar-alt"></i>
+                    </button>
+                    
+                    <button class="action-btn out-btn" 
+                            data-tooltip="Keluarkan Barang"
+                            onclick="keluarkanItem(${no}, ${idx})"
+                            title="Keluarkan sebagian atau semua barang">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+                ${moveFormHtml}
+            </div>`;
+        }).join('') :
+        '<div class="empty-state">Keranjang kosong</div>';
 
     container.innerHTML = `<div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1194,7 +1195,6 @@ return `<div class="item-row ${cls}">
                     <i class="fas fa-arrow-left"></i> Denah
                 </button>
                 
-                <!-- ===== TOMBOL PINDAH KERANJANG (BESERTA ISI) ===== -->
                 <button class="basket-move-btn" 
                         onclick="showMoveBasketForm(${no})"
                         title="Pindahkan seluruh keranjang beserta isinya ke lokasi lain">
@@ -1215,7 +1215,6 @@ return `<div class="item-row ${cls}">
         ${itemsHtml}
     </div>`;
 }
-
         // Fungsi baru: edit estimasi tanggal keluar
         function editEstOutDate(no, idx) {
             const basket = currentBaskets()[no];
@@ -1696,6 +1695,85 @@ function closePartialOutDialog() {
     if (overlay) overlay.remove();
 }
 
+        function showMoveBasketForm(fromNo) {
+    const basket = currentBaskets()[fromNo];
+    if (!basket) return;
+    
+    const sections = Object.keys(currentSections());
+    const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
+    
+    container.innerHTML = `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+                <h3 style="display:inline;">
+                    <i class="fas fa-truck" style="color:#8b5cf6;"></i> 
+                    Pindahkan Keranjang ${fromNo}
+                </h3>
+                <span class="move-type-badge basket-move" style="font-size:0.8rem;">📦 BESERTA ISI</span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${fromNo})">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </button>
+        </div>
+        
+        <div style="background:linear-gradient(135deg, #ede9fe, #f5f3ff); border:2px solid #8b5cf6; border-radius:12px; padding:16px; margin-bottom:16px;">
+            <div style="display:flex; gap:12px; align-items:center;">
+                <i class="fas fa-info-circle" style="font-size:2rem; color:#7c3aed;"></i>
+                <div>
+                    <strong style="color:#5b21b6;">⚠️ Perhatian! Ini berbeda dengan "Pindah Barang"</strong>
+                    <br><small style="color:#64748b;">
+                        • <strong>Pindah Keranjang</strong>: Memindahkan SELURUH isi keranjang (${basket.items.length} item) ke lokasi baru<br>
+                        • <strong>Pindah Barang</strong>: Hanya memindahkan SATU barang ke keranjang lain
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px; margin-bottom:16px;">
+            <strong>📍 Lokasi Saat Ini:</strong>
+            <br>Keranjang ${fromNo} berada di <strong>${basket.section}</strong> Baris <strong>${basket.baris}</strong> Slot <strong>${basket.slot}</strong>
+            <br>Jumlah item: <strong>${basket.items.length}/5</strong>
+        </div>
+        
+        <div style="border-left: 4px solid #8b5cf6; padding-left: 12px; margin-bottom:16px;">
+            <strong style="color:#5b21b6;">Pilih Lokasi Tujuan:</strong>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-building"></i> Section Tujuan</label>
+            <select id="moveBasketSection" onchange="updateMoveBasketBaris()">
+                <option value="">-- Pilih Section --</option>
+                ${sectionOpts}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-grip-lines"></i> Baris Tujuan</label>
+            <select id="moveBasketBaris" onchange="updateMoveBasketSlot()">
+                <option value="">-- Pilih Baris --</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-th"></i> Slot Tujuan (1-5)</label>
+            <select id="moveBasketSlot">
+                <option value="">-- Pilih Slot --</option>
+            </select>
+        </div>
+        
+        <div id="moveBasketInfo" style="margin-bottom:16px;"></div>
+        
+        <button class="btn" style="width:100%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color:white; font-size:1rem; padding:14px;" 
+                onclick="executeMoveBasket(${fromNo})">
+            <i class="fas fa-truck"></i> Pindahkan Seluruh Keranjang ${fromNo}
+        </button>
+        
+        <button class="btn btn-outline" style="width:100%; margin-top:8px;" onclick="showBasketDetail(${fromNo})">
+            <i class="fas fa-times"></i> Batal
+        </button>
+    </div>`;
+}
+        
 function updateMoveBasketBaris() {
     const section = document.getElementById('moveBasketSection')?.value;
     const barisSelect = document.getElementById('moveBasketBaris');
@@ -1820,11 +1898,19 @@ function updateMoveBasketSlot() {
     container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3>
         <form id="inForm" onsubmit="submitIn(event)">
             <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
-            <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="3 Pack" required></div>
+            
+            <!-- ===== HANYA SATU INPUT JUMLAH ===== -->
+            <div class="form-group">
+                <label>Jumlah</label>
+                <input type="text" id="inQty" placeholder="Contoh: 10 atau 3 Pack" required>
+                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
+                    💡 Bisa diisi angka (10) atau teks (3 Pack, 5 Kg, dll). Support keluar partial untuk angka.
+                </small>
+            </div>
+            
             <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
             <div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateEstOutDate()"></div>
             
-            <!-- ========== UPDATE INPUT EST OUT ========== -->
             <div class="form-group">
                 <label>Estimasi Keluar (wajib)</label>
                 <input type="date" id="inEstOutDate" required onchange="validateEstOutDate()">
@@ -1832,19 +1918,21 @@ function updateMoveBasketSlot() {
                     ⚠️ Tidak boleh lebih dari Tanggal Exp
                 </small>
             </div>
-            <!-- ========================================== -->
             
             <div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select></div>
             <div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option value="">-- Pilih --</option></select></div>
             <div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option value="">-- Pilih Slot --</option></select></div>
             
             <div class="form-group">
-    <label>Jumlah</label>
-    <input type="text" id="inQty" placeholder="Contoh: 10 atau 3 Pack" required>
-    <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
-        💡 Bisa diisi angka (10) atau teks (3 Pack, 5 Kg, dll). Support keluar partial untuk angka.
-    </small>
-</div>
+                <label>Nomor Keranjang Baru</label>
+                <input type="number" id="inKeranjangManual" 
+                       placeholder="⚠️ Pilih slot dulu" 
+                       min="1"
+                       style="transition: all 0.3s;">
+                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
+                    💡 Isi hanya jika slot kosong. Jika sudah ada nomor, akan otomatis terisi
+                </small>
+            </div>
             
             <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
         </form></div>`;
