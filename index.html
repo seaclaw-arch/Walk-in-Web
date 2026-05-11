@@ -853,38 +853,45 @@
 
         function renderFrozenPlan() {
     const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
+    
     container.innerHTML = `
     <div class="card" style="padding:12px;">
         <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
         <div class="fp-room" style="background:#e8f4f8;">
-            <div style="display: grid; grid-template-columns: repeat(6, 110px); gap: 8px;">
-                <!-- Baris 1: IMP 01-05 + MI 01 -->
+            <div style="display: grid; 
+                        grid-template-columns: 110px 110px 110px 110px 110px; 
+                        gap: 8px;
+                        width: fit-content;
+                        margin: 0 auto;">
+                
+                <!-- Baris 1: IMP 01-05 -->
                 ${getSingleBarisBox('IMP', 'A', 0)}
                 ${getSingleBarisBox('IMP', 'B', 1)}
                 ${getSingleBarisBox('IMP', 'C', 2)}
                 ${getSingleBarisBox('IMP', 'D', 3)}
                 ${getSingleBarisBox('IMP', 'E', 4)}
                 
-                <!-- Baris 2: Kosong -->
-                <div style="grid-column: 1 / -1;" class="spacer">— Area Kosong —</div>
+                <!-- Baris 2: Spacer horizontal -->
+                <div style="grid-column: 1 / 6; height: 40px;" class="spacer">— Area Kosong —</div>
                 
-                <!-- Baris 3: RTL 01-03 + spacer + MI 01  -->
+                <!-- Baris 3: RTL 01-03 + Kosong + MI 01 -->
                 ${getSingleBarisBox('RTL', 'A', 0)}
                 ${getSingleBarisBox('RTL', 'B', 1)}
                 ${getSingleBarisBox('RTL', 'C', 2)}
                 <div class="spacer-box">Area Kosong</div>
                 ${getSingleBarisBox('MI', 'A', 0)}
-                <div class="spacer-box">Area Kosong</div>
                 
-                <!-- Baris 4: NPL 01-03 + spacer + MI 02  -->
+                <!-- Baris 4: NPL 01-03 + Kosong + MI 02 -->
                 ${getSingleBarisBox('NPL', 'A', 0)}
                 ${getSingleBarisBox('NPL', 'B', 1)}
                 ${getSingleBarisBox('NPL', 'C', 2)}
                 <div class="spacer-box">Area Kosong</div>
                 ${getSingleBarisBox('MI', 'B', 1)}
-                <div style="grid-column: 1 / -1;" class="spacer">— Area Kosong —</div>
                 
-                <!-- Baris 5: RDQ 01 + MTPP 01-02 + spacer + MI 03 -->
+                <!-- Baris 5: Spacer horizontal -->
+                <div style="grid-column: 1 / 6; height: 40px;" class="spacer">— Area Kosong —</div>
+                
+                <!-- Baris 6: RDQ 01 + MTPP 01-02 + Kosong + MI 03 -->
                 ${getSingleBarisBox('RDQ', 'A', 0)}
                 ${getSingleBarisBox('MTPP', 'A', 0)}
                 ${getSingleBarisBox('MTPP', 'B', 1)}
