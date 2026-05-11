@@ -542,8 +542,25 @@
         }
 
         function saveToFirestore() {
-            db.collection('shared').doc('data').set({ frozen: appData.frozen, chiller: appData.chiller }, { merge: true });
-        }
+    console.log('💾 Menyimpan ke Firestore...');
+    console.log('❄️ Frozen sections:', Object.keys(appData.frozen.sections).length + ' sections');
+    console.log('❄️ Frozen baskets:', Object.keys(appData.frozen.baskets).length + ' baskets');
+    console.log('🌡️ Chiller sections:', Object.keys(appData.chiller.sections).length + ' sections');
+    console.log('🌡️ Chiller baskets:', Object.keys(appData.chiller.baskets).length + ' baskets');
+    
+    db.collection('shared').doc('data').set(
+        { 
+            frozen: appData.frozen, 
+            chiller: appData.chiller 
+        }, 
+        { merge: true }
+    ).then(() => {
+        console.log('✅ Data berhasil disimpan ke Firestore');
+    }).catch((error) => {
+        console.error('❌ Gagal menyimpan ke Firestore:', error);
+        showToast('❌ Gagal menyimpan data!');
+    });
+}
 
         function syncBasketsWithSections(area) {
             const sections = appData[area].sections;
@@ -1082,16 +1099,37 @@ function getSingleBarisBox(secName, baris, idx) {
         }
 
         // ─── MOVE FUNCTION ───
-        function renderMoveForm(fromNo, fromIdx) {
-            const sections = Object.keys(currentSections());
-            const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
-            return `<div class="move-form" onclick="event.stopPropagation();">
-                <select id="moveSection" onchange="updateMoveBaris()">${sectionOpts}</select>
-                <select id="moveBaris" onchange="updateMoveKeranjang()"><option>-- Baris --</option></select>
-                <select id="moveKeranjang"><option>-- Keranjang --</option></select>
-                <button class="btn btn-sm btn-primary" onclick="pindahkanItem(${fromNo}, ${fromIdx})">Pindahkan</button>
-            </div>`;
-        }
+      function renderMoveForm(fromNo, fromIdx) {
+    const sections = Object.keys(currentSections());
+    const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
+    
+    return `<div class="move-form" onclick="event.stopPropagation();">
+        <div style="width:100%;">
+            <div style="display:flex; gap:6px; margin-bottom:6px; align-items:center;">
+                <select id="moveSection" onchange="updateMoveBaris()" style="flex:1;">${sectionOpts}</select>
+                <select id="moveBaris" onchange="updateMoveKeranjang()" style="flex:1;"><option value="">-- Baris --</option></select>
+            </div>
+            <div style="margin-bottom:6px;">
+                <label style="font-size:0.7rem; margin-bottom:2px;">Pilih Keranjang yang Sudah Ada (Prioritas):</label>
+                <select id="moveKeranjang" style="width:100%;"><option value="">-- Pilih Keranjang --</option></select>
+            </div>
+            <div style="margin-bottom:6px;">
+                <label style="font-size:0.7rem; margin-bottom:2px; color:#f59e0b;">
+                    ⚠️ Atau Buat Keranjang Baru:
+                </label>
+                <input type="number" id="moveKeranjangBaru" 
+                       placeholder="Nomor keranjang baru" 
+                       min="1" 
+                       style="width:100%; padding:8px; font-size:0.85rem;"
+                       oninput="validateMoveKeranjangBaru()">
+                <small id="moveKeranjangWarning" style="display:block; margin-top:4px; font-size:0.7rem;"></small>
+            </div>
+            <button class="btn btn-sm btn-primary" style="width:100%;" onclick="pindahkanItem(${fromNo}, ${fromIdx})">
+                📦 Pindahkan
+            </button>
+        </div>
+    </div>`;
+}
 
         function updateMoveBaris() {
             const sec = document.getElementById('moveSection')?.value;
@@ -1108,55 +1146,193 @@ function getSingleBarisBox(secName, baris, idx) {
         }
 
         function updateMoveKeranjang() {
-            const sec = document.getElementById('moveSection')?.value;
-            const baris = document.getElementById('moveBaris')?.value;
-            const kerSel = document.getElementById('moveKeranjang');
-            if (!kerSel) return;
-            kerSel.innerHTML = '<option value="">-- Keranjang --</option>';
-            if (!sec || !baris) return;
-            const slots = currentSections()[sec][baris];
-            if (slots) {
-                slots.forEach((no, idx) => {
-                    if (no === null) return;
-                    const c = itemCount(no);
-                    const disabled = c >= 5 ? 'disabled' : '';
-                    kerSel.innerHTML += `<option value="${no}" ${disabled}>Keranjang ${no} (Slot ${idx+1}) ${c}/5</option>`;
-                });
+    const sec = document.getElementById('moveSection')?.value;
+    const baris = document.getElementById('moveBaris')?.value;
+    const kerSel = document.getElementById('moveKeranjang');
+    if (!kerSel) return;
+    
+    kerSel.innerHTML = '<option value="">-- Pilih Keranjang yang Sudah Ada --</option>';
+    if (!sec || !baris) return;
+    
+    const slots = currentSections()[sec]?.[baris];
+    if (slots) {
+        let hasAvailable = false;
+        slots.forEach((no, idx) => {
+            if (no === null) return;
+            const c = itemCount(no);
+            const disabled = c >= 5 ? 'disabled' : '';
+            if (c < 5) hasAvailable = true;
+            kerSel.innerHTML += `<option value="${no}" ${disabled}>Keranjang ${no} (Slot ${idx+1}) ${c}/5 ${c >= 5 ? '- PENUH' : ''}</option>`;
+        });
+        
+        if (!hasAvailable) {
+            kerSel.innerHTML += '<option value="" disabled>Semua keranjang penuh - Buat baru</option>';
+        }
+    }
+}
+
+        function validateMoveKeranjangBaru() {
+    const input = document.getElementById('moveKeranjangBaru');
+    const warningEl = document.getElementById('moveKeranjangWarning');
+    const value = parseInt(input?.value);
+    
+    if (!input || !warningEl) return;
+    
+    if (!value || isNaN(value) || value <= 0) {
+        warningEl.innerHTML = '';
+        input.style.borderColor = '#cbd5e1';
+        return;
+    }
+    
+    // Cek apakah nomor sudah digunakan
+    for (const area of ['frozen', 'chiller']) {
+        const sections = appData[area].sections;
+        for (const [sec, barisObj] of Object.entries(sections)) {
+            for (const sl of Object.values(barisObj)) {
+                if (sl.includes(value)) {
+                    warningEl.innerHTML = `❌ Nomor ${value} sudah digunakan`;
+                    warningEl.style.color = '#ef4444';
+                    input.style.borderColor = '#ef4444';
+                    return;
+                }
             }
         }
-
-        function pindahkanItem(fromNo, fromIdx) {
-            const toNo = parseInt(document.getElementById('moveKeranjang')?.value);
-            if (!toNo) return showToast('Pilih keranjang tujuan.');
-            if (toNo === fromNo) return showToast('Tidak bisa pindah ke keranjang yang sama.');
-            if (itemCount(toNo) >= 5) return showToast('Keranjang tujuan sudah penuh.');
-            const fromBasket = currentBaskets()[fromNo];
-            if (!fromBasket || !fromBasket.items[fromIdx]) return;
-            const item = fromBasket.items[fromIdx];
-            fromBasket.items.splice(fromIdx, 1);
-            if (!currentBaskets()[toNo]) {
-                currentBaskets()[toNo] = { section: currentBaskets()[toNo]?.section || '', items: [] };
-            }
-            currentBaskets()[toNo].items.push(item);
-            logTransaction('move', { nama: item.nama, qty: item.qty, jenis: item.jenis, dari: fromNo, ke: toNo });
-            saveToFirestore();
-            showToast('✅ Barang dipindahkan.');
-            showBasketDetail(fromNo);
+    }
+    
+    // Nomor tersedia
+    warningEl.innerHTML = `✅ Nomor ${value} tersedia`;
+    warningEl.style.color = '#10b981';
+    input.style.borderColor = '#10b981';
+}
+        
+       function pindahkanItem(fromNo, fromIdx) {
+    const toSection = document.getElementById('moveSection')?.value;
+    const toBaris = document.getElementById('moveBaris')?.value;
+    const toNoInput = document.getElementById('moveKeranjangBaru')?.value;
+    
+    let toNo = parseInt(document.getElementById('moveKeranjang')?.value);
+    
+    // Cek jika memilih keranjang baru
+    if (!toNo && toNoInput) {
+        toNo = parseInt(toNoInput);
+        if (!toNo || isNaN(toNo) || toNo <= 0) {
+            return showToast('Pilih keranjang tujuan atau masukkan nomor keranjang baru.');
         }
+        
+        // Cek duplikasi
+        for (const area of ['frozen', 'chiller']) {
+            for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
+                for (const sl of Object.values(barisObj)) {
+                    if (sl.includes(toNo)) {
+                        return showToast(`❌ Nomor keranjang ${toNo} sudah digunakan. Pilih yang sudah ada atau gunakan nomor lain!`);
+                    }
+                }
+            }
+        }
+        
+        // Tambahkan keranjang baru ke slot yang dipilih
+        if (toSection && toBaris) {
+            const toSlots = currentSections()[toSection]?.[toBaris];
+            if (toSlots) {
+                // Cari slot kosong atau gunakan slot yang dipilih
+                const emptySlotIndex = toSlots.findIndex(s => s === null);
+                if (emptySlotIndex !== -1) {
+                    toSlots[emptySlotIndex] = toNo;
+                }
+            }
+        }
+    }
+    
+    if (!toNo) return showToast('Pilih keranjang tujuan.');
+    if (toNo === fromNo) return showToast('Tidak bisa pindah ke keranjang yang sama.');
+    if (itemCount(toNo) >= 5) return showToast('Keranjang tujuan sudah penuh.');
+    
+    const fromBasket = currentBaskets()[fromNo];
+    if (!fromBasket || !fromBasket.items[fromIdx]) return;
+    
+    const item = fromBasket.items[fromIdx];
+    fromBasket.items.splice(fromIdx, 1);
+    
+    // ===== FITUR 1: Hapus nomor keranjang jika kosong =====
+    if (fromBasket.items.length === 0) {
+        removeEmptyBasketNumber(fromNo);
+    }
+    // ====================================================
+    
+    if (!currentBaskets()[toNo]) {
+        currentBaskets()[toNo] = { section: toSection || '', baris: toBaris || '', items: [] };
+    }
+    currentBaskets()[toNo].items.push(item);
+    
+    logTransaction('move', { 
+        nama: item.nama, 
+        qty: item.qty, 
+        jenis: item.jenis, 
+        dari: fromNo, 
+        ke: toNo,
+        section: toSection || currentBaskets()[toNo]?.section
+    });
+    
+    saveToFirestore();
+    showToast('✅ Barang dipindahkan ke keranjang ' + toNo);
+    showBasketDetail(fromNo);
+}
 
+        // Fungsi untuk menghapus nomor keranjang dari slot jika keranjang kosong
+function removeEmptyBasketNumber(keranjangNo) {
+    // Cari di SEMUA area (frozen & chiller)
+    for (const area of ['frozen', 'chiller']) {
+        const sections = appData[area].sections;
+        const baskets = appData[area].baskets;
+        
+        for (const [sec, barisObj] of Object.entries(sections)) {
+            for (const [baris, slots] of Object.entries(barisObj)) {
+                const slotIndex = slots.indexOf(keranjangNo);
+                if (slotIndex !== -1) {
+                    // Hapus nomor keranjang dari slot
+                    slots[slotIndex] = null;
+                    
+                    // Hapus data basket jika ada
+                    if (baskets[keranjangNo]) {
+                        delete baskets[keranjangNo];
+                    }
+                    
+                    console.log(`🗑️ Keranjang ${keranjangNo} dihapus dari ${area} - ${sec} Baris ${baris} Slot ${slotIndex + 1}`);
+                    return; // Keluar setelah menemukan dan menghapus
+                }
+            }
+        }
+    }
+}
+        
         function keluarkanItem(no, idx) {
-            const basket = currentBaskets()[no];
-            if (!basket) return;
-            const item = basket.items[idx];
-            if (confirm(`Keluarkan "${item.nama}" dari keranjang ${no}?`)) {
-                basket.items.splice(idx, 1);
-                logTransaction('out', { nama: item.nama, qty: item.qty, jenis: item.jenis, keranjang: no, section: basket.section });
-                saveToFirestore();
-                showToast('✅ Barang dikeluarkan');
-                showBasketDetail(no);
-            }
+    const basket = currentBaskets()[no];
+    if (!basket) return;
+    const item = basket.items[idx];
+    
+    if (confirm(`Keluarkan "${item.nama}" dari keranjang ${no}?`)) {
+        basket.items.splice(idx, 1);
+        
+        // ===== FITUR 3: Hapus nomor keranjang jika kosong =====
+        if (basket.items.length === 0) {
+            removeEmptyBasketNumber(no);
         }
-
+        // ====================================================
+        
+        logTransaction('out', { 
+            nama: item.nama, 
+            qty: item.qty, 
+            jenis: item.jenis, 
+            keranjang: no, 
+            section: basket.section 
+        });
+        
+        saveToFirestore();
+        showToast('✅ Barang dikeluarkan');
+        showBasketDetail(no);
+    }
+}
+        
         // ─── INPUT BARANG ───
        function renderInputForm() {
     const sectionOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
