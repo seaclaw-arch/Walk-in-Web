@@ -857,23 +857,37 @@
     <div class="card" style="padding:12px;">
         <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
         <div class="fp-room" style="background:#e8f4f8;">
-            <div class="frz-plan">
-                <div class="frz-body">
-                    <div class="frz-left">
-                        <div class="boxes-row">${getSecBoxes('IMP')}</div>
-                        <div class="spacer">— Area Kosong —</div>
-                        <div class="boxes-row">${getSecBoxes('RTL')}</div>
-                        <div class="boxes-row">${getSecBoxes('NPL')}</div>
-                        <div class="spacer">— Area Kosong —</div>
-                        <div class="frz-bot">
-                            <div class="boxes-row">${getSecBoxes('RDQ')}</div>
-                            <div class="boxes-row">${getSecBoxes('MTPP')}</div>
-                        </div>
-                    </div>
-                    <div class="frz-right">
-                        <div class="spacer-box">Area Kosong</div>
-                    </div>
-                </div>
+            <div style="display: grid; grid-template-columns: repeat(6, 110px); gap: 8px;">
+                <!-- Baris 1: IMP 01-05 + MI 01 -->
+                ${getSingleBarisBox('IMP', 'A', 0)}
+                ${getSingleBarisBox('IMP', 'B', 1)}
+                ${getSingleBarisBox('IMP', 'C', 2)}
+                ${getSingleBarisBox('IMP', 'D', 3)}
+                ${getSingleBarisBox('IMP', 'E', 4)}
+                ${getSingleBarisBox('MI', 'A', 0)}
+                
+                <!-- Baris 2: Kosong -->
+                <div style="grid-column: 1 / -1;" class="spacer">— Area Kosong —</div>
+                
+                <!-- Baris 3: RTL 01-03 + MI 02-03 + spacer -->
+                ${getSingleBarisBox('RTL', 'A', 0)}
+                ${getSingleBarisBox('RTL', 'B', 1)}
+                ${getSingleBarisBox('RTL', 'C', 2)}
+                ${getSingleBarisBox('MI', 'B', 1)}
+                ${getSingleBarisBox('MI', 'C', 2)}
+                <div class="spacer-box">Area Kosong</div>
+                
+                <!-- Baris 4: NPL 01-03 + spacer -->
+                ${getSingleBarisBox('NPL', 'A', 0)}
+                ${getSingleBarisBox('NPL', 'B', 1)}
+                ${getSingleBarisBox('NPL', 'C', 2)}
+                <div style="grid-column: 4 / -1;" class="spacer">— Area Kosong —</div>
+                
+                <!-- Baris 5: RDQ 01 + MTPP 01-02 + spacer -->
+                ${getSingleBarisBox('RDQ', 'A', 0)}
+                ${getSingleBarisBox('MTPP', 'A', 0)}
+                ${getSingleBarisBox('MTPP', 'B', 1)}
+                <div style="grid-column: 4 / -1;" class="spacer">— Area Kosong —</div>
             </div>
         </div>
         <div class="fp-legend">
@@ -886,6 +900,13 @@
     </div>`;
 }
 
+// Helper function untuk membuat single baris box
+function getSingleBarisBox(secName, baris, idx) {
+    const sections = currentSections();
+    const slots = sections[secName]?.[baris] || [null,null,null,null,null];
+    return buildBarisBox(secName, idx, slots);
+}
+       
         function renderChillerPlan() {
             const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
             const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
