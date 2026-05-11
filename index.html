@@ -1146,41 +1146,40 @@ function getSingleBarisBox(secName, baris, idx) {
             else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
             const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
             
-            return `<div class="item-row ${cls}">
-                <div style="flex:1;">
-                    <strong>${item.nama}</strong> (${item.qty})${lbl}
-                    <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
-                    ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
-                    ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
-                </div>
-                
-                <!-- ===== TOMBOL AKSI DENGAN IKON & TOOLTIP ===== -->
-                <div class="item-actions">
-                    <button class="action-btn move-btn" 
-                            data-tooltip="Pindah Barang"
-                            onclick="event.stopPropagation(); showBasketDetail(${no}, ${idx})"
-                            title="Pindahkan barang ini ke keranjang lain">
-                        <i class="fas fa-exchange-alt"></i>
-                    </button>
-                    
-                    <button class="action-btn edit-btn" 
-                            data-tooltip="Edit Est. Keluar"
-                            onclick="event.stopPropagation(); editEstOutDate(${no}, ${idx})"
-                            title="Edit estimasi tanggal keluar">
-                        <i class="fas fa-calendar-alt"></i>
-                    </button>
-                    
-                    <button class="action-btn out-btn" 
-                            data-tooltip="Keluarkan Barang"
-                            onclick="keluarkanItem(${no}, ${idx})"
-                            title="Keluarkan barang dari keranjang">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-                ${moveFormHtml}
-            </div>`;
-        }).join('') :
-        '<div class="empty-state">Keranjang kosong</div>';
+           // Di dalam item.map(), ubah bagian qty:
+return `<div class="item-row ${cls}">
+    <div style="flex:1;">
+        <strong>${item.nama}</strong> 
+        <span style="font-size:1rem; font-weight:700; color:var(--primary);">(${item.qty})</span>${lbl}
+        <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
+        ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
+        ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
+    </div>
+    
+    <div class="item-actions">
+        <button class="action-btn move-btn" 
+                data-tooltip="Pindah Barang"
+                onclick="event.stopPropagation(); showBasketDetail(${no}, ${idx})"
+                title="Pindahkan barang ini ke keranjang lain">
+            <i class="fas fa-exchange-alt"></i>
+        </button>
+        
+        <button class="action-btn edit-btn" 
+                data-tooltip="Edit Est. Keluar"
+                onclick="event.stopPropagation(); editEstOutDate(${no}, ${idx})"
+                title="Edit estimasi tanggal keluar">
+            <i class="fas fa-calendar-alt"></i>
+        </button>
+        
+        <button class="action-btn out-btn" 
+                data-tooltip="Keluarkan Barang"
+                onclick="keluarkanItem(${no}, ${idx})"
+                title="Keluarkan sebagian atau semua barang">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+    ${moveFormHtml}
+</div>`;
 
     container.innerHTML = `<div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1502,110 +1501,199 @@ function removeEmptyBasketNumber(keranjangNo) {
     }
 }
         
-        function keluarkanItem(no, idx) {
+      function keluarkanItem(no, idx) {
     const basket = currentBaskets()[no];
     if (!basket) return;
     const item = basket.items[idx];
     
-    if (confirm(`Keluarkan "${item.nama}" dari keranjang ${no}?`)) {
-        basket.items.splice(idx, 1);
-        
-        // ===== FITUR 3: Hapus nomor keranjang jika kosong =====
-        if (basket.items.length === 0) {
-            removeEmptyBasketNumber(no);
+    // Tampilkan prompt untuk input jumlah yang dikeluarkan
+    const qtyText = item.qty;
+    const qtyNumber = parseFloat(qtyText) || parseInt(qtyText) || 0;
+    
+    // Jika qty berupa angka, tampilkan opsi partial
+    if (!isNaN(qtyNumber) && qtyNumber > 1) {
+        // Tampilkan dialog custom untuk memilih jumlah
+        showPartialOutDialog(no, idx, item, qtyNumber);
+    } else if (qtyText.includes('/') || qtyText.includes('&') || qtyText.includes(',')) {
+        // Jika qty kompleks (misal: "3/5 pack"), tanya full out
+        if (confirm(`Keluarkan SEMUA "${item.nama}" (${item.qty}) dari keranjang ${no}?`)) {
+            executeFullOut(no, idx, item);
         }
-        // ====================================================
-        
-        logTransaction('out', { 
-            nama: item.nama, 
-            qty: item.qty, 
-            jenis: item.jenis, 
-            keranjang: no, 
-            section: basket.section 
-        });
-        
-        saveToFirestore();
-        showToast('✅ Barang dikeluarkan');
-        showBasketDetail(no);
+    } else {
+        // Jika qty 1 atau text biasa, langsung keluar semua
+        if (confirm(`Keluarkan "${item.nama}" (${item.qty}) dari keranjang ${no}?`)) {
+            executeFullOut(no, idx, item);
+        }
     }
 }
-        function showMoveBasketForm(fromNo) {
-    const basket = currentBaskets()[fromNo];
-    if (!basket) return;
-    
-    const sections = Object.keys(currentSections());
-    const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
-    
-    container.innerHTML = `<div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <div>
-                <h3 style="display:inline;">
-                    <i class="fas fa-truck" style="color:#8b5cf6;"></i> 
-                    Pindahkan Keranjang ${fromNo}
-                </h3>
-                <span class="move-type-badge basket-move" style="font-size:0.8rem;">📦 BESERTA ISI</span>
+
+// Fungsi untuk menampilkan dialog partial out
+function showPartialOutDialog(no, idx, item, totalQty) {
+    // Buat dialog HTML
+    const dialogHtml = `
+    <div id="partialOutOverlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:300; display:flex; align-items:center; justify-content:center;" onclick="closePartialOutDialog()">
+        <div class="card" style="width:90%; max-width:400px; position:relative;" onclick="event.stopPropagation();">
+            <h3 style="margin-bottom:12px;">📤 Keluarkan Sebagian</h3>
+            
+            <div style="background:#f0f4ff; border-radius:8px; padding:12px; margin-bottom:16px;">
+                <strong>${item.nama}</strong>
+                <br>Jenis: ${item.jenis || '-'}
+                <br>Total tersedia: <strong>${totalQty}</strong>
+                ${item.expDate ? `<br>Exp: ${new Date(item.expDate).toLocaleDateString('id-ID')}` : ''}
             </div>
-            <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${fromNo})">
-                <i class="fas fa-arrow-left"></i> Kembali
+            
+            <div class="form-group">
+                <label>Jumlah yang dikeluarkan:</label>
+                <input type="number" id="partialOutQty" 
+                       min="1" max="${totalQty}" 
+                       placeholder="Masukkan jumlah" 
+                       style="font-size:1.2rem; font-weight:bold; text-align:center;"
+                       oninput="validatePartialOutQty(${totalQty})"
+                       onkeypress="if(event.key==='Enter') executePartialOut(${no}, ${idx}, '${item.nama.replace(/'/g, "\\'")}', ${totalQty}, '${item.jenis?.replace(/'/g, "\\'") || ''}')">
+                <small id="partialOutWarning" style="display:block; margin-top:4px;"></small>
+            </div>
+            
+            <div style="display:flex; gap:8px; margin-top:16px;">
+                <button class="btn btn-outline" style="flex:1;" onclick="closePartialOutDialog()">
+                    Batal
+                </button>
+                <button class="btn" style="flex:1; background:#ef4444; color:white;" onclick="executePartialOut(${no}, ${idx}, '${item.nama.replace(/'/g, "\\'")}', ${totalQty}, '${item.jenis?.replace(/'/g, "\\'") || ''}')">
+                    <i class="fas fa-sign-out-alt"></i> Keluarkan
+                </button>
+            </div>
+            
+            <button class="btn btn-outline" style="width:100%; margin-top:8px; color:#ef4444; border-color:#ef4444;" onclick="executeFullOutFromDialog(${no}, ${idx})">
+                Atau keluarkan SEMUA (${totalQty})
             </button>
         </div>
-        
-        <div style="background:linear-gradient(135deg, #ede9fe, #f5f3ff); border:2px solid #8b5cf6; border-radius:12px; padding:16px; margin-bottom:16px;">
-            <div style="display:flex; gap:12px; align-items:center;">
-                <i class="fas fa-info-circle" style="font-size:2rem; color:#7c3aed;"></i>
-                <div>
-                    <strong style="color:#5b21b6;">⚠️ Perhatian! Ini berbeda dengan "Pindah Barang"</strong>
-                    <br><small style="color:#64748b;">
-                        • <strong>Pindah Keranjang</strong>: Memindahkan SELURUH isi keranjang (${basket.items.length} item) ke lokasi baru<br>
-                        • <strong>Pindah Barang</strong>: Hanya memindahkan SATU barang ke keranjang lain
-                    </small>
-                </div>
-            </div>
-        </div>
-        
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px; margin-bottom:16px;">
-            <strong>📍 Lokasi Saat Ini:</strong>
-            <br>Keranjang ${fromNo} berada di <strong>${basket.section}</strong> Baris <strong>${basket.baris}</strong> Slot <strong>${basket.slot}</strong>
-            <br>Jumlah item: <strong>${basket.items.length}/5</strong>
-        </div>
-        
-        <div style="border-left: 4px solid #8b5cf6; padding-left: 12px; margin-bottom:16px;">
-            <strong style="color:#5b21b6;">Pilih Lokasi Tujuan:</strong>
-        </div>
-        
-        <div class="form-group">
-            <label><i class="fas fa-building"></i> Section Tujuan</label>
-            <select id="moveBasketSection" onchange="updateMoveBasketBaris()">
-                <option value="">-- Pilih Section --</option>
-                ${sectionOpts}
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label><i class="fas fa-grip-lines"></i> Baris Tujuan</label>
-            <select id="moveBasketBaris" onchange="updateMoveBasketSlot()">
-                <option value="">-- Pilih Baris --</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label><i class="fas fa-th"></i> Slot Tujuan (1-5)</label>
-            <select id="moveBasketSlot">
-                <option value="">-- Pilih Slot --</option>
-            </select>
-        </div>
-        
-        <div id="moveBasketInfo" style="margin-bottom:16px;"></div>
-        
-        <button class="btn" style="width:100%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color:white; font-size:1rem; padding:14px;" 
-                onclick="executeMoveBasket(${fromNo})">
-            <i class="fas fa-truck"></i> Pindahkan Seluruh Keranjang ${fromNo}
-        </button>
-        
-        <button class="btn btn-outline" style="width:100%; margin-top:8px;" onclick="showBasketDetail(${fromNo})">
-            <i class="fas fa-times"></i> Batal
-        </button>
     </div>`;
+    
+    // Tambahkan dialog ke body
+    const dialogContainer = document.createElement('div');
+    dialogContainer.id = 'partialOutDialog';
+    dialogContainer.innerHTML = dialogHtml;
+    document.body.appendChild(dialogContainer);
+    
+    // Focus ke input
+    setTimeout(() => {
+        document.getElementById('partialOutQty')?.focus();
+    }, 100);
+}
+
+// Fungsi validasi input partial out
+function validatePartialOutQty(maxQty) {
+    const input = document.getElementById('partialOutQty');
+    const warning = document.getElementById('partialOutWarning');
+    const value = parseInt(input?.value);
+    
+    if (!input || !warning) return;
+    
+    if (!value || isNaN(value) || value <= 0) {
+        warning.innerHTML = '⚠️ Masukkan jumlah yang valid';
+        warning.style.color = '#f59e0b';
+        input.style.borderColor = '#f59e0b';
+    } else if (value > maxQty) {
+        warning.innerHTML = `❌ Maksimal ${maxQty}`;
+        warning.style.color = '#ef4444';
+        input.style.borderColor = '#ef4444';
+        input.value = maxQty;
+    } else if (value === maxQty) {
+        warning.innerHTML = `⚠️ Ini akan mengeluarkan SEMUA (${maxQty})`;
+        warning.style.color = '#f59e0b';
+        input.style.borderColor = '#f59e0b';
+    } else {
+        warning.innerHTML = `✅ Akan tersisa ${maxQty - value}`;
+        warning.style.color = '#10b981';
+        input.style.borderColor = '#10b981';
+    }
+}
+
+// Fungsi eksekusi partial out
+function executePartialOut(no, idx, nama, totalQty, jenis) {
+    const qtyOut = parseInt(document.getElementById('partialOutQty')?.value);
+    
+    if (!qtyOut || qtyOut <= 0) {
+        return showToast('❌ Masukkan jumlah yang valid!');
+    }
+    
+    if (qtyOut > totalQty) {
+        return showToast(`❌ Maksimal ${totalQty}!`);
+    }
+    
+    const basket = currentBaskets()[no];
+    if (!basket || !basket.items[idx]) return;
+    
+    const item = basket.items[idx];
+    const sisa = totalQty - qtyOut;
+    
+    if (sisa <= 0) {
+        // Jika habis, hapus item
+        executeFullOutFromDialog(no, idx);
+        closePartialOutDialog();
+        return;
+    }
+    
+    // Update qty item menjadi sisa
+    item.qty = sisa.toString();
+    
+    // Log transaksi out partial
+    logTransaction('out', {
+        nama: nama,
+        qty: `${qtyOut} dari ${totalQty} (sisa ${sisa})`,
+        jenis: jenis,
+        keranjang: no,
+        section: basket.section,
+        partial: true
+    });
+    
+    saveToFirestore();
+    closePartialOutDialog();
+    showToast(`✅ ${qtyOut} ${nama} dikeluarkan. Sisa: ${sisa}`);
+    showBasketDetail(no);
+}
+
+// Fungsi eksekusi full out
+function executeFullOut(no, idx, item) {
+    const basket = currentBaskets()[no];
+    if (!basket) return;
+    
+    basket.items.splice(idx, 1);
+    
+    // Hapus nomor keranjang jika kosong
+    if (basket.items.length === 0) {
+        removeEmptyBasketNumber(no);
+    }
+    
+    logTransaction('out', {
+        nama: item.nama,
+        qty: item.qty,
+        jenis: item.jenis,
+        keranjang: no,
+        section: basket.section
+    });
+    
+    saveToFirestore();
+    showToast(`✅ ${item.nama} dikeluarkan`);
+    showBasketDetail(no);
+}
+
+// Fungsi full out dari dialog
+function executeFullOutFromDialog(no, idx) {
+    const basket = currentBaskets()[no];
+    if (!basket || !basket.items[idx]) return;
+    
+    const item = basket.items[idx];
+    executeFullOut(no, idx, item);
+    closePartialOutDialog();
+}
+
+// Fungsi untuk menutup dialog
+function closePartialOutDialog() {
+    const dialog = document.getElementById('partialOutDialog');
+    if (dialog) dialog.remove();
+    
+    const overlay = document.getElementById('partialOutOverlay');
+    if (overlay) overlay.remove();
 }
 
 function updateMoveBasketBaris() {
@@ -1751,15 +1839,12 @@ function updateMoveBasketSlot() {
             <div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option value="">-- Pilih Slot --</option></select></div>
             
             <div class="form-group">
-                <label>Nomor Keranjang Baru</label>
-                <input type="number" id="inKeranjangManual" 
-                       placeholder="⚠️ Pilih slot dulu" 
-                       min="1"
-                       style="transition: all 0.3s;">
-                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
-                    💡 Isi hanya jika slot kosong. Jika sudah ada nomor, akan otomatis terisi
-                </small>
-            </div>
+    <label>Jumlah</label>
+    <input type="text" id="inQty" placeholder="Contoh: 10 atau 3 Pack" required>
+    <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
+        💡 Bisa diisi angka (10) atau teks (3 Pack, 5 Kg, dll). Support keluar partial untuk angka.
+    </small>
+</div>
             
             <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
         </form></div>`;
@@ -2147,7 +2232,7 @@ function updateMoveBasketSlot() {
                     <small style="color:#64748b;">${new Date(t.timestamp).toLocaleString('id-ID')}</small>
                 </div>
                 <strong>${detail.nama||'-'}</strong> — ${detail.qty||'-'} (${detail.jenis||'-'})
-                <br><small style="color:#64748b;">${extraInfo} | User: ${t.user}</small>
+${detail.partial ? '<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</small>' : ''}
             </div>
         </div>`;
     }).join('');
