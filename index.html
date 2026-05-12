@@ -1265,7 +1265,7 @@ function getSingleBarisBox(secName, baris) {
         }
 
         // ─── DETAIL KERANJANG + PINDAH + KELUAR + EDIT ESTIMASI ───
-      function showBasketDetail(no, moveItemIdx = null) {
+     function showBasketDetail(no, moveItemIdx = null) {
     const basket = currentBaskets()[no];
     const count = itemCount(no);
     const now = new Date();
@@ -1326,11 +1326,18 @@ function getSingleBarisBox(secName, baris) {
                     <i class="fas fa-arrow-left"></i> Denah
                 </button>
                 
+                <!-- ===== TOMBOL TAMBAH BARANG ===== -->
+                <button class="btn btn-sm" style="background:#10b981; color:white;" 
+                        onclick="quickAddToBasket(${no})"
+                        title="Tambah barang langsung ke keranjang ini">
+                    <i class="fas fa-plus"></i> Tambah Barang
+                </button>
+                
+                <!-- ===== TOMBOL PINDAH KERANJANG ===== -->
                 <button class="basket-move-btn" 
                         onclick="showMoveBasketForm(${no})"
                         title="Pindahkan seluruh keranjang beserta isinya ke lokasi lain">
                     <i class="fas fa-truck"></i> Pindah Keranjang
-                    <span class="move-type-badge basket-move">📦 SEMUA ISI</span>
                 </button>
             </div>
         </div>
@@ -1338,14 +1345,195 @@ function getSingleBarisBox(secName, baris) {
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <p style="margin:0;">Total item: <strong>${count}/5</strong></p>
             <div style="display:flex; gap:12px; font-size:0.7rem; color:#64748b;">
-                <span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> = Pindah Barang</span>
-                <span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> = Keluarkan</span>
+                <span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> = Pindah</span>
+                <span><i class="fas fa-calendar-alt" style="color:#f59e0b;"></i> = Est</span>
+                <span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> = Keluar</span>
             </div>
         </div>
         
         ${itemsHtml}
     </div>`;
 }
+        
+        ${itemsHtml}
+    </div>`;
+}
+        // Fungsi quick add - langsung isi section, baris, slot
+function quickAddToBasket(no) {
+    const basket = currentBaskets()[no];
+    if (!basket) return showToast('Keranjang tidak ditemukan!');
+    
+    const count = itemCount(no);
+    if (count >= 5) return showToast('❌ Keranjang sudah penuh (5/5)!');
+    
+    // Simpan data keranjang tujuan
+    window._quickAddTarget = {
+        no: no,
+        section: basket.section,
+        baris: basket.baris,
+        slot: basket.slot
+    };
+    
+    // Pindah ke tab input
+    currentTab = 'in';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const inTab = document.querySelector('.tab-btn[data-tab="in"]');
+    if (inTab) inTab.classList.add('active');
+    
+    // Render form input dengan data terisi
+    renderQuickAddForm();
+}
+
+// Form input khusus untuk quick add
+function renderQuickAddForm() {
+    const target = window._quickAddTarget;
+    if (!target) return renderInputForm();
+    
+    container.innerHTML = `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3>📥 Tambah Barang ke Keranjang ${target.no}</h3>
+            <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${target.no})">
+                ← Kembali
+            </button>
+        </div>
+        
+        <div style="background:#ecfdf5; border:1px solid #10b981; border-radius:8px; padding:12px; margin-bottom:16px;">
+            <strong>📍 Tujuan:</strong> ${target.section} Baris ${target.baris} Slot ${target.slot} (Keranjang ${target.no})
+            <br>Terisi: <strong>${itemCount(target.no)}/5</strong>
+        </div>
+        
+        <form id="inForm" onsubmit="submitQuickAdd(event)">
+            <div class="form-group">
+                <label>Nama Barang</label>
+                <input type="text" id="inNama" list="namaList" required>
+                <datalist id="namaList"></datalist>
+            </div>
+            
+            <div class="form-group">
+                <label>Jumlah</label>
+                <input type="text" id="inQty" placeholder="Contoh: 10 atau 3 Pack" required>
+                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
+                    💡 Bisa diisi angka (10) atau teks (3 Pack, 5 Kg, dll)
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label>Jenis</label>
+                <select id="inJenis">
+                    <option value="IIP">IIP</option>
+                    <option value="RM">RM</option>
+                    <option value="TH">TH</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Tanggal Exp (wajib)</label>
+                <input type="date" id="inExpDate" required onchange="validateQuickEstOut()">
+            </div>
+            
+            <div class="form-group">
+                <label>Estimasi Keluar (wajib)</label>
+                <input type="date" id="inEstOutDate" required onchange="validateQuickEstOut()">
+                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
+                    ⚠️ Tidak boleh lebih dari Tanggal Exp
+                </small>
+                <small id="estOutWarning" style="display:block; margin-top:4px;"></small>
+            </div>
+            
+            <input type="hidden" id="inSection" value="${target.section}">
+            <input type="hidden" id="inBaris" value="${target.baris}">
+            <input type="hidden" id="inSlot" value="${target.slot}">
+            <input type="hidden" id="inKeranjangManual" value="${target.no}">
+            
+            <button type="submit" class="btn btn-primary" style="width:100%; background:#10b981;">
+                <i class="fas fa-plus"></i> Tambah ke Keranjang ${target.no}
+            </button>
+        </form>
+    </div>`;
+    
+    updateNamaDatalist();
+}
+
+// Validasi est out untuk quick add
+function validateQuickEstOut() {
+    const expDate = document.getElementById('inExpDate')?.value;
+    const estOutDate = document.getElementById('inEstOutDate')?.value;
+    const estOutInput = document.getElementById('inEstOutDate');
+    const warning = document.getElementById('estOutWarning');
+    
+    if (!expDate || !estOutDate || !warning) return;
+    
+    const expDateObj = new Date(expDate);
+    const estOutDateObj = new Date(estOutDate);
+    
+    if (estOutDateObj > expDateObj) {
+        warning.innerHTML = '❌ Tidak boleh lebih dari Tanggal Exp!';
+        warning.style.color = '#ef4444';
+        estOutInput.style.borderColor = '#ef4444';
+    } else {
+        warning.innerHTML = '✅ Valid';
+        warning.style.color = '#10b981';
+        estOutInput.style.borderColor = '#10b981';
+    }
+}
+
+// Submit quick add
+function submitQuickAdd(e) {
+    e.preventDefault();
+    const target = window._quickAddTarget;
+    if (!target) return showToast('Data keranjang hilang. Silakan coba lagi.');
+    
+    const nama = document.getElementById('inNama').value.trim();
+    const qty = document.getElementById('inQty').value.trim();
+    const jenis = document.getElementById('inJenis').value;
+    const expDate = document.getElementById('inExpDate').value;
+    const estOutDate = document.getElementById('inEstOutDate').value;
+    
+    if (!nama || !qty) return showToast('Lengkapi data!');
+    if (!expDate) return showToast('Tanggal Exp wajib diisi.');
+    if (!estOutDate) return showToast('Estimasi Keluar wajib diisi.');
+    
+    // Validasi est out
+    if (new Date(estOutDate) > new Date(expDate)) {
+        return showToast('❌ Estimasi Keluar tidak boleh lebih dari Tanggal Exp!');
+    }
+    
+    // Validasi keranjang tidak penuh
+    if (itemCount(target.no) >= 5) {
+        return showToast('❌ Keranjang sudah penuh (5/5)!');
+    }
+    
+    // Tambahkan item
+    if (!currentBaskets()[target.no]) {
+        currentBaskets()[target.no] = { 
+            section: target.section, 
+            baris: target.baris, 
+            slot: target.slot, 
+            items: [] 
+        };
+    }
+    
+    const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
+    if (expDate) item.expDate = expDate;
+    if (estOutDate) item.estOutDate = estOutDate;
+    
+    currentBaskets()[target.no].items.push(item);
+    
+    logTransaction('in', { 
+        nama, qty, jenis, 
+        keranjang: target.no, 
+        section: target.section, 
+        baris: target.baris, 
+        expDate, estOutDate 
+    });
+    
+    saveToFirestore();
+    showToast(`✅ ${nama} berhasil ditambahkan ke keranjang ${target.no}`);
+    
+    // Kembali ke detail keranjang
+    setTimeout(() => showBasketDetail(target.no), 300);
+}
+        
         // Fungsi baru: edit estimasi tanggal keluar
         function editEstOutDate(no, idx) {
             const basket = currentBaskets()[no];
