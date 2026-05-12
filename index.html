@@ -9,28 +9,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        /* === SAMA SEPERTI SEBELUMNYA === */
         :root {
-            --bg: #f0f4f8;
-            --card: #fff;
-            --text: #1e293b;
-            --primary: #2563eb;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --orange: #f97316;
-            --shadow: 0 4px 12px rgba(0,0,0,0.05);
-            --radius: 20px;
-            --move-color: #8b5cf6;
-            --in-color: #10b981;
-            --out-color: #ef4444;
+            --bg: #f0f4f8; --card: #fff; --text: #1e293b; --primary: #2563eb;
+            --danger: #ef4444; --warning: #f59e0b; --success: #10b981; --orange: #f97316;
+            --shadow: 0 4px 12px rgba(0,0,0,0.05); --radius: 20px;
+            --move-color: #8b5cf6; --in-color: #10b981; --out-color: #ef4444;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family:'Segoe UI', system-ui;
             background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
-            color: var(--text);
-            min-height: 100vh;
+            color: var(--text); min-height: 100vh;
             display: flex; flex-direction: column; align-items: center;
         }
         .header {
@@ -41,9 +30,7 @@
         }
         .header h2 { font-size:1.2rem; font-weight:700; }
         .area-selector { display:flex; align-items:center; gap:8px; }
-        .area-selector select {
-            padding:8px 12px; border-radius:12px; border:1px solid #cbd5e1; font-weight:600;
-        }
+        .area-selector select { padding:8px 12px; border-radius:12px; border:1px solid #cbd5e1; font-weight:600; }
         .user-row { display:flex; align-items:center; gap:6px; }
         .tab-bar {
             display:flex; width:100%; background: rgba(255,255,255,0.7);
@@ -55,28 +42,17 @@
             font-size:0.82rem; white-space:nowrap;
         }
         .tab-btn.active { background:var(--primary); color:white; box-shadow:0 4px 12px rgba(37,99,235,0.3); }
-        .container {
-            width:100%; max-width:780px; padding:16px; display:flex; flex-direction:column; gap:16px; margin-bottom:20px;
-        }
+        .container { width:100%; max-width:780px; padding:16px; display:flex; flex-direction:column; gap:16px; margin-bottom:20px; }
         .card { background:var(--card); border-radius:var(--radius); padding:18px 16px; box-shadow:var(--shadow); }
         .form-group { margin-bottom:14px; }
         label { font-weight:600; font-size:0.8rem; display:block; margin-bottom:4px; }
-        input, select {
-            width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:14px;
-            font-size:0.95rem; background:#f8fafc;
-        }
-        .btn {
-            padding:12px 18px; border-radius:14px; border:none; font-weight:600; cursor:pointer;
-            display:inline-flex; align-items:center; gap:6px; font-size:0.9rem;
-        }
+        input, select { width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:14px; font-size:0.95rem; background:#f8fafc; }
+        .btn { padding:12px 18px; border-radius:14px; border:none; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; }
         .btn-primary { background:var(--primary); color:white; }
         .btn-danger { background:var(--danger); color:white; }
         .btn-outline { background:transparent; border:1px solid #cbd5e1; }
         .btn-sm { padding:6px 12px; font-size:0.75rem; }
-        .item-row {
-            display:flex; justify-content:space-between; align-items:center;
-            padding:10px; background:#f1f5f9; border-radius:12px; margin-bottom:6px;
-        }
+        .item-row { display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f1f5f9; border-radius:12px; margin-bottom:6px; }
         .item-row.expired { background:#fee2e2; border:1px solid #ef4444; }
         .empty-state { color:#94a3b8; text-align:center; padding:20px; }
         .toast {
@@ -85,19 +61,10 @@
             transition:0.3s; z-index:200;
         }
         .toast.show { opacity:1; transform:translateY(0); }
-        .chip {
-            background:#e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.85rem;
-            display:inline-flex; align-items:center; gap:6px; margin:2px;
-        }
-        .baris-label {
-            font-size:0.75rem; font-weight:700; color:#475569; margin-top:10px; margin-bottom:4px;
-            background:#e2e8f0; display:inline-block; padding:2px 10px; border-radius:20px;
-        }
+        .chip { background:#e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; margin:2px; }
+        .baris-label { font-size:0.75rem; font-weight:700; color:#475569; margin-top:10px; margin-bottom:4px; background:#e2e8f0; display:inline-block; padding:2px 10px; border-radius:20px; }
         .rekap-tabs { display:flex; gap:8px; margin-bottom:16px; }
-        .rekap-tab {
-            padding:8px 20px; border-radius:20px; border:1px solid #cbd5e1; background:#f8fafc;
-            font-weight:600; cursor:pointer; font-size:0.85rem;
-        }
+        .rekap-tab { padding:8px 20px; border-radius:20px; border:1px solid #cbd5e1; background:#f8fafc; font-weight:600; cursor:pointer; font-size:0.85rem; }
         .rekap-tab.active { background:var(--primary); color:white; border-color:var(--primary); }
         .rekap-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
         .rekap-table th { background:#1e3a5f; color:white; padding:10px 8px; text-align:left; }
@@ -106,37 +73,17 @@
         .stat-box { background:#f0f4ff; border-radius:14px; padding:14px; text-align:center; }
         .stat-box .val { font-size:1.8rem; font-weight:800; color:var(--primary); }
         .stat-box .lbl { font-size:0.75rem; color:#64748b; }
-        .stat-box.out { background:#fff0f0; }
-        .stat-box.out .val { color:var(--danger); }
-        .section-badge {
-            background:#dbeafe; color:#1d4ed8; border-radius:20px; padding:2px 8px;
-            font-size:0.75rem; font-weight:600; margin:2px; display:inline-block;
-        }
+        .stat-box.out { background:#fff0f0; } .stat-box.out .val { color:var(--danger); }
+        .section-badge { background:#dbeafe; color:#1d4ed8; border-radius:20px; padding:2px 8px; font-size:0.75rem; font-weight:600; margin:2px; display:inline-block; }
         .filter-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
         .filter-row select { width:auto; padding:8px 12px; font-size:0.85rem; }
-        .reset-btn {
-            background:#fee2e2; color:#ef4444; border:2px solid #ef4444; padding:10px 20px;
-            border-radius:14px; cursor:pointer; font-weight:600; margin-top:20px; width:100%;
-        }
-        .google-btn {
-            background:#fff; color:#333; border:1px solid #ddd; display:flex; align-items:center;
-            justify-content:center; gap:8px; padding:12px; border-radius:12px; cursor:pointer;
-            font-weight:500; margin-top:10px; width:100%;
-        }
-
-        /* Denah - kotak tidak persegi, cukup tinggi untuk 5 slot */
+        .reset-btn { background:#fee2e2; color:#ef4444; border:2px solid #ef4444; padding:10px 20px; border-radius:14px; cursor:pointer; font-weight:600; margin-top:20px; width:100%; }
+        .google-btn { background:#fff; color:#333; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px; cursor:pointer; font-weight:500; margin-top:10px; width:100%; }
         .fp-room { border:3px solid #1e293b; border-radius:10px; padding:10px; overflow-x:auto; }
         .fp-room-title { font-weight:800; font-size:0.95rem; color:#1e293b; margin-bottom:10px; text-align:center; }
         .fp-legend { display:flex; gap:16px; flex-wrap:wrap; padding:8px 4px; font-size:0.8rem; font-weight:600; margin-top:10px; }
-
-        .baris-box {
-            width:110px; height:175px; background:#fde68a; border:2.5px solid #d97706;
-            border-radius:10px; padding:5px; display:flex; flex-direction:column; flex-shrink:0;
-        }
-        .baris-box-lbl {
-            font-size:0.6rem; font-weight:800; color:#92400e; text-align:center; line-height:1.2;
-            margin-bottom:3px; white-space:nowrap; overflow:hidden;
-        }
+        .baris-box { width:110px; height:175px; background:#fde68a; border:2.5px solid #d97706; border-radius:10px; padding:5px; display:flex; flex-direction:column; flex-shrink:0; }
+        .baris-box-lbl { font-size:0.6rem; font-weight:800; color:#92400e; text-align:center; line-height:1.2; margin-bottom:3px; white-space:nowrap; overflow:hidden; }
         .baris-slots { display:flex; flex-direction:column-reverse; gap:1px; flex:1; min-height:0; }
         .basket-slot {
             flex:1; min-height:0; border-radius:5px; background:#fff; border:1.5px solid #cbd5e1;
@@ -145,428 +92,72 @@
         }
         .basket-slot:active { transform:scale(0.95); }
         .basket-slot.green { border-color:var(--success); background:#ecfdf5; }
-        .basket-slot.orange {
-            border-color:var(--orange); background:#fff7ed; animation:softPulse 1.8s infinite;
-        }
-        .basket-slot.red {
-            border-color:var(--danger); background:#fef2f2; animation:strongPulse 0.9s infinite;
-        }
+        .basket-slot.yellow { border-color:#f59e0b; background:#fffbeb; animation:softPulseYellow 1.8s infinite; }
+        .basket-slot.red { border-color:var(--danger); background:#fef2f2; animation:strongPulse 0.9s infinite; }
         .basket-slot.slot-empty { background:#f8fafc; border:1.5px dashed #d1d5db; cursor:default; }
         .slot-num { font-weight:800; font-size:0.6rem; line-height:1; color:#1e293b; }
         .slot-count { font-size:0.5rem; color:#64748b; }
-        .slot-alert {
-            position:absolute; top:-3px; right:-3px; background:var(--danger); color:white;
-            border-radius:50%; width:11px; height:11px; display:flex; align-items:center;
-            justify-content:center; font-size:0.4rem; font-weight:bold; z-index:5;
-        }
-
         .baris-box.stock-box { background:#e0e7ff; border-color:#6366f1; justify-content:center; align-items:center; gap:4px; width:110px; height:175px; }
         .baris-box.stock-box .baris-box-lbl { color:#4338ca; font-size:0.58rem; white-space:normal; text-align:center; line-height:1.3; margin:0; }
         .stock-icon { font-size:1.8rem; }
-
-        .spacer {
-            min-height:40px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db;
-            border-radius:8px; display:flex; align-items:center; justify-content:center;
-            color:#c8d3df; font-size:0.75rem; flex:1;
-        }
-        .spacer-box {
-            width:110px; height:175px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db;
-            border-radius:10px; display:flex; align-items:center; justify-content:center;
-            color:#c8d3df; font-size:0.85rem; flex-shrink:0;
-        }
-
-        .frz-plan { display:flex; flex-direction:column; gap:8px; min-width:820px; }
-        .frz-body { display:flex; gap:0px; align-items:flex-start; }
-        .frz-left { display:flex; flex-direction:column; gap:8px; flex:1; }
-        .frz-right { display:flex; flex-direction:column; gap:8px; flex-shrink:0; margin-left: -20px; }
-        .frz-bot { display:flex; gap:8px; align-items:flex-start; }
-        .boxes-row { display:flex; gap:8px; }
-
+        .spacer { min-height:40px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.75rem; flex:1; }
+        .spacer-box { width:110px; height:175px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.85rem; flex-shrink:0; }
         .chl-plan { display:flex; flex-direction:column; gap:8px; min-width:840px; }
         .chl-top { display:flex; gap:8px; align-items:flex-start; }
-        .chl-space {
-            min-height:80px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db;
-            border-radius:8px; display:flex; align-items:center; justify-content:center;
-            color:#c8d3df; font-size:0.75rem;
-        }
+        .chl-space { min-height:80px; background:rgba(255,255,255,0.4); border:1px dashed #d1d5db; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#c8d3df; font-size:0.75rem; }
         .chl-bot { display:flex; gap:8px; flex-wrap:wrap; }
-
-        .move-form {
-            background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px;
-            padding:8px; margin-top:6px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;
-        }
+        .move-form { background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:8px; margin-top:6px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
         .move-form select { width:auto; padding:6px; }
-
-        /* Riwayat - badge warna */
-        .history-item {
-            display:flex; align-items:flex-start; gap:10px; padding:12px; border-radius:12px;
-            margin-bottom:6px; font-size:0.85rem;
-        }
+        .history-item { display:flex; align-items:flex-start; gap:10px; padding:12px; border-radius:12px; margin-bottom:6px; font-size:0.85rem; }
         .history-item.type-in { background:#ecfdf5; border-left:6px solid var(--in-color); }
         .history-item.type-out { background:#fef2f2; border-left:6px solid var(--out-color); }
         .history-item.type-move { background:#f5f3ff; border-left:6px solid var(--move-color); }
         .history-item.type-edit { background:#fffbeb; border-left:6px solid var(--warning); }
-        .history-badge {
-            display:inline-block; padding:3px 8px; border-radius:12px; font-weight:700;
-            font-size:0.7rem; letter-spacing:0.5px;
-        }
-        .badge-in { background:#d1fae5; color:#065f46; }
-        .badge-out { background:#fee2e2; color:#991b1b; }
-        .badge-move { background:#ede9fe; color:#5b21b6; }
-        .badge-edit { background:#fef3c7; color:#92400e; }
-
-        /* Search Styles */
-        .search-container {
-            background: white;
-            border-radius: var(--radius);
-            padding: 16px;
-            box-shadow: var(--shadow);
-        }
-        .search-input-wrapper {
-            position: relative;
-            margin-bottom: 16px;
-        }
-        .search-input-wrapper input {
-            padding-right: 50px;
-            font-size: 1rem;
-        }
-        .search-input-wrapper .search-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-        .search-result-item {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 8px;
-            transition: all 0.2s;
-        }
-        .search-result-item:hover {
-            border-color: var(--primary);
-            box-shadow: 0 2px 8px rgba(37,99,235,0.1);
-        }
-        .search-result-item.current {
-            border-left: 4px solid var(--success);
-            background: #f0fdf4;
-        }
-        .search-result-item.out {
-            border-left: 4px solid var(--danger);
-            background: #fef2f2;
-            opacity: 0.8;
-        }
-        .search-result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-        .search-result-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-        .badge-current {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .badge-out {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .search-highlight {
-            background: #fef3c7;
-            padding: 1px 3px;
-            border-radius: 3px;
-            font-weight: 600;
-        }
-        .search-stats {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-            padding: 12px;
-            background: #f0f4ff;
-            border-radius: 12px;
-        }
-        .search-stat {
-            text-align: center;
-            flex: 1;
-        }
-        .search-stat .count {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-        .search-stat .label {
-            font-size: 0.7rem;
-            color: #64748b;
-        }
-        .area-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-right: 4px;
-        }
-        .area-frozen {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .area-chiller {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        @keyframes softPulse {
-            0% { box-shadow:0 0 0 0 rgba(249,115,22,0.3) }
-            50% { box-shadow:0 0 0 5px rgba(249,115,22,0.1) }
-            100% { box-shadow:0 0 0 0 rgba(249,115,22,0.3) }
-        }
-        @keyframes strongPulse {
-            0% { box-shadow:0 0 0 0 rgba(239,68,68,0.5) }
-            50% { box-shadow:0 0 0 7px rgba(239,68,68,0.15) }
-            100% { box-shadow:0 0 0 0 rgba(239,68,68,0.5) }
-        }
-        /* Tambahan CSS untuk peringatan */
-.input-warning {
-    border-color: #ef4444 !important;
-    background: #fef2f2 !important;
-    animation: shake 0.5s;
-}
-
-.input-success {
-    border-color: #10b981 !important;
-    background: #f0fdf4 !important;
-}
-
-.warning-message {
-    color: #ef4444;
-    font-size: 0.75rem;
-    margin-top: 4px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.success-message {
-    color: #10b981;
-    font-size: 0.75rem;
-    margin-top: 4px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.duplicate-info {
-    background: #fef2f2;
-    border: 1px solid #ef4444;
-    border-radius: 8px;
-    padding: 8px 12px;
-    margin-top: 8px;
-    font-size: 0.8rem;
-    color: #991b1b;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-}
-        /* Style untuk tombol aksi di item */
-.item-actions {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-}
-
-.action-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: 1px solid #cbd5e1;
-    background: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    position: relative;
-}
-
-.action-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.action-btn.move-btn {
-    color: #8b5cf6;
-    border-color: #cbd5e1;
-}
-
-.action-btn.move-btn:hover {
-    background: #f5f3ff;
-    border-color: #8b5cf6;
-}
-
-.action-btn.edit-btn {
-    color: #f59e0b;
-    border-color: #cbd5e1;
-}
-
-.action-btn.edit-btn:hover {
-    background: #fffbeb;
-    border-color: #f59e0b;
-}
-
-.action-btn.out-btn {
-    color: #ef4444;
-    border-color: #cbd5e1;
-}
-
-.action-btn.out-btn:hover {
-    background: #fef2f2;
-    border-color: #ef4444;
-}
-
-/* Tooltip untuk tombol aksi */
-.action-btn::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1e293b;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.65rem;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    margin-bottom: 4px;
-}
-
-.action-btn:hover::after {
-    opacity: 1;
-}
-
-/* Style untuk tombol pindah keranjang di header */
-.basket-move-btn {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
-}
-
-.basket-move-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-}
-
-.basket-move-btn i {
-    font-size: 1rem;
-}
-
-/* Badge untuk membedakan tipe pemindahan */
-.move-type-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 8px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    margin-left: 6px;
-}
-
-.move-type-badge.basket-move {
-    background: #ede9fe;
-    color: #5b21b6;
-}
-
-.move-type-badge.item-move {
-    background: #f5f3ff;
-    color: #7c3aed;
-}
-
-        .move-type-badge.item-move {
-            background: #f5f3ff;
-            color: #7c3aed;
-        }
-
-        /* ========== TAMBAHKAN CSS BARU DI SINI ========== */
-        
-        /* Container untuk ikon-ikon status di pojok kanan atas */
-        .slot-status-icons {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            display: flex;
-            flex-direction: row-reverse;
-            gap: 1px;
-            z-index: 5;
-        }
-
-        .status-icon {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.4rem;
-            color: white;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-
-        /* Warna background spesifik */
-        .status-icon.full {
-            background: rgba(245, 158, 11, 0.9);
-            border: 1.5px solid #d97706;
-        }
-
-        .status-icon.expired {
-            background: rgba(239, 68, 68, 0.9);
-            border: 1.5px solid #dc2626;
-        }
-
-        .status-icon.est-lewat {
-            background: rgba(249, 115, 22, 0.9);
-            border: 1.5px solid #ea580c;
-        }
-
-        /* Ganti warna oranye menjadi kuning untuk slot penuh */
-        .basket-slot.yellow {
-            border-color: #f59e0b;
-            background: #fffbeb;
-            animation: softPulseYellow 1.8s infinite;
-        }
-
-        @keyframes softPulseYellow {
-            0% { box-shadow:0 0 0 0 rgba(245,158,11,0.3) }
-            50% { box-shadow:0 0 0 5px rgba(245,158,11,0.15) }
-            100% { box-shadow:0 0 0 0 rgba(245,158,11,0.3) }
-        }
-
-        /* ================================================== */
+        .history-badge { display:inline-block; padding:3px 8px; border-radius:12px; font-weight:700; font-size:0.7rem; letter-spacing:0.5px; }
+        .badge-in { background:#d1fae5; color:#065f46; } .badge-out { background:#fee2e2; color:#991b1b; }
+        .badge-move { background:#ede9fe; color:#5b21b6; } .badge-edit { background:#fef3c7; color:#92400e; }
+        .search-container { background:white; border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); }
+        .search-input-wrapper { position:relative; margin-bottom:16px; }
+        .search-input-wrapper input { padding-right:50px; font-size:1rem; }
+        .search-input-wrapper .search-icon { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#64748b; cursor:pointer; font-size:1.2rem; }
+        .search-result-item { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:8px; transition:all 0.2s; }
+        .search-result-item:hover { border-color:var(--primary); box-shadow:0 2px 8px rgba(37,99,235,0.1); }
+        .search-result-item.current { border-left:4px solid var(--success); background:#f0fdf4; }
+        .search-result-item.out { border-left:4px solid var(--danger); background:#fef2f2; opacity:0.8; }
+        .search-result-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+        .search-result-badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:0.7rem; font-weight:700; }
+        .badge-current { background:#d1fae5; color:#065f46; }
+        .search-highlight { background:#fef3c7; padding:1px 3px; border-radius:3px; font-weight:600; }
+        .search-stats { display:flex; gap:16px; margin-bottom:16px; padding:12px; background:#f0f4ff; border-radius:12px; }
+        .search-stat { text-align:center; flex:1; } .search-stat .count { font-size:1.5rem; font-weight:800; color:var(--primary); }
+        .search-stat .label { font-size:0.7rem; color:#64748b; }
+        .area-badge { display:inline-block; padding:2px 8px; border-radius:8px; font-size:0.7rem; font-weight:600; margin-right:4px; }
+        .area-frozen { background:#dbeafe; color:#1e40af; } .area-chiller { background:#d1fae5; color:#065f46; }
+        @keyframes softPulseYellow { 0%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)} 50%{box-shadow:0 0 0 5px rgba(245,158,11,0.15)} 100%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)} }
+        @keyframes strongPulse { 0%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 50%{box-shadow:0 0 0 7px rgba(239,68,68,0.15)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+        .input-warning { border-color:#ef4444 !important; background:#fef2f2 !important; animation:shake 0.5s; }
+        .input-success { border-color:#10b981 !important; background:#f0fdf4 !important; }
+        .warning-message { color:#ef4444; font-size:0.75rem; margin-top:4px; font-weight:600; display:flex; align-items:center; gap:4px; }
+        .success-message { color:#10b981; font-size:0.75rem; margin-top:4px; font-weight:600; display:flex; align-items:center; gap:4px; }
+        .item-actions { display:flex; gap:4px; align-items:center; }
+        .action-btn { width:32px; height:32px; border-radius:8px; border:1px solid #cbd5e1; background:white; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; position:relative; }
+        .action-btn:hover { transform:scale(1.1); box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+        .action-btn.move-btn { color:#8b5cf6; } .action-btn.move-btn:hover { background:#f5f3ff; border-color:#8b5cf6; }
+        .action-btn.edit-btn { color:#f59e0b; } .action-btn.edit-btn:hover { background:#fffbeb; border-color:#f59e0b; }
+        .action-btn.out-btn { color:#ef4444; } .action-btn.out-btn:hover { background:#fef2f2; border-color:#ef4444; }
+        .action-btn::after { content:attr(data-tooltip); position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:#1e293b; color:white; padding:4px 8px; border-radius:4px; font-size:0.65rem; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity 0.2s; margin-bottom:4px; }
+        .action-btn:hover::after { opacity:1; }
+        .basket-move-btn { background:linear-gradient(135deg, #8b5cf6, #7c3aed); color:white; border:none; padding:8px 16px; border-radius:12px; cursor:pointer; font-weight:600; font-size:0.85rem; display:flex; align-items:center; gap:6px; transition:all 0.2s; box-shadow:0 2px 8px rgba(139,92,246,0.3); }
+        .basket-move-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(139,92,246,0.4); }
+        .move-type-badge { display:inline-block; padding:2px 8px; border-radius:8px; font-size:0.7rem; font-weight:700; margin-left:6px; }
+        .move-type-badge.basket-move { background:#ede9fe; color:#5b21b6; }
+        .move-type-badge.item-move { background:#f5f3ff; color:#7c3aed; }
+        .slot-status-icons { position:absolute; top:2px; right:2px; display:flex; flex-direction:row-reverse; gap:1px; z-index:5; }
+        .status-icon { width:12px; height:12px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.4rem; color:white; box-shadow:0 1px 2px rgba(0,0,0,0.3); }
+        .status-icon.full { background:rgba(245,158,11,0.9); border:1.5px solid #d97706; }
+        .status-icon.expired { background:rgba(239,68,68,0.9); border:1.5px solid #dc2626; }
+        .status-icon.est-lewat { background:rgba(249,115,22,0.9); border:1.5px solid #ea580c; }
     </style>
 </head>
 <body>
@@ -574,8 +165,8 @@
         <div class="card" style="text-align:center">
             <h2>🔐 Masuk Walk-in</h2>
             <p style="color:#64748b;margin-bottom:16px;">Gunakan akun tim</p>
-            <div class="form-group"><input type="email" id="loginEmail" value="tim@walkin.com"></div>
-            <div class="form-group"><input type="password" id="loginPassword" value="frozen2024"></div>
+            <div class="form-group"><input type="email" id="loginEmail" placeholder="Email"></div>
+            <div class="form-group"><input type="password" id="loginPassword" placeholder="Password"></div>
             <button class="btn btn-primary" style="width:100%" onclick="login()">Masuk</button>
             <button class="google-btn" onclick="loginWithGoogle()"><i class="fab fa-google"></i> Login dengan Google</button>
             <p id="loginError" style="color:red;margin-top:10px;"></p>
@@ -610,6 +201,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // ==================== FIREBASE INIT ====================
         const firebaseConfig = {
             apiKey: "AIzaSyA1K3kQ93LSz1yKpBa2cMCRD045alTm6cs",
             authDomain: "walk-in-web.firebaseapp.com",
@@ -622,6 +214,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // ==================== GLOBAL STATE ====================
         let currentArea = 'frozen';
         let appData = {
             frozen: { sections: {}, baskets: {}, transactions: [] },
@@ -631,24 +224,40 @@
         let rekapMode = 'bulanan';
         let unsubscribe = null;
         const ADMIN_EMAILS = ['slardar.men@gmail.com'];
+        const container = document.getElementById('appContainer');
 
-        // Default denah sesuai spesifikasi
+        // ==================== KAPASITAS KERANJANG ====================
+        const BASKET_CAPACITY = { DEFAULT: 5, MIXED_WITH_TH: 3, TH_ONLY: 3 };
+
+        function getBasketCapacity(no) {
+            const items = currentBaskets()[no]?.items || [];
+            if (items.length === 0) return BASKET_CAPACITY.DEFAULT;
+            const hasTH = items.some(i => i.jenis === 'TH');
+            return hasTH ? BASKET_CAPACITY.MIXED_WITH_TH : BASKET_CAPACITY.DEFAULT;
+        }
+
+        function isBasketFull(no) {
+            const items = currentBaskets()[no]?.items || [];
+            return items.length >= getBasketCapacity(no);
+        }
+
+        // ==================== DEFAULT DENAH ====================
         const defaultFrozenSections = {
-            'IMP': { A: [null,null,null,null,null], B: [null,null,null,null,null], C: [null,null,null,null,null], D: [null,null,null,null,null], E: [null,null,null,null,null] },
-            'RTL': { A: [null,null,null,null,null], B: [null,null,null,null,null], C: [null,null,null,null,null] },
-            'NPL': { A: [null,null,null,null,null], B: [null,null,null,null,null], C: [null,null,null,null,null] },
-            'RDQ': { A: [null,null,null,null,null] },
-            'MTPP': { A: [null,null,null,null,null], B: [null,null,null,null,null] },
-            'MI': { A: [null,null,null,null,null], B: [null,null,null,null,null], C: [null,null,null,null,null] }
+            'IMP': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null], D:[null,null,null,null,null], E:[null,null,null,null,null] },
+            'RTL': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] },
+            'NPL': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] },
+            'RDQ': { A:[null,null,null,null,null] },
+            'MTPP': { A:[null,null,null,null,null], B:[null,null,null,null,null] },
+            'MI': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] }
         };
         const defaultChillerSections = {
-            'IMP': { A: [null,null,null,null,null] },
-            'RTL': { A: [null,null,null,null,null] },
-            'NPL': { A: [null,null,null,null,null] },
-            'MTPP': { A: [null,null,null,null,null] },
-            'RDQ': { A: [null,null,null,null,null] },
-            'MI': { A: [null,null,null,null,null] },
-            'THAWING': { A: [null,null,null,null,null], B: [null,null,null,null,null] }
+            'IMP': { A:[null,null,null,null,null] },
+            'RTL': { A:[null,null,null,null,null] },
+            'NPL': { A:[null,null,null,null,null] },
+            'MTPP': { A:[null,null,null,null,null] },
+            'RDQ': { A:[null,null,null,null,null] },
+            'MI': { A:[null,null,null,null,null] },
+            'THAWING': { A:[null,null,null,null,null], B:[null,null,null,null,null] }
         };
 
         function getDefaultSections(area) {
@@ -674,15 +283,24 @@
             return out;
         }
 
+        // ==================== AUTH ====================
         function login() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
-            auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('loginError').textContent = 'Gagal: ' + e.message);
+            if (!email || !pass) {
+                document.getElementById('loginError').textContent = 'Isi email dan password.';
+                return;
+            }
+            auth.signInWithEmailAndPassword(email, pass).catch(e => {
+                document.getElementById('loginError').textContent = 'Gagal: ' + e.message;
+            });
         }
 
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(e => document.getElementById('loginError').textContent = 'Google login gagal: ' + e.message);
+            auth.signInWithPopup(provider).catch(e => {
+                document.getElementById('loginError').textContent = 'Google login gagal: ' + e.message;
+            });
         }
 
         function logout() { auth.signOut(); }
@@ -700,6 +318,7 @@
             }
         });
 
+        // ==================== FIRESTORE ====================
         function listenToFirestore() {
             if (unsubscribe) unsubscribe();
             unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => {
@@ -727,25 +346,9 @@
         }
 
         function saveToFirestore() {
-    console.log('💾 Menyimpan ke Firestore...');
-    console.log('❄️ Frozen sections:', Object.keys(appData.frozen.sections).length + ' sections');
-    console.log('❄️ Frozen baskets:', Object.keys(appData.frozen.baskets).length + ' baskets');
-    console.log('🌡️ Chiller sections:', Object.keys(appData.chiller.sections).length + ' sections');
-    console.log('🌡️ Chiller baskets:', Object.keys(appData.chiller.baskets).length + ' baskets');
-    
-    db.collection('shared').doc('data').set(
-        { 
-            frozen: appData.frozen, 
-            chiller: appData.chiller 
-        }, 
-        { merge: true }
-    ).then(() => {
-        console.log('✅ Data berhasil disimpan ke Firestore');
-    }).catch((error) => {
-        console.error('❌ Gagal menyimpan ke Firestore:', error);
-        showToast('❌ Gagal menyimpan data!');
-    });
-}
+            db.collection('shared').doc('data').set({ frozen: appData.frozen, chiller: appData.chiller }, { merge: true })
+                .catch((error) => { console.error('❌ Gagal menyimpan:', error); showToast('❌ Gagal menyimpan data!'); });
+        }
 
         function syncBasketsWithSections(area) {
             const sections = appData[area].sections;
@@ -765,6 +368,7 @@
                     });
         }
 
+        // ==================== HELPERS ====================
         function currentSections() { return appData[currentArea].sections; }
         function currentBaskets() { return appData[currentArea].baskets; }
         function currentTransactions() { return appData[currentArea].transactions; }
@@ -776,12 +380,6 @@
         }
 
         function itemCount(no) { return (currentBaskets()[no]?.items || []).length; }
-
-        function hasExpiredItems(no) {
-            const items = currentBaskets()[no]?.items || [];
-            const now = new Date();
-            return items.some(i => (i.expDate && new Date(i.expDate) < now) || (i.estOutDate && new Date(i.estOutDate) < now));
-        }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
@@ -807,19 +405,16 @@
             return user.providerData.some(p => p.providerId === 'google.com') && ADMIN_EMAILS.includes(user.email);
         }
 
-        // Fungsi hapus semua nomor keranjang dan isinya termasuk dari Firestore
         async function resetAllData() {
-            if (!isAdmin()) { showToast('⚠️ Hanya admin yang bisa mereset data.'); return; }
-            if (!confirm('⚠️ PERINGATAN! Semua data keranjang, isi, dan riwayat akan DIHAPUS TOTAL. Lanjutkan?')) return;
-            if (!confirm('⚠️ Terakhir: Data akan hilang permanen dari Firestore. Yakin?')) return;
+            if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; }
+            if (!confirm('⚠️ Hapus SEMUA data?')) return;
+            if (!confirm('⚠️ Data akan hilang permanen. Yakin?')) return;
             await db.collection('shared').doc('data').set({
                 frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] },
                 chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] }
             });
-            showToast('✅ Semua data berhasil dihapus dari Firestore.');
+            showToast('✅ Data direset.');
         }
-
-        const container = document.getElementById('appContainer');
 
         function renderCurrentTab() {
             try {
@@ -834,940 +429,330 @@
             } catch (e) { console.error(e); container.innerHTML = '<div class="card"><div class="empty-state">Error. Refresh halaman.</div></div>'; }
         }
 
-        // ========== FITUR PENCARIAN ==========
-        function renderSearch() {
-    container.innerHTML = `
-        <div class="search-container">
-            <h3>🔍 Cari Barang</h3>
-            
-            <!-- ✅ Tambahan filter -->
-            <div class="filter-row">
-                <input type="date" id="searchDateFrom" 
-                       onchange="performSearch()" 
-                       placeholder="Exp dari">
-                <input type="date" id="searchDateTo" 
-                       onchange="performSearch()" 
-                       placeholder="Exp sampai">
-                <select id="searchStatus" onchange="performSearch()">
-                    <option value="">Semua Status</option>
-                    <option value="expired">⚠️ Expired</option>
-                    <option value="active">✅ Aktif</option>
-                    <option value="out">📤 Sudah Keluar</option>
-                </select>
-            </div>
-            
-            <input type="text" id="searchInput" 
-                   placeholder="Cari nama barang..." 
-                   oninput="performSearch()">
-            <div id="searchResults"></div>
-        </div>
-    `;
-}
-            
-            // Focus ke input search
-            setTimeout(() => {
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) searchInput.focus();
-            }, 100);
-        }
-
-        function performSearch() {
-            const query = document.getElementById('searchInput')?.value.trim().toLowerCase();
-            const resultsContainer = document.getElementById('searchResults');
-            
-            if (!query || query.length < 2) {
-                resultsContainer.innerHTML = '<div class="empty-state">Ketik minimal 2 karakter untuk mencari</div>';
-                return;
+        // ==================== FEFO VALIDATION ====================
+        function cekFEFO(no, idx) {
+            const items = currentBaskets()[no]?.items || [];
+            const selectedItem = items[idx];
+            if (!selectedItem || !selectedItem.expDate) return true;
+            const selectedExp = new Date(selectedItem.expDate).getTime();
+            const now = new Date().getTime();
+            const earlierExp = items
+                .filter((item, i) => i !== idx && item.expDate)
+                .filter(item => new Date(item.expDate).getTime() < selectedExp && new Date(item.expDate).getTime() > now)
+                .sort((a, b) => new Date(a.expDate) - new Date(b.expDate));
+            if (earlierExp.length > 0) {
+                const harusDikeluarkan = earlierExp[0];
+                showToast(`⚠️ FEFO: "${harusDikeluarkan.nama}" expired ${new Date(harusDikeluarkan.expDate).toLocaleDateString('id-ID')} lebih dulu!`);
+                return false;
             }
+            return true;
+        }
 
-            // Kumpulkan semua data dari kedua area
-            const allResults = [];
-            
-            // Cari di Frozen
-            collectSearchResults('frozen', query, allResults);
-            
-            // Cari di Chiller
-            collectSearchResults('chiller', query, allResults);
-            
-            // Tampilkan hasil
-            if (allResults.length === 0) {
-                resultsContainer.innerHTML = `<div class="empty-state">
-                    <i class="fas fa-search" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
-                    Tidak ditemukan barang dengan nama "${query}"
-                </div>`;
-                return;
+        // ==================== BUILD UI COMPONENTS ====================
+        function buildBasketSlot(no, slotIdx) {
+            if (no === null) return `<div class="basket-slot slot-empty"></div>`;
+            const count = itemCount(no);
+            const items = currentBaskets()[no]?.items || [];
+            const now = new Date();
+            const capacity = getBasketCapacity(no);
+            const isFull = count >= capacity;
+            const hasExpired = items.some(i => i.expDate && new Date(i.expDate) < now);
+            const hasEstLewat = items.some(i => i.estOutDate && new Date(i.estOutDate) < now);
+            let cls = 'basket-slot';
+            if (hasExpired || hasEstLewat) cls += ' red';
+            else if (isFull) cls += ' yellow';
+            else if (count > 0) cls += ' green';
+            else cls += ' slot-empty';
+            let icons = [];
+            if (isFull) icons.push(`<span class="status-icon full" title="Penuh"><i class="fas fa-ban"></i></span>`);
+            if (hasExpired) icons.push(`<span class="status-icon expired" title="EXPIRED"><i class="fas fa-skull"></i></span>`);
+            if (hasEstLewat) icons.push(`<span class="status-icon est-lewat" title="EST LEWAT"><i class="fas fa-hourglass-end"></i></span>`);
+            const statusIcons = icons.length > 0 ? `<div class="slot-status-icons">${icons.join('')}</div>` : '';
+            let tooltipParts = [`Keranjang ${no} — ${count}/${capacity}`];
+            if (isFull) tooltipParts.push('🚫 PENUH');
+            if (hasExpired) tooltipParts.push('☠️ EXPIRED');
+            if (hasEstLewat) tooltipParts.push('⏳ EST LEWAT');
+            const tooltip = tooltipParts.join(' | ');
+            return `<div class="${cls}" onclick="showBasketDetail(${no})" title="${tooltip}">${statusIcons}<span class="slot-num">${no}</span><span class="slot-count">${count}/${capacity}</span></div>`;
+        }
+
+        function buildBarisBox(secName, barisKey, slots) {
+            const barisOrder = ['A','B','C','D','E'];
+            const barisNumber = barisOrder.indexOf(barisKey) + 1;
+            const num = String(barisNumber).padStart(2,'0');
+            const lbl = `${secName} ${num}`;
+            let slotElements = '';
+            for (let i = 0; i < 5; i++) slotElements += buildBasketSlot(slots[i], i);
+            return `<div class="baris-box"><div class="baris-box-lbl">${lbl}</div><div class="baris-slots">${slotElements}</div></div>`;
+        }
+
+        function getSingleBarisBox(secName, baris) {
+            const slots = currentSections()[secName]?.[baris] || [null,null,null,null,null];
+            return buildBarisBox(secName, baris, slots);
+        }
+
+        function getSecBoxes(secName) {
+            const barisObj = currentSections()[secName] || {};
+            const sortedKeys = Object.keys(barisObj).sort();
+            return sortedKeys.map(key => buildBarisBox(secName, key, barisObj[key])).join('');
+        }
+
+        function getAreaStats() {
+            const baskets = currentBaskets();
+            let totalItems = 0, totalExpired = 0, totalEstLewat = 0;
+            let totalKeranjang = Object.keys(baskets).length, totalKeranjangPenuh = 0;
+            for (const [no, basket] of Object.entries(baskets)) {
+                const items = basket.items || [];
+                totalItems += items.length;
+                if (items.length >= getBasketCapacity(no)) totalKeranjangPenuh++;
+                items.forEach(item => {
+                    if (item.expDate && new Date(item.expDate) < new Date()) totalExpired++;
+                    if (item.estOutDate && new Date(item.estOutDate) < new Date()) totalEstLewat++;
+                });
             }
-            
-            // Statistik
-            const currentItems = allResults.filter(r => r.status === 'current');
-            const outItems = allResults.filter(r => r.status === 'out');
-            
-            let html = `
-                <div class="search-stats">
-                    <div class="search-stat">
-                        <div class="count">${allResults.length}</div>
-                        <div class="label">Total Ditemukan</div>
-                    </div>
-                    <div class="search-stat">
-                        <div class="count" style="color: #10b981;">${currentItems.length}</div>
-                        <div class="label">Masih Ada</div>
-                    </div>
-                    <div class="search-stat">
-                        <div class="count" style="color: #ef4444;">${outItems.length}</div>
-                        <div class="label">Sudah Keluar</div>
-                    </div>
-                </div>
-                <div style="margin-bottom: 12px; font-weight: 600; color: #475569;">
-                    Ditemukan ${allResults.length} hasil untuk "<span class="search-highlight">${query}</span>"
-                </div>
-            `;
-            
-            // Render hasil
-            allResults.forEach((result, index) => {
-                const areaBadge = result.area === 'frozen' 
-                    ? '<span class="area-badge area-frozen">❄️ Frozen</span>' 
-                    : '<span class="area-badge area-chiller">🌡️ Chiller</span>';
-                
-                const statusBadge = result.status === 'current'
-                    ? '<span class="search-result-badge badge-current">📦 Masih Ada</span>'
-                    : '<span class="search-result-badge badge-out">📤 Sudah Keluar</span>';
-                
-                const highlightName = highlightText(result.item.nama, query);
-                
-                let locationInfo = '';
-                if (result.status === 'current') {
-                    locationInfo = `
-                        <div style="margin-top: 6px; font-size: 0.8rem; color: #64748b;">
-                            📍 Section: ${result.section} | Baris: ${result.baris} | Slot: ${result.slot} | Keranjang: ${result.keranjangNo}
-                        </div>
-                    `;
-                } else {
-                    locationInfo = `
-                        <div style="margin-top: 6px; font-size: 0.8rem; color: #64748b;">
-                            📤 Keluar dari Keranjang: ${result.keranjangNo} | Section: ${result.section}
-                            <br>📅 Keluar: ${new Date(result.timestamp).toLocaleDateString('id-ID')}
-                        </div>
-                    `;
-                }
-                
-                html += `
-                    <div class="search-result-item ${result.status}">
-                        <div class="search-result-header">
-                            <div>
-                                ${areaBadge}
-                                ${statusBadge}
-                            </div>
-                            <div style="text-align: right;">
-                                <small style="color: #64748b;">${result.item.jenis || '-'}</small>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 4px;">
-                            <strong style="font-size: 1rem;">${highlightName}</strong>
-                            <span style="margin-left: 8px; color: #64748b;">Qty: ${result.item.qty}</span>
-                        </div>
-                        ${locationInfo}
-                        ${result.item.expDate ? `
-                            <div style="margin-top: 4px; font-size: 0.75rem; color: ${new Date(result.item.expDate) < new Date() ? '#ef4444' : '#64748b'};">
-                                ⏰ Exp: ${new Date(result.item.expDate).toLocaleDateString('id-ID')}
-                                ${new Date(result.item.expDate) < new Date() ? ' ⚠️ EXPIRED' : ''}
-                            </div>
-                        ` : ''}
-                        ${result.item.estOutDate ? `
-                            <div style="margin-top: 2px; font-size: 0.75rem; color: ${new Date(result.item.estOutDate) < new Date() ? '#ef4444' : '#64748b'};">
-                                📅 Est. Keluar: ${new Date(result.item.estOutDate).toLocaleDateString('id-ID')}
-                                ${new Date(result.item.estOutDate) < new Date() ? ' ⚠️ LEWAT' : ''}
-                            </div>
-                        ` : ''}
-                        ${result.status === 'current' ? `
-                            <button 
-                                class="btn btn-sm btn-outline" 
-                                style="margin-top: 8px;"
-                                onclick="navigateToBasket(${result.keranjangNo}, '${result.area}')"
-                            >
-                                📍 Lihat Keranjang
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
-            });
-            
-            resultsContainer.innerHTML = html;
+            return { totalItems, totalExpired, totalEstLewat, totalKeranjang, totalKeranjangPenuh };
         }
 
-        function collectSearchResults(area, query, results) {
-            const baskets = appData[area].baskets;
-            const transactions = appData[area].transactions;
-            
-            // Cari di keranjang yang masih ada
-            for (const [keranjangNo, basket] of Object.entries(baskets)) {
-                if (basket.items && basket.items.length > 0) {
-                    basket.items.forEach(item => {
-                        if (item.nama && item.nama.toLowerCase().includes(query)) {
-                            results.push({
-                                area: area,
-                                status: 'current',
-                                item: item,
-                                keranjangNo: parseInt(keranjangNo),
-                                section: basket.section,
-                                baris: basket.baris,
-                                slot: basket.slot
-                            });
-                        }
-                    });
-                }
-            }
-            
-            // Cari di transaksi keluar
-            const seenOutItems = new Set(); // Hindari duplikasi
-            transactions.forEach(trans => {
-                if (trans.type === 'out' && trans.detail && trans.detail.nama) {
-                    if (trans.detail.nama.toLowerCase().includes(query)) {
-                        const key = `${trans.detail.nama}_${trans.detail.qty}_${trans.timestamp}`;
-                        if (!seenOutItems.has(key)) {
-                            seenOutItems.add(key);
-                            results.push({
-                                area: area,
-                                status: 'out',
-                                item: {
-                                    nama: trans.detail.nama,
-                                    qty: trans.detail.qty,
-                                    jenis: trans.detail.jenis || '-',
-                                    expDate: trans.detail.expDate,
-                                    estOutDate: trans.detail.estOutDate
-                                },
-                                keranjangNo: trans.detail.keranjang || '-',
-                                section: trans.detail.section || '-',
-                                timestamp: trans.timestamp
-                            });
-                        }
-                    }
-                }
-            });
-        }
-
-        function highlightText(text, query) {
-            if (!text || !query) return text || '';
-            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-            return text.replace(regex, '<span class="search-highlight">$1</span>');
-        }
-
-        function navigateToBasket(keranjangNo, area) {
-            // Switch area jika perlu
-            if (currentArea !== area) {
-                currentArea = area;
-                document.getElementById('areaSelect').value = area;
-                document.getElementById('areaTitle').textContent = area === 'frozen' ? 'Frozen' : 'Chiller';
-            }
-            
-            // Switch ke tab dashboard
-            currentTab = 'dashboard';
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            const dashboardTab = document.querySelector('.tab-btn[data-tab="dashboard"]');
-            if (dashboardTab) dashboardTab.classList.add('active');
-            
-            // Render dashboard dulu, lalu buka detail keranjang
-            renderDashboard();
-            setTimeout(() => {
-                showBasketDetail(keranjangNo);
-            }, 200);
-        }
-
-        // ========== AKHIR FITUR PENCARIAN ==========
-
-       function buildBasketSlot(no, slotIdx) {
-    if (no === null) return `<div class="basket-slot slot-empty"></div>`;
-    
-    const count = itemCount(no);
-    const items = currentBaskets()[no]?.items || [];
-    const now = new Date();
-    
-    // Cek berbagai kondisi
-    const isFull = count >= 5;
-    const hasExpired = items.some(i => i.expDate && new Date(i.expDate) < now);
-    const hasEstLewat = items.some(i => i.estOutDate && new Date(i.estOutDate) < now);
-    
-    // Tentukan class warna slot
-    let cls = 'basket-slot';
-    if (hasExpired || hasEstLewat) {
-        cls += ' red';  // Prioritas: expired/est lewat = merah
-    } else if (isFull) {
-        cls += ' yellow';  // Penuh = kuning
-    } else if (count > 0) {
-        cls += ' green';  // Ada isi = hijau
-    } else {
-        cls += ' slot-empty';  // Kosong
-    }
-    
-    // Build ikon-ikon status
-    let statusIcons = '';
-    const icons = [];
-    
-    // Ikon Penuh - Dilarang
-    if (isFull) {
-        icons.push(`
-            <span class="status-icon full" title="Keranjang Penuh (5/5)">
-                <i class="fas fa-ban"></i>
-            </span>
-        `);
-    }
-    
-    // Ikon Expired - Tengkorak
-    if (hasExpired) {
-        icons.push(`
-            <span class="status-icon expired" title="Ada barang EXPIRED!">
-                <i class="fas fa-skull"></i>
-            </span>
-        `);
-    }
-    
-    // Ikon Est Lewat - Jam Pasir
-    if (hasEstLewat) {
-        icons.push(`
-            <span class="status-icon est-lewat" title="Estimasi keluar LEWAT!">
-                <i class="fas fa-hourglass-end"></i>
-            </span>
-        `);
-    }
-    
-    if (icons.length > 0) {
-        statusIcons = `<div class="slot-status-icons">${icons.join('')}</div>`;
-    }
-    
-    // Build tooltip
-    let tooltipParts = [`Keranjang ${no} — ${count}/5`];
-    if (isFull) tooltipParts.push('🚫 PENUH');
-    if (hasExpired) tooltipParts.push('☠️ EXPIRED');
-    if (hasEstLewat) tooltipParts.push('⏳ EST LEWAT');
-    const tooltip = tooltipParts.join(' | ');
-    
-    return `<div class="${cls}" onclick="showBasketDetail(${no})" title="${tooltip}">
-        ${statusIcons}
-        <span class="slot-num">${no}</span>
-        <span class="slot-count">${count}/5</span>
-    </div>`;
-}
-
-       function buildBarisBox(secName, barisKey, slots) {
-    // Gunakan key baris asli (A, B, C, D, E) untuk label yang konsisten
-    const barisOrder = ['A', 'B', 'C', 'D', 'E'];
-    const barisNumber = barisOrder.indexOf(barisKey) + 1;
-    const num = String(barisNumber).padStart(2, '0');
-    const lbl = `${secName} ${num}`;
-    
-    let slotElements = '';
-    for (let i = 0; i < 5; i++) {
-        slotElements += buildBasketSlot(slots[i], i);
-    }
-    return `<div class="baris-box">
-        <div class="baris-box-lbl">${lbl}</div>
-        <div class="baris-slots">${slotElements}</div>
-    </div>`;
-}
-
-       function getSecBoxes(secName) {
-    const barisObj = currentSections()[secName] || {};
-    // Urutkan berdasarkan key (A, B, C, D, E)
-    const sortedKeys = Object.keys(barisObj).sort();
-    return sortedKeys.map(key => buildBarisBox(secName, key, barisObj[key])).join('');
-}
-
-       function renderFrozenPlan() {
-    const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
-    
-    container.innerHTML = `
-    <div class="card" style="padding:12px;">
-        <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
-        <div class="fp-room" style="background:#e8f4f8;">
-            <div style="display: grid; 
-                        grid-template-columns: 110px 110px 110px 110px 110px; 
-                        gap: 8px;
-                        width: fit-content;
-                        margin: 0 auto;">
-                
-                <!-- Baris 1: IMP 01-05 -->
-                ${getSingleBarisBox('IMP', 'A')}
-                ${getSingleBarisBox('IMP', 'B')}
-                ${getSingleBarisBox('IMP', 'C')}
-                ${getSingleBarisBox('IMP', 'D')}
-                ${getSingleBarisBox('IMP', 'E')}
-                
-                <!-- Baris 2: Spacer horizontal -->
-                <div style="grid-column: 1 / 6; height: 40px;" class="spacer">— Area Kosong —</div>
-                
-                <!-- Baris 3: RTL 01-03 + Kosong + MI 01 -->
-                ${getSingleBarisBox('RTL', 'A')}
-                ${getSingleBarisBox('RTL', 'B')}
-                ${getSingleBarisBox('RTL', 'C')}
-                <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'A')}
-                
-                <!-- Baris 4: NPL 01-03 + Kosong + MI 02 -->
-                ${getSingleBarisBox('NPL', 'A')}
-                ${getSingleBarisBox('NPL', 'B')}
-                ${getSingleBarisBox('NPL', 'C')}
-                <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'B')}
-                
-                <!-- Baris 5: Spacer horizontal -->
-                <div style="grid-column: 1 / 6; height: 40px;" class="spacer">— Area Kosong —</div>
-                
-                <!-- Baris 6: RDQ 01 + MTPP 01-02 + Kosong + MI 03 -->
-                ${getSingleBarisBox('RDQ', 'A')}
-                ${getSingleBarisBox('MTPP', 'A')}
-                ${getSingleBarisBox('MTPP', 'B')}
-                <div class="spacer-box">Area Kosong</div>
-                ${getSingleBarisBox('MI', 'C')}
-            </div>
-        </div>
-<div class="fp-legend">
-    <span><i class="fas fa-circle" style="color:#10b981; font-size:0.7rem;"></i> Tersedia</span>
-    <span><span class="status-icon full" style="display:inline-flex; position:static; width:12px; height:12px; margin-right:4px;"><i class="fas fa-ban" style="font-size:0.35rem;"></i></span> Penuh (5/5)</span>
-    <span><span class="status-icon expired" style="display:inline-flex; position:static; width:12px; height:12px; margin-right:4px;"><i class="fas fa-skull" style="font-size:0.35rem;"></i></span> Expired</span>
-    <span><span class="status-icon est-lewat" style="display:inline-flex; position:static; width:12px; height:12px; margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.35rem;"></i></span> Est Lewat</span>
-    <span><i class="far fa-square" style="color:#d1d5db; font-size:0.7rem;"></i> Kosong</span>
-</div>
-        ${adminBtn}
-    </div>`;
-}
-
-// Helper function untuk membuat single baris box
-function getSingleBarisBox(secName, baris) {
-    const sections = currentSections();
-    const slots = sections[secName]?.[baris] || [null,null,null,null,null];
-    return buildBarisBox(secName, baris, slots);
-}
-       // ✅ FUNGSI BARU: Hitung statistik
-function getAreaStats() {
-    const baskets = currentBaskets();
-    let totalItems = 0;
-    let totalExpired = 0;
-    let totalEstLewat = 0;
-    let totalKeranjang = Object.keys(baskets).length;
-    let totalKeranjangPenuh = 0;
-    
-    for (const [no, basket] of Object.entries(baskets)) {
-        const items = basket.items || [];
-        totalItems += items.length;
-        
-        if (items.length >= getBasketCapacity(no)) {
-            totalKeranjangPenuh++;
-        }
-        
-        items.forEach(item => {
-            if (item.expDate && new Date(item.expDate) < new Date()) totalExpired++;
-            if (item.estOutDate && new Date(item.estOutDate) < new Date()) totalEstLewat++;
-        });
-    }
-    
-    return { totalItems, totalExpired, totalEstLewat, totalKeranjang, totalKeranjangPenuh };
-}
-
-// ✅ Tambahkan di bagian atas denah
-function renderFrozenPlan() {
-    const stats = getAreaStats();
-    
-    container.innerHTML = `
-    <div class="card" style="padding:12px;">
-        <!-- ✅ STATUS BAR -->
-        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-            <span style="background: #dbeafe; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                📦 ${stats.totalItems} item
-            </span>
-            <span style="background: ${stats.totalExpired > 0 ? '#fee2e2' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                ☠️ ${stats.totalExpired} expired
-            </span>
-            <span style="background: ${stats.totalEstLewat > 0 ? '#fff7ed' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                ⏳ ${stats.totalEstLewat} est lewat
-            </span>
-            <span style="background: ${stats.totalKeranjangPenuh > 0 ? '#fffbeb' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                🚫 ${stats.totalKeranjangPenuh}/${stats.totalKeranjang} penuh
-            </span>
-        </div>
-        
-        <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
-        <!-- ... existing denah ... -->
-    </div>`;
-}
-
-
-        function renderChillerPlan() {
-    const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
-    const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
-    const bottomSecs = ['IMP', 'RTL', 'NPL', 'MTPP', 'RDQ', 'MI'];
-    
-    container.innerHTML = `
-    <div class="card" style="padding:12px;">
-        <div class="fp-room-title">🌡️ Denah Walk-in Chiller</div>
-        <div class="fp-room" style="background:#f0fdf4;">
-            <div class="chl-plan">
-                <div class="chl-top">${stockBox}${getSecBoxes('THAWING')}</div>
-                <div class="chl-space">— Area Kosong —</div>
-                <div class="chl-bot">${bottomSecs.map(s => getSecBoxes(s)).join('')}</div>
-            </div>
-        </div>
-<div class="fp-legend">
-    <span><i class="fas fa-circle" style="color:#10b981; font-size:0.7rem;"></i> Tersedia</span>
-    <span><span class="status-icon full" style="display:inline-flex; position:static; width:12px; height:12px; margin-right:4px;"><i class="fas fa-ban" style="font-size:0.35rem;"></i></span> Penuh (5/5)</span>
-    <span><span class="status-icon expired" style="display:inline-flex; position:static; width:12px; height:12px; margin-right:4px;"><i class="fas fa-skull" style="font-size:0.35rem;"></i></span> Expired</span>
-    <span><span class="status-icon est-lewat" style="display:inline-flex; position:static; width:12px; height:12px; margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.35rem;"></i></span> Est Lewat</span>
-    <span><i class="far fa-square" style="color:#d1d5db; font-size:0.7rem;"></i> Kosong</span>
-</div>
-        ${adminBtn}
-    </div>`;
-}
-// ✅ FUNGSI BARU: Hitung statistik
-function getAreaStats() {
-    const baskets = currentBaskets();
-    let totalItems = 0;
-    let totalExpired = 0;
-    let totalEstLewat = 0;
-    let totalKeranjang = Object.keys(baskets).length;
-    let totalKeranjangPenuh = 0;
-    
-    for (const [no, basket] of Object.entries(baskets)) {
-        const items = basket.items || [];
-        totalItems += items.length;
-        
-        if (items.length >= getBasketCapacity(no)) {
-            totalKeranjangPenuh++;
-        }
-        
-        items.forEach(item => {
-            if (item.expDate && new Date(item.expDate) < new Date()) totalExpired++;
-            if (item.estOutDate && new Date(item.estOutDate) < new Date()) totalEstLewat++;
-        });
-    }
-    
-    return { totalItems, totalExpired, totalEstLewat, totalKeranjang, totalKeranjangPenuh };
-}
-
-// ✅ Tambahkan di bagian atas denah
-function renderFrozenPlan() {
-    const stats = getAreaStats();
-    
-    container.innerHTML = `
-    <div class="card" style="padding:12px;">
-        <!-- ✅ STATUS BAR -->
-        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-            <span style="background: #dbeafe; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                📦 ${stats.totalItems} item
-            </span>
-            <span style="background: ${stats.totalExpired > 0 ? '#fee2e2' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                ☠️ ${stats.totalExpired} expired
-            </span>
-            <span style="background: ${stats.totalEstLewat > 0 ? '#fff7ed' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                ⏳ ${stats.totalEstLewat} est lewat
-            </span>
-            <span style="background: ${stats.totalKeranjangPenuh > 0 ? '#fffbeb' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                🚫 ${stats.totalKeranjangPenuh}/${stats.totalKeranjang} penuh
-            </span>
-        </div>
-        
-        <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
-        <!-- ... existing denah ... -->
-    </div>`;
-}
-
-// ✅ Implementasi sama untuk renderChillerPlan()
+        // ==================== DASHBOARD ====================
         function renderDashboard() {
             if (currentArea === 'frozen') renderFrozenPlan();
             else renderChillerPlan();
         }
 
-        // ─── DETAIL KERANJANG + PINDAH + KELUAR + EDIT ESTIMASI ───
-     function showBasketDetail(no, moveItemIdx = null) {
-    const basket = currentBaskets()[no];
-    const count = itemCount(no);
-    const now = new Date();
-    
-    let itemsHtml = basket && basket.items.length ?
-        basket.items.map((item, idx) => {
-            let cls = '', lbl = '';
-            if (item.expDate && new Date(item.expDate) < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
-            else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
-            const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
-            
-            return `<div class="item-row ${cls}">
-                <div style="flex:1;">
-                    <strong>${item.nama}</strong> 
-                    <span style="font-size:1rem; font-weight:700; color:var(--primary);">(${item.qty})</span>${lbl}
-                    <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
-                    ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
-                    ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
+        function renderFrozenPlan() {
+            const stats = getAreaStats();
+            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>` : '';
+            container.innerHTML = `
+            <div class="card" style="padding:12px;">
+                <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                    <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:0.75rem;">📦 ${stats.totalItems} item</span>
+                    <span style="background:${stats.totalExpired>0?'#fee2e2':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">☠️ ${stats.totalExpired} expired</span>
+                    <span style="background:${stats.totalEstLewat>0?'#fff7ed':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">⏳ ${stats.totalEstLewat} est lewat</span>
+                    <span style="background:${stats.totalKeranjangPenuh>0?'#fffbeb':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">🚫 ${stats.totalKeranjangPenuh}/${stats.totalKeranjang} penuh</span>
                 </div>
-                
-                <div class="item-actions">
-                    <button class="action-btn move-btn" 
-                            data-tooltip="Pindah Barang"
-                            onclick="event.stopPropagation(); showBasketDetail(${no}, ${idx})"
-                            title="Pindahkan barang ini ke keranjang lain">
-                        <i class="fas fa-exchange-alt"></i>
-                    </button>
-                    
-                    <button class="action-btn edit-btn" 
-                            data-tooltip="Edit Est. Keluar"
-                            onclick="event.stopPropagation(); editEstOutDate(${no}, ${idx})"
-                            title="Edit estimasi tanggal keluar">
-                        <i class="fas fa-calendar-alt"></i>
-                    </button>
-                    
-                    <button class="action-btn out-btn" 
-                            data-tooltip="Keluarkan Barang"
-                            onclick="keluarkanItem(${no}, ${idx})"
-                            title="Keluarkan sebagian atau semua barang">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+                <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
+                <div class="fp-room" style="background:#e8f4f8;">
+                    <div style="display:grid; grid-template-columns:110px 110px 110px 110px 110px; gap:8px; width:fit-content; margin:0 auto;">
+                        ${getSingleBarisBox('IMP','A')}${getSingleBarisBox('IMP','B')}${getSingleBarisBox('IMP','C')}${getSingleBarisBox('IMP','D')}${getSingleBarisBox('IMP','E')}
+                        <div style="grid-column:1/6; height:40px;" class="spacer">— Area Kosong —</div>
+                        ${getSingleBarisBox('RTL','A')}${getSingleBarisBox('RTL','B')}${getSingleBarisBox('RTL','C')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','A')}
+                        ${getSingleBarisBox('NPL','A')}${getSingleBarisBox('NPL','B')}${getSingleBarisBox('NPL','C')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','B')}
+                        <div style="grid-column:1/6; height:40px;" class="spacer">— Area Kosong —</div>
+                        ${getSingleBarisBox('RDQ','A')}${getSingleBarisBox('MTPP','A')}${getSingleBarisBox('MTPP','B')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','C')}
+                    </div>
                 </div>
-                ${moveFormHtml}
+                <div class="fp-legend">
+                    <span><i class="fas fa-circle" style="color:#10b981;font-size:0.7rem;"></i> Tersedia</span>
+                    <span><span class="status-icon full" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-ban" style="font-size:0.35rem;"></i></span> Penuh</span>
+                    <span><span class="status-icon expired" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-skull" style="font-size:0.35rem;"></i></span> Expired</span>
+                    <span><span class="status-icon est-lewat" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.35rem;"></i></span> Est Lewat</span>
+                    <span><i class="far fa-square" style="color:#d1d5db;font-size:0.7rem;"></i> Kosong</span>
+                </div>
+                ${adminBtn}
             </div>`;
-        }).join('') :
-        '<div class="empty-state">Keranjang kosong</div>';
+        }
 
-    container.innerHTML = `<div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div>
-                <h3 style="display:inline;">Keranjang ${no}</h3>
-                ${basket ? `<span style="font-size:0.8rem; color:#64748b; margin-left:8px;">
-                    📍 ${basket.section} Baris ${basket.baris} Slot ${basket.slot}
-                </span>` : ''}
-            </div>
-            <div style="display:flex; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="renderDashboard()">
-                    <i class="fas fa-arrow-left"></i> Denah
-                </button>
-                
-                <!-- ===== TOMBOL TAMBAH BARANG ===== -->
-                <button class="btn btn-sm" style="background:#10b981; color:white;" 
-                        onclick="quickAddToBasket(${no})"
-                        title="Tambah barang langsung ke keranjang ini">
-                    <i class="fas fa-plus"></i> Tambah Barang
-                </button>
-                
-                <!-- ===== TOMBOL PINDAH KERANJANG ===== -->
-                <button class="basket-move-btn" 
-                        onclick="showMoveBasketForm(${no})"
-                        title="Pindahkan seluruh keranjang beserta isinya ke lokasi lain">
-                    <i class="fas fa-truck"></i> Pindah Keranjang
-                </button>
-            </div>
-        </div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <p style="margin:0;">Total item: <strong>${count}/5</strong></p>
-            <div style="display:flex; gap:12px; font-size:0.7rem; color:#64748b;">
-                <span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> = Pindah</span>
-                <span><i class="fas fa-calendar-alt" style="color:#f59e0b;"></i> = Est</span>
-                <span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> = Keluar</span>
-            </div>
-        </div>
-        
-        ${itemsHtml}
-    </div>`;
-}
+        function renderChillerPlan() {
+            const stats = getAreaStats();
+            const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
+            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>` : '';
+            const bottomSecs = ['IMP','RTL','NPL','MTPP','RDQ','MI'];
+            container.innerHTML = `
+            <div class="card" style="padding:12px;">
+                <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                    <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:0.75rem;">📦 ${stats.totalItems} item</span>
+                    <span style="background:${stats.totalExpired>0?'#fee2e2':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">☠️ ${stats.totalExpired} expired</span>
+                    <span style="background:${stats.totalEstLewat>0?'#fff7ed':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">⏳ ${stats.totalEstLewat} est lewat</span>
+                    <span style="background:${stats.totalKeranjangPenuh>0?'#fffbeb':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">🚫 ${stats.totalKeranjangPenuh}/${stats.totalKeranjang} penuh</span>
+                </div>
+                <div class="fp-room-title">🌡️ Denah Walk-in Chiller</div>
+                <div class="fp-room" style="background:#f0fdf4;">
+                    <div class="chl-plan">
+                        <div class="chl-top">${stockBox}${getSecBoxes('THAWING')}</div>
+                        <div class="chl-space">— Area Kosong —</div>
+                        <div class="chl-bot">${bottomSecs.map(s => getSecBoxes(s)).join('')}</div>
+                    </div>
+                </div>
+                <div class="fp-legend">
+                    <span><i class="fas fa-circle" style="color:#10b981;font-size:0.7rem;"></i> Tersedia</span>
+                    <span><span class="status-icon full" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-ban" style="font-size:0.35rem;"></i></span> Penuh</span>
+                    <span><span class="status-icon expired" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-skull" style="font-size:0.35rem;"></i></span> Expired</span>
+                    <span><span class="status-icon est-lewat" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.35rem;"></i></span> Est Lewat</span>
+                    <span><i class="far fa-square" style="color:#d1d5db;font-size:0.7rem;"></i> Kosong</span>
+                </div>
+                ${adminBtn}
+            </div>`;
+        }
 
-        // Fungsi quick add - langsung isi section, baris, slot
-function quickAddToBasket(no) {
-    const basket = currentBaskets()[no];
-    if (!basket) return showToast('Keranjang tidak ditemukan!');
-    
-    const count = itemCount(no);
-    if (count >= 5) return showToast('❌ Keranjang sudah penuh (5/5)!');
-    
-    // Simpan data keranjang tujuan
-    window._quickAddTarget = {
-        no: no,
-        section: basket.section,
-        baris: basket.baris,
-        slot: basket.slot
-    };
-    
-    // Pindah ke tab input
-    currentTab = 'in';
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    const inTab = document.querySelector('.tab-btn[data-tab="in"]');
-    if (inTab) inTab.classList.add('active');
-    
-    // Render form input dengan data terisi
-    renderQuickAddForm();
-}
+        // ==================== BASKET DETAIL ====================
+        function showBasketDetail(no, moveItemIdx = null) {
+            const basket = currentBaskets()[no];
+            const count = itemCount(no);
+            const capacity = getBasketCapacity(no);
+            const now = new Date();
+            let itemsHtml = basket && basket.items.length ?
+                basket.items.map((item, idx) => {
+                    let cls = '', lbl = '';
+                    if (item.expDate && new Date(item.expDate) < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
+                    else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
+                    const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
+                    return `<div class="item-row ${cls}">
+                        <div style="flex:1;">
+                            <strong>${item.nama}</strong> <span style="font-size:1rem;font-weight:700;color:var(--primary);">(${item.qty})</span>${lbl}
+                            <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
+                            ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
+                            ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
+                        </div>
+                        <div class="item-actions">
+                            <button class="action-btn move-btn" data-tooltip="Pindah Barang" onclick="event.stopPropagation();showBasketDetail(${no},${idx})"><i class="fas fa-exchange-alt"></i></button>
+                            <button class="action-btn edit-btn" data-tooltip="Edit Est. Keluar" onclick="event.stopPropagation();editEstOutDate(${no},${idx})"><i class="fas fa-calendar-alt"></i></button>
+                            <button class="action-btn out-btn" data-tooltip="Keluarkan Barang" onclick="keluarkanItem(${no},${idx})"><i class="fas fa-sign-out-alt"></i></button>
+                        </div>
+                        ${moveFormHtml}
+                    </div>`;
+                }).join('') : '<div class="empty-state">Keranjang kosong</div>';
+            container.innerHTML = `<div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <div><h3 style="display:inline;">Keranjang ${no}</h3>${basket ? `<span style="font-size:0.8rem;color:#64748b;margin-left:8px;">📍 ${basket.section} Baris ${basket.baris} Slot ${basket.slot}</span>` : ''}</div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-outline btn-sm" onclick="renderDashboard()"><i class="fas fa-arrow-left"></i> Denah</button>
+                        <button class="btn btn-sm" style="background:#10b981;color:white;" onclick="quickAddToBasket(${no})"><i class="fas fa-plus"></i> Tambah Barang</button>
+                        <button class="basket-move-btn" onclick="showMoveBasketForm(${no})"><i class="fas fa-truck"></i> Pindah Keranjang</button>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <p style="margin:0;">Total item: <strong>${count}/${capacity}</strong></p>
+                    <div style="display:flex;gap:12px;font-size:0.7rem;color:#64748b;">
+                        <span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> = Pindah</span>
+                        <span><i class="fas fa-calendar-alt" style="color:#f59e0b;"></i> = Est</span>
+                        <span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> = Keluar</span>
+                    </div>
+                </div>
+                ${itemsHtml}
+            </div>`;
+        }
 
-// Form input khusus untuk quick add
-function renderQuickAddForm() {
-    const target = window._quickAddTarget;
-    if (!target) return renderInputForm();
-    
-    container.innerHTML = `<div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <h3>📥 Tambah Barang ke Keranjang ${target.no}</h3>
-            <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${target.no})">
-                ← Kembali
-            </button>
-        </div>
-        
-        <div style="background:#ecfdf5; border:1px solid #10b981; border-radius:8px; padding:12px; margin-bottom:16px;">
-            <strong>📍 Tujuan:</strong> ${target.section} Baris ${target.baris} Slot ${target.slot} (Keranjang ${target.no})
-            <br>Terisi: <strong>${itemCount(target.no)}/5</strong>
-        </div>
-        
-        <form id="inForm" onsubmit="submitQuickAdd(event)">
-            <div class="form-group">
-                <label>Nama Barang</label>
-                <input type="text" id="inNama" list="namaList" required>
-                <datalist id="namaList"></datalist>
-            </div>
-            
-            <div class="form-group">
-                <label>Jumlah</label>
-                <!-- HANYA SATU input jumlah dengan helper text -->
-<input type="text" id="inQty" 
-       placeholder="Contoh: 10 atau 3 Pack" 
-       required
-       pattern="[0-9].*"
-       title="Masukkan jumlah (angka di depan)">
-<small style="color: #64748b;">
-    💡 Format: [Jumlah] [Satuan]<br>
-    Contoh: "5 Pack", "10 Kg", "3", "2 Box"
-</small>
-            </div>
-            
-            <div class="form-group">
-                <label>Jenis</label>
-                <select id="inJenis">
-                    <option value="IIP">IIP</option>
-                    <option value="RM">RM</option>
-                    <option value="TH">TH</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Tanggal Exp (wajib)</label>
-                <input type="date" id="inExpDate" required onchange="validateQuickEstOut()">
-            </div>
-            
-            <div class="form-group">
-                <label>Estimasi Keluar (wajib)</label>
-                <input type="date" id="inEstOutDate" required onchange="validateQuickEstOut()">
-                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
-                    ⚠️ Tidak boleh lebih dari Tanggal Exp
-                </small>
-                <small id="estOutWarning" style="display:block; margin-top:4px;"></small>
-            </div>
-            
-            <input type="hidden" id="inSection" value="${target.section}">
-            <input type="hidden" id="inBaris" value="${target.baris}">
-            <input type="hidden" id="inSlot" value="${target.slot}">
-            <input type="hidden" id="inKeranjangManual" value="${target.no}">
-            
-            <button type="submit" class="btn btn-primary" style="width:100%; background:#10b981;">
-                <i class="fas fa-plus"></i> Tambah ke Keranjang ${target.no}
-            </button>
-        </form>
-    </div>`;
-    
-    updateNamaDatalist();
-}
+        // ==================== QUICK ADD ====================
+        function quickAddToBasket(no) {
+            const basket = currentBaskets()[no];
+            if (!basket) return showToast('Keranjang tidak ditemukan!');
+            if (isBasketFull(no)) return showToast(`❌ Keranjang ${no} sudah penuh!`);
+            window._quickAddTarget = { no, section: basket.section, baris: basket.baris, slot: basket.slot };
+            currentTab = 'in';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const inTab = document.querySelector('.tab-btn[data-tab="in"]');
+            if (inTab) inTab.classList.add('active');
+            renderQuickAddForm();
+        }
 
-// Validasi est out untuk quick add
-function validateQuickEstOut() {
-    const expDate = document.getElementById('inExpDate')?.value;
-    const estOutDate = document.getElementById('inEstOutDate')?.value;
-    const estOutInput = document.getElementById('inEstOutDate');
-    const warning = document.getElementById('estOutWarning');
-    
-    if (!expDate || !estOutDate || !warning) return;
-    
-    const expDateObj = new Date(expDate);
-    const estOutDateObj = new Date(estOutDate);
-    
-    if (estOutDateObj > expDateObj) {
-        warning.innerHTML = '❌ Tidak boleh lebih dari Tanggal Exp!';
-        warning.style.color = '#ef4444';
-        estOutInput.style.borderColor = '#ef4444';
-    } else {
-        warning.innerHTML = '✅ Valid';
-        warning.style.color = '#10b981';
-        estOutInput.style.borderColor = '#10b981';
-    }
-}
+        function renderQuickAddForm() {
+            const target = window._quickAddTarget;
+            if (!target) return renderInputForm();
+            container.innerHTML = `<div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <h3>📥 Tambah Barang ke Keranjang ${target.no}</h3>
+                    <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${target.no})">← Kembali</button>
+                </div>
+                <div style="background:#ecfdf5;border:1px solid #10b981;border-radius:8px;padding:12px;margin-bottom:16px;">
+                    <strong>📍 Tujuan:</strong> ${target.section} Baris ${target.baris} Slot ${target.slot} (Keranjang ${target.no})
+                    <br>Terisi: <strong>${itemCount(target.no)}/${getBasketCapacity(target.no)}</strong>
+                </div>
+                <form id="inForm" onsubmit="submitQuickAdd(event)">
+                    <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
+                    <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="Contoh: 5 Pack" required pattern="[0-9].*"></div>
+                    <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
+                    <div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateQuickEstOut()"></div>
+                    <div class="form-group"><label>Estimasi Keluar (wajib)</label><input type="date" id="inEstOutDate" required onchange="validateQuickEstOut()"><small id="estOutWarning" style="display:block;margin-top:4px;"></small></div>
+                    <input type="hidden" id="inSection" value="${target.section}"><input type="hidden" id="inBaris" value="${target.baris}">
+                    <input type="hidden" id="inSlot" value="${target.slot}"><input type="hidden" id="inKeranjangManual" value="${target.no}">
+                    <button type="submit" class="btn btn-primary" style="width:100%;background:#10b981;"><i class="fas fa-plus"></i> Tambah ke Keranjang ${target.no}</button>
+                </form>
+            </div>`;
+            updateNamaDatalist();
+        }
 
-// Submit quick add
-// ✅ Modifikasi submitQuickAdd dengan validasi real-time
-function submitQuickAdd(e) {
-    e.preventDefault();
-    const target = window._quickAddTarget;
-    if (!target) return showToast('Data keranjang hilang. Silakan coba lagi.');
-    
-    // === VALIDASI REAL-TIME ===
-    const currentCount = itemCount(target.no);
-    
-    // Cek kapasitas
-    if (isBasketFull(target.no)) {
-        return showToast(`❌ Keranjang ${target.no} sudah penuh!`);
-    }
-    
-    // Cek apakah keranjang masih ada (tidak dihapus user lain)
-    const basket = currentBaskets()[target.no];
-    if (!basket) {
-        return showToast('❌ Keranjang tidak ditemukan. Mungkin sudah dipindahkan.');
-    }
-    
-    // Cek konsistensi lokasi
-    if (basket.section !== target.section || 
-        basket.baris !== target.baris || 
-        basket.slot !== target.slot) {
-        return showToast('⚠️ Lokasi keranjang sudah berubah. Silakan refresh.');
-    }
-    // ==========================
-    
-    const nama = document.getElementById('inNama').value.trim();
-    const qty = document.getElementById('inQty').value.trim();
-    const jenis = document.getElementById('inJenis').value;
-    const expDate = document.getElementById('inExpDate').value;
-    const estOutDate = document.getElementById('inEstOutDate').value;
-    
-    // ... validasi field ...
-    
-    // === VALIDASI TAMBAHAN ===
-    // Cek apakah jenis TH bisa dicampur
-    if (jenis === 'TH' && basket.items.some(i => i.jenis !== 'TH')) {
-        return showToast('❌ TH tidak bisa dicampur dengan jenis lain!');
-    }
-    if (jenis !== 'TH' && basket.items.some(i => i.jenis === 'TH')) {
-        return showToast('❌ Jenis ini tidak bisa dicampur dengan TH!');
-    }
-    // =========================
-    
-    // Lanjutkan proses tambah...
-    const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
-    if (expDate) item.expDate = expDate;
-    if (estOutDate) item.estOutDate = estOutDate;
-    
-    currentBaskets()[target.no].items.push(item);
-    
-    logTransaction('in', { 
-        nama, qty, jenis, 
-        keranjang: target.no, 
-        section: target.section, 
-        baris: target.baris, 
-        expDate, estOutDate 
-    });
-    
-    saveToFirestore();
-    showToast(`✅ ${nama} berhasil ditambahkan ke keranjang ${target.no}`);
-    
-    setTimeout(() => showBasketDetail(target.no), 300);
-}
-        
-        // Fungsi baru: edit estimasi tanggal keluar
+        function validateQuickEstOut() {
+            const expDate = document.getElementById('inExpDate')?.value;
+            const estOutDate = document.getElementById('inEstOutDate')?.value;
+            const estOutInput = document.getElementById('inEstOutDate');
+            const warning = document.getElementById('estOutWarning');
+            if (!expDate || !estOutDate || !warning) return;
+            if (new Date(estOutDate) > new Date(expDate)) {
+                warning.innerHTML = '❌ Tidak boleh lebih dari Tanggal Exp!';
+                warning.style.color = '#ef4444'; estOutInput.style.borderColor = '#ef4444';
+            } else {
+                warning.innerHTML = '✅ Valid';
+                warning.style.color = '#10b981'; estOutInput.style.borderColor = '#10b981';
+            }
+        }
+
+        function submitQuickAdd(e) {
+            e.preventDefault();
+            const target = window._quickAddTarget;
+            if (!target) return showToast('Data keranjang hilang.');
+            if (isBasketFull(target.no)) return showToast(`❌ Keranjang ${target.no} sudah penuh!`);
+            const basket = currentBaskets()[target.no];
+            if (!basket) return showToast('❌ Keranjang tidak ditemukan.');
+            if (basket.section !== target.section || basket.baris !== target.baris || basket.slot !== target.slot)
+                return showToast('⚠️ Lokasi keranjang sudah berubah. Refresh.');
+            const nama = document.getElementById('inNama').value.trim();
+            const qty = document.getElementById('inQty').value.trim();
+            const jenis = document.getElementById('inJenis').value;
+            const expDate = document.getElementById('inExpDate').value;
+            const estOutDate = document.getElementById('inEstOutDate').value;
+            if (!nama || !qty) return showToast('Lengkapi data!');
+            if (!expDate || !estOutDate) return showToast('Tanggal Exp dan Estimasi Keluar wajib!');
+            if (new Date(estOutDate) > new Date(expDate)) return showToast('❌ Est Keluar tidak boleh > Exp!');
+            if (jenis === 'TH' && basket.items.some(i => i.jenis !== 'TH')) return showToast('❌ TH tidak bisa dicampur!');
+            if (jenis !== 'TH' && basket.items.some(i => i.jenis === 'TH')) return showToast('❌ Tidak bisa dicampur dengan TH!');
+            const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
+            if (expDate) item.expDate = expDate;
+            if (estOutDate) item.estOutDate = estOutDate;
+            basket.items.push(item);
+            logTransaction('in', { nama, qty, jenis, keranjang: target.no, section: target.section, baris: target.baris, expDate, estOutDate });
+            saveToFirestore();
+            showToast(`✅ ${nama} ditambahkan ke keranjang ${target.no}`);
+            setTimeout(() => showBasketDetail(target.no), 300);
+        }
+
+        // ==================== EDIT EST OUT ====================
         function editEstOutDate(no, idx) {
             const basket = currentBaskets()[no];
             if (!basket || !basket.items[idx]) return;
             const item = basket.items[idx];
             const expDate = item.expDate ? new Date(item.expDate) : null;
             const currentEst = item.estOutDate ? new Date(item.estOutDate).toISOString().split('T')[0] : '';
-
-            // Tampilkan prompt untuk input tanggal baru
-            const newDateStr = prompt(
-                `Edit Estimasi Keluar untuk "${item.nama}"\n` +
-                `Tanggal Exp: ${expDate ? expDate.toLocaleDateString('id-ID') : 'tidak ada'}\n` +
-                `Masukkan tanggal baru (YYYY-MM-DD):`,
-                currentEst
-            );
-
-            if (newDateStr === null) return; // batal
-
-            // Validasi format
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(newDateStr)) {
-                showToast('Format tanggal tidak valid.');
-                return;
-            }
+            const newDateStr = prompt(`Edit Estimasi Keluar untuk "${item.nama}"\nTanggal Exp: ${expDate ? expDate.toLocaleDateString('id-ID') : '-'}\nMasukkan tanggal (YYYY-MM-DD):`, currentEst);
+            if (newDateStr === null) return;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(newDateStr)) return showToast('Format tidak valid.');
             const newDate = new Date(newDateStr);
-            if (isNaN(newDate.getTime())) {
-                showToast('Tanggal tidak valid.');
-                return;
-            }
-
-            // Validasi: tidak boleh lebih dari exp
-            if (expDate && newDate > expDate) {
-                showToast(`❌ Estimasi keluar (${newDateStr}) tidak boleh lebih dari tanggal exp (${expDate.toISOString().split('T')[0]}).`);
-                return;
-            }
-
-            // Update data
+            if (isNaN(newDate.getTime())) return showToast('Tanggal tidak valid.');
+            if (expDate && newDate > expDate) return showToast(`❌ Tidak boleh > Exp (${expDate.toISOString().split('T')[0]}).`);
             item.estOutDate = newDateStr;
-            logTransaction('edit', {
-                nama: item.nama,
-                qty: item.qty,
-                jenis: item.jenis,
-                keranjang: no,
-                section: basket.section,
-                oldEstOutDate: currentEst,
-                newEstOutDate: newDateStr
-            });
+            logTransaction('edit', { nama: item.nama, qty: item.qty, jenis: item.jenis, keranjang: no, section: basket.section, oldEstOutDate: currentEst, newEstOutDate: newDateStr });
             saveToFirestore();
             showToast('✅ Estimasi keluar diperbarui.');
-            showBasketDetail(no); // refresh tampilan
+            showBasketDetail(no);
         }
 
-        // ─── MOVE FUNCTION ───
-     function renderMoveForm(fromNo, fromIdx) {
-    const sections = Object.keys(currentSections());
-    const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
-    const basket = currentBaskets()[fromNo];
-    const item = basket?.items[fromIdx];
-    
-    return `<div class="move-form" onclick="event.stopPropagation();">
-        <div style="width:100%;">
-            <div style="background:#f5f3ff; border-radius:8px; padding:8px 12px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-                <i class="fas fa-exchange-alt" style="color:#8b5cf6; font-size:1.2rem;"></i>
-                <div>
-                    <strong style="color:#5b21b6; font-size:0.85rem;">🔄 Pindah Barang: ${item?.nama || ''}</strong>
-                    <br><small style="color:#64748b;">Pilih keranjang tujuan untuk barang ini saja</small>
+        // ==================== MOVE ITEM ====================
+        function renderMoveForm(fromNo, fromIdx) {
+            const sections = Object.keys(currentSections());
+            const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
+            const item = currentBaskets()[fromNo]?.items[fromIdx];
+            return `<div class="move-form" onclick="event.stopPropagation();">
+                <div style="width:100%;">
+                    <div style="background:#f5f3ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;"><strong style="color:#5b21b6;">🔄 Pindah: ${item?.nama||''}</strong></div>
+                    <select id="moveSection" onchange="updateMoveBaris()" style="width:100%;margin-bottom:6px;"><option value="">-- Section --</option>${sectionOpts}</select>
+                    <select id="moveBaris" onchange="updateMoveKeranjang()" style="width:100%;margin-bottom:6px;"><option value="">-- Baris --</option></select>
+                    <select id="moveKeranjang" style="width:100%;margin-bottom:6px;"><option value="">-- Pilih Keranjang --</option></select>
+                    <input type="number" id="moveKeranjangBaru" placeholder="Atau nomor baru" min="1" style="width:100%;margin-bottom:6px;" oninput="validateMoveKeranjangBaru()">
+                    <small id="moveKeranjangWarning" style="display:block;margin-bottom:6px;"></small>
+                    <button class="btn btn-sm btn-primary" style="width:100%;" onclick="pindahkanItem(${fromNo},${fromIdx})"><i class="fas fa-exchange-alt"></i> Pindahkan</button>
+                    <button class="btn btn-sm btn-outline" style="width:100%;margin-top:4px;" onclick="showBasketDetail(${fromNo})">Batal</button>
                 </div>
-            </div>
-            
-            <div style="display:flex; gap:6px; margin-bottom:6px; align-items:center;">
-                <select id="moveSection" onchange="updateMoveBaris()" style="flex:1;">
-                    <option value="">-- Section --</option>
-                    ${sectionOpts}
-                </select>
-                <select id="moveBaris" onchange="updateMoveKeranjang()" style="flex:1;">
-                    <option value="">-- Baris --</option>
-                </select>
-            </div>
-            
-            <div style="margin-bottom:6px;">
-                <label style="font-size:0.75rem; margin-bottom:4px; display:block; color:#475569;">
-                    <i class="fas fa-box"></i> Pilih Keranjang yang Sudah Ada (Prioritas):
-                </label>
-                <select id="moveKeranjang" style="width:100%;">
-                    <option value="">-- Pilih Keranjang --</option>
-                </select>
-            </div>
-            
-            <div style="margin-bottom:8px;">
-                <label style="font-size:0.75rem; margin-bottom:4px; display:block; color:#f59e0b;">
-                    <i class="fas fa-plus-circle"></i> Atau Buat Keranjang Baru:
-                </label>
-                <input type="number" id="moveKeranjangBaru" 
-                       placeholder="Nomor keranjang baru" 
-                       min="1" 
-                       style="width:100%; padding:8px; font-size:0.85rem;"
-                       oninput="validateMoveKeranjangBaru()">
-                <small id="moveKeranjangWarning" style="display:block; margin-top:4px; font-size:0.7rem;"></small>
-            </div>
-            
-            <div style="display:flex; gap:6px;">
-                <button class="btn btn-sm btn-primary" style="flex:1;" onclick="pindahkanItem(${fromNo}, ${fromIdx})">
-                    <i class="fas fa-exchange-alt"></i> Pindahkan Barang Ini
-                </button>
-                <button class="btn btn-sm btn-outline" onclick="showBasketDetail(${fromNo})">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>`;
-}
+            </div>`;
+        }
 
         function updateMoveBaris() {
             const sec = document.getElementById('moveSection')?.value;
@@ -1777,901 +762,340 @@ function submitQuickAdd(e) {
             if (!sec) return;
             const barisObj = currentSections()[sec] || {};
             Object.keys(barisObj).forEach((baris, idx) => {
-                const label = `${sec} ${String(idx+1).padStart(2,'0')}`;
-                barisSel.innerHTML += `<option value="${baris}">${label}</option>`;
+                barisSel.innerHTML += `<option value="${baris}">${sec} ${String(idx+1).padStart(2,'0')}</option>`;
             });
             updateMoveKeranjang();
         }
 
         function updateMoveKeranjang() {
-    const sec = document.getElementById('moveSection')?.value;
-    const baris = document.getElementById('moveBaris')?.value;
-    const kerSel = document.getElementById('moveKeranjang');
-    if (!kerSel) return;
-    
-    kerSel.innerHTML = '<option value="">-- Pilih Keranjang yang Sudah Ada --</option>';
-    if (!sec || !baris) return;
-    
-    const slots = currentSections()[sec]?.[baris];
-    if (slots) {
-        let hasAvailable = false;
-        slots.forEach((no, idx) => {
-            if (no === null) return;
-            const c = itemCount(no);
-            const disabled = c >= 5 ? 'disabled' : '';
-            if (c < 5) hasAvailable = true;
-            kerSel.innerHTML += `<option value="${no}" ${disabled}>Keranjang ${no} (Slot ${idx+1}) ${c}/5 ${c >= 5 ? '- PENUH' : ''}</option>`;
-        });
-        
-        if (!hasAvailable) {
-            kerSel.innerHTML += '<option value="" disabled>Semua keranjang penuh - Buat baru</option>';
+            const sec = document.getElementById('moveSection')?.value;
+            const baris = document.getElementById('moveBaris')?.value;
+            const kerSel = document.getElementById('moveKeranjang');
+            if (!kerSel) return;
+            kerSel.innerHTML = '<option value="">-- Pilih Keranjang --</option>';
+            if (!sec || !baris) return;
+            const slots = currentSections()[sec]?.[baris];
+            if (slots) {
+                slots.forEach((no, idx) => {
+                    if (no === null) return;
+                    const c = itemCount(no);
+                    kerSel.innerHTML += `<option value="${no}" ${c>=getBasketCapacity(no)?'disabled':''}>Keranjang ${no} (${c}/${getBasketCapacity(no)})</option>`;
+                });
+            }
         }
-    }
-}
 
         function validateMoveKeranjangBaru() {
-    const input = document.getElementById('moveKeranjangBaru');
-    const warningEl = document.getElementById('moveKeranjangWarning');
-    const value = parseInt(input?.value);
-    
-    if (!input || !warningEl) return;
-    
-    if (!value || isNaN(value) || value <= 0) {
-        warningEl.innerHTML = '';
-        input.style.borderColor = '#cbd5e1';
-        return;
-    }
-    
-    // Cek apakah nomor sudah digunakan
-    for (const area of ['frozen', 'chiller']) {
-        const sections = appData[area].sections;
-        for (const [sec, barisObj] of Object.entries(sections)) {
-            for (const sl of Object.values(barisObj)) {
-                if (sl.includes(value)) {
-                    warningEl.innerHTML = `❌ Nomor ${value} sudah digunakan`;
-                    warningEl.style.color = '#ef4444';
-                    input.style.borderColor = '#ef4444';
-                    return;
+            const input = document.getElementById('moveKeranjangBaru');
+            const warning = document.getElementById('moveKeranjangWarning');
+            const value = parseInt(input?.value);
+            if (!input || !warning) return;
+            if (!value || value <= 0) { warning.innerHTML = ''; input.style.borderColor = '#cbd5e1'; return; }
+            for (const area of ['frozen','chiller']) {
+                for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
+                    for (const sl of Object.values(barisObj)) {
+                        if (sl.includes(value)) {
+                            warning.innerHTML = `❌ Nomor ${value} sudah digunakan`;
+                            warning.style.color = '#ef4444'; input.style.borderColor = '#ef4444';
+                            return;
+                        }
+                    }
                 }
             }
+            warning.innerHTML = `✅ Nomor ${value} tersedia`;
+            warning.style.color = '#10b981'; input.style.borderColor = '#10b981';
         }
-    }
-    
-    // Nomor tersedia
-    warningEl.innerHTML = `✅ Nomor ${value} tersedia`;
-    warningEl.style.color = '#10b981';
-    input.style.borderColor = '#10b981';
-}
-        
-       function pindahkanItem(fromNo, fromIdx) {
-    const toSection = document.getElementById('moveSection')?.value;
-    const toBaris = document.getElementById('moveBaris')?.value;
-    const toNoInput = document.getElementById('moveKeranjangBaru')?.value;
-    
-    let toNo = parseInt(document.getElementById('moveKeranjang')?.value);
-    
-    // Cek jika memilih keranjang baru
-    if (!toNo && toNoInput) {
-        toNo = parseInt(toNoInput);
-        if (!toNo || isNaN(toNo) || toNo <= 0) {
-            return showToast('Pilih keranjang tujuan atau masukkan nomor keranjang baru.');
+
+        function pindahkanItem(fromNo, fromIdx) {
+            const fromBasket = currentBaskets()[fromNo];
+            if (!fromBasket || !fromBasket.items[fromIdx]) return;
+            const item = fromBasket.items[fromIdx];
+            if (item.expDate && !cekFEFO(fromNo, fromIdx)) return;
+            const toSection = document.getElementById('moveSection')?.value;
+            const toBaris = document.getElementById('moveBaris')?.value;
+            let toNo = parseInt(document.getElementById('moveKeranjang')?.value);
+            const toNoInput = document.getElementById('moveKeranjangBaru')?.value;
+            if (!toNo && toNoInput) {
+                toNo = parseInt(toNoInput);
+                if (!toNo || toNo <= 0) return showToast('Masukkan nomor keranjang.');
+                for (const area of ['frozen','chiller']) {
+                    for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
+                        for (const sl of Object.values(barisObj)) {
+                            if (sl.includes(toNo)) return showToast(`❌ Nomor ${toNo} sudah digunakan.`);
+                        }
+                    }
+                }
+                if (toSection && toBaris) {
+                    const toSlots = currentSections()[toSection]?.[toBaris];
+                    if (toSlots) { const emptyIdx = toSlots.findIndex(s => s === null); if (emptyIdx !== -1) toSlots[emptyIdx] = toNo; }
+                }
+            }
+            if (!toNo) return showToast('Pilih keranjang tujuan.');
+            if (toNo === fromNo) return showToast('Tidak bisa ke keranjang yang sama.');
+            if (isBasketFull(toNo)) return showToast('Keranjang tujuan penuh.');
+            fromBasket.items.splice(fromIdx, 1);
+            if (fromBasket.items.length === 0) removeEmptyBasketNumber(fromNo);
+            if (!currentBaskets()[toNo]) currentBaskets()[toNo] = { section: toSection || '', baris: toBaris || '', items: [] };
+            currentBaskets()[toNo].items.push(item);
+            logTransaction('move', { nama: item.nama, qty: item.qty, jenis: item.jenis, dari: fromNo, ke: toNo, section: toSection });
+            saveToFirestore();
+            showToast('✅ Barang dipindahkan ke ' + toNo);
+            showBasketDetail(fromNo);
         }
-        
-        // Cek duplikasi
-        for (const area of ['frozen', 'chiller']) {
-            for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
-                for (const sl of Object.values(barisObj)) {
-                    if (sl.includes(toNo)) {
-                        return showToast(`❌ Nomor keranjang ${toNo} sudah digunakan. Pilih yang sudah ada atau gunakan nomor lain!`);
+
+        function removeEmptyBasketNumber(keranjangNo) {
+            for (const area of ['frozen','chiller']) {
+                const sections = appData[area].sections;
+                const baskets = appData[area].baskets;
+                for (const [sec, barisObj] of Object.entries(sections)) {
+                    for (const [baris, slots] of Object.entries(barisObj)) {
+                        const idx = slots.indexOf(keranjangNo);
+                        if (idx !== -1) { slots[idx] = null; if (baskets[keranjangNo]) delete baskets[keranjangNo]; return; }
                     }
                 }
             }
         }
-        
-        // Tambahkan keranjang baru ke slot yang dipilih
-        if (toSection && toBaris) {
-            const toSlots = currentSections()[toSection]?.[toBaris];
-            if (toSlots) {
-                // Cari slot kosong atau gunakan slot yang dipilih
-                const emptySlotIndex = toSlots.findIndex(s => s === null);
-                if (emptySlotIndex !== -1) {
-                    toSlots[emptySlotIndex] = toNo;
-                }
+
+        // ==================== KELUARKAN ITEM ====================
+        function keluarkanItem(no, idx) {
+            const basket = currentBaskets()[no];
+            if (!basket) return;
+            const item = basket.items[idx];
+            if (item.expDate && !cekFEFO(no, idx)) return;
+            const qtyNumber = parseFloat(item.qty) || parseInt(item.qty) || 0;
+            if (!isNaN(qtyNumber) && qtyNumber > 1) {
+                showPartialOutDialog(no, idx, item, qtyNumber);
+            } else {
+                if (confirm(`Keluarkan "${item.nama}" dari keranjang ${no}?`)) executeFullOut(no, idx, item);
             }
         }
-    }
-    
-    if (!toNo) return showToast('Pilih keranjang tujuan.');
-// ✅ ATURAN KAPASITAS (tambahkan di awal script)
-const BASKET_CAPACITY = {
-    DEFAULT: 5,
-    MIXED_WITH_TH: 3,  // Jika ada TH, maksimal 3 item
-    TH_ONLY: 3          // TH saja maksimal 3
-};
 
-// ✅ FUNGSI BARU: Cek kapasitas berdasarkan isi
-function getBasketCapacity(no) {
-    const items = currentBaskets()[no]?.items || [];
-    
-    if (items.length === 0) return BASKET_CAPACITY.DEFAULT;
-    
-    const hasTH = items.some(i => i.jenis === 'TH');
-    return hasTH ? BASKET_CAPACITY.MIXED_WITH_TH : BASKET_CAPACITY.DEFAULT;
-}
-
-function isBasketFull(no) {
-    const items = currentBaskets()[no]?.items || [];
-    const capacity = getBasketCapacity(no);
-    return items.length >= capacity;
-}
-
-function isBasketAlmostFull(no) {
-    const items = currentBaskets()[no]?.items || [];
-    const capacity = getBasketCapacity(no);
-    return items.length >= capacity - 1;
-}
-
-// ✅ Modifikasi semua pengecekan kapasitas
-// Di submitIn():
-if (no !== null && isBasketFull(no)) {
-    return showToast(`❌ Keranjang ${no} penuh (${getBasketCapacity(no)}/${getBasketCapacity(no)})`);
-}
-
-// Di quickAddToBasket():
-if (isBasketFull(no)) {
-    return showToast(`❌ Keranjang ${no} penuh!`);
-}
-
-// Di pindahkanItem():
-if (isBasketFull(toNo)) {
-    return showToast('Keranjang tujuan sudah penuh.');
-}
-
-// ✅ Tambahkan peringatan di buildBasketSlot()
-function buildBasketSlot(no, slotIdx) {
-    // ... existing code ...
-    
-    if (isBasketAlmostFull(no) && !isBasketFull(no)) {
-        // Tambahkan indikator "hampir penuh"
-        tooltipParts.push('⚠️ HAMPIR PENUH');
-    }
-    
-    // ... existing code ...
-}
-    
-    const fromBasket = currentBaskets()[fromNo];
-    if (!fromBasket || !fromBasket.items[fromIdx]) return;
-    
-    const item = fromBasket.items[fromIdx];
-    fromBasket.items.splice(fromIdx, 1);
-    
-    // ===== FITUR 1: Hapus nomor keranjang jika kosong =====
-    if (fromBasket.items.length === 0) {
-        removeEmptyBasketNumber(fromNo);
-    }
-    // ====================================================
-    
-    if (!currentBaskets()[toNo]) {
-        currentBaskets()[toNo] = { section: toSection || '', baris: toBaris || '', items: [] };
-    }
-    currentBaskets()[toNo].items.push(item);
-    
-    logTransaction('move', { 
-        nama: item.nama, 
-        qty: item.qty, 
-        jenis: item.jenis, 
-        dari: fromNo, 
-        ke: toNo,
-        section: toSection || currentBaskets()[toNo]?.section
-    });
-    
-    saveToFirestore();
-    showToast('✅ Barang dipindahkan ke keranjang ' + toNo);
-    showBasketDetail(fromNo);
-}
-
-        // Fungsi untuk menghapus nomor keranjang dari slot jika keranjang kosong
-function removeEmptyBasketNumber(keranjangNo) {
-    // Cari di SEMUA area (frozen & chiller)
-    for (const area of ['frozen', 'chiller']) {
-        const sections = appData[area].sections;
-        const baskets = appData[area].baskets;
-        
-        for (const [sec, barisObj] of Object.entries(sections)) {
-            for (const [baris, slots] of Object.entries(barisObj)) {
-                const slotIndex = slots.indexOf(keranjangNo);
-                if (slotIndex !== -1) {
-                    // Hapus nomor keranjang dari slot
-                    slots[slotIndex] = null;
-                    
-                    // Hapus data basket jika ada
-                    if (baskets[keranjangNo]) {
-                        delete baskets[keranjangNo];
-                    }
-                    
-                    console.log(`🗑️ Keranjang ${keranjangNo} dihapus dari ${area} - ${sec} Baris ${baris} Slot ${slotIndex + 1}`);
-                    return; // Keluar setelah menemukan dan menghapus
-                }
-            }
+        function showPartialOutDialog(no, idx, item, totalQty) {
+            const dialogHtml = `
+            <div id="partialOutOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:300;display:flex;align-items:center;justify-content:center;" onclick="closePartialOutDialog()">
+                <div class="card" style="width:90%;max-width:400px;" onclick="event.stopPropagation();">
+                    <h3>📤 Keluarkan Sebagian</h3>
+                    <div style="background:#f0f4ff;border-radius:8px;padding:12px;margin-bottom:16px;"><strong>${item.nama}</strong><br>Total: <strong>${totalQty}</strong></div>
+                    <input type="number" id="partialOutQty" min="1" max="${totalQty}" placeholder="Jumlah" style="font-size:1.2rem;text-align:center;width:100%;margin-bottom:8px;" onkeypress="if(event.key==='Enter')executePartialOut(${no},${idx},'${item.nama.replace(/'/g,"\\'")}',${totalQty},'${item.jenis||''}')">
+                    <small id="partialOutWarning" style="display:block;margin-bottom:8px;"></small>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-outline" style="flex:1;" onclick="closePartialOutDialog()">Batal</button>
+                        <button class="btn" style="flex:1;background:#ef4444;color:white;" onclick="executePartialOut(${no},${idx},'${item.nama.replace(/'/g,"\\'")}',${totalQty},'${item.jenis||''}')">Keluarkan</button>
+                    </div>
+                </div>
+            </div>`;
+            const dc = document.createElement('div'); dc.id = 'partialOutDialog'; dc.innerHTML = dialogHtml; document.body.appendChild(dc);
+            setTimeout(() => document.getElementById('partialOutQty')?.focus(), 100);
         }
-    }
-}
-        
-     // ✅ FUNGSI BARU: Validasi FEFO
-function cekFEFO(no, idx) {
-    const items = currentBaskets()[no]?.items || [];
-    const selectedItem = items[idx];
-    
-    if (!selectedItem.expDate) return true;
-    
-    const selectedExp = new Date(selectedItem.expDate).getTime();
-    const now = new Date().getTime();
-    
-    // Cari barang yang expired lebih dulu (masih valid)
-    const earlierExp = items
-        .filter((item, i) => i !== idx && item.expDate)
-        .filter(item => {
-            const itemExp = new Date(item.expDate).getTime();
-            return itemExp < selectedExp && itemExp > now;
-        })
-        .sort((a, b) => new Date(a.expDate) - new Date(b.expDate));
-    
-    if (earlierExp.length > 0) {
-        const harusDikeluarkan = earlierExp[0];
-        showToast(
-            `⚠️ FEFO: "${harusDikeluarkan.nama}" expired ${new Date(harusDikeluarkan.expDate).toLocaleDateString('id-ID')} lebih dulu!`
-        );
-        
-        // Highlight di UI (opsional, bisa diskip dulu)
-        return false;
-    }
-    
-    return true;
-}
 
-// ✅ Modifikasi fungsi existing
-function keluarkanItem(no, idx) {
-    const basket = currentBaskets()[no];
-    if (!basket) return;
-    const item = basket.items[idx];
-    
-    // === VALIDASI FEFO ===
-    if (item.expDate && !cekFEFO(no, idx)) return;
-    // =====================
-    
-    const qtyText = item.qty;
-    const qtyNumber = parseFloat(qtyText) || parseInt(qtyText) || 0;
-    
-    if (!isNaN(qtyNumber) && qtyNumber > 1) {
-        showPartialOutDialog(no, idx, item, qtyNumber);
-    } else if (qtyText.includes('/') || qtyText.includes('&') || qtyText.includes(',')) {
-        if (confirm(`Keluarkan SEMUA "${item.nama}" (${item.qty}) dari keranjang ${no}?`)) {
-            executeFullOut(no, idx, item);
+        function executePartialOut(no, idx, nama, totalQty, jenis) {
+            const qtyOut = parseInt(document.getElementById('partialOutQty')?.value);
+            if (!qtyOut || qtyOut <= 0) return showToast('❌ Jumlah tidak valid!');
+            if (qtyOut > totalQty) return showToast(`❌ Maksimal ${totalQty}!`);
+            const basket = currentBaskets()[no];
+            if (!basket || !basket.items[idx]) return;
+            const sisa = totalQty - qtyOut;
+            if (sisa <= 0) { executeFullOut(no, idx, basket.items[idx]); closePartialOutDialog(); return; }
+            basket.items[idx].qty = sisa.toString();
+            logTransaction('out', { nama, qty: `${qtyOut} dari ${totalQty} (sisa ${sisa})`, jenis, keranjang: no, section: basket.section, partial: true });
+            saveToFirestore();
+            closePartialOutDialog();
+            showToast(`✅ ${qtyOut} ${nama} dikeluarkan. Sisa: ${sisa}`);
+            showBasketDetail(no);
         }
-    } else {
-        if (confirm(`Keluarkan "${item.nama}" (${item.qty}) dari keranjang ${no}?`)) {
-            executeFullOut(no, idx, item);
+
+        function executeFullOut(no, idx, item) {
+            const basket = currentBaskets()[no];
+            if (!basket) return;
+            basket.items.splice(idx, 1);
+            if (basket.items.length === 0) removeEmptyBasketNumber(no);
+            logTransaction('out', { nama: item.nama, qty: item.qty, jenis: item.jenis, keranjang: no, section: basket.section });
+            saveToFirestore();
+            showToast(`✅ ${item.nama} dikeluarkan`);
+            showBasketDetail(no);
         }
-    }
-}
 
-// ✅ Validasi FEFO saat pindah barang
-function pindahkanItem(fromNo, fromIdx) {
-    // ... existing code ...
-    
-    const item = fromBasket.items[fromIdx];
-    
-    // === VALIDASI FEFO SAAT PINDAH ===
-    if (item.expDate && !cekFEFO(fromNo, fromIdx)) return;
-    // ===================================
-    
-    // ... lanjutkan proses pindah ...
-}
+        function closePartialOutDialog() {
+            document.getElementById('partialOutDialog')?.remove();
+            document.getElementById('partialOutOverlay')?.remove();
+        }
 
-// Fungsi untuk menampilkan dialog partial out
-function showPartialOutDialog(no, idx, item, totalQty) {
-    // Buat dialog HTML
-    const dialogHtml = `
-    <div id="partialOutOverlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:300; display:flex; align-items:center; justify-content:center;" onclick="closePartialOutDialog()">
-        <div class="card" style="width:90%; max-width:400px; position:relative;" onclick="event.stopPropagation();">
-            <h3 style="margin-bottom:12px;">📤 Keluarkan Sebagian</h3>
-            
-            <div style="background:#f0f4ff; border-radius:8px; padding:12px; margin-bottom:16px;">
-                <strong>${item.nama}</strong>
-                <br>Jenis: ${item.jenis || '-'}
-                <br>Total tersedia: <strong>${totalQty}</strong>
-                ${item.expDate ? `<br>Exp: ${new Date(item.expDate).toLocaleDateString('id-ID')}` : ''}
-            </div>
-            
-            <div class="form-group">
-                <label>Jumlah yang dikeluarkan:</label>
-                <input type="number" id="partialOutQty" 
-                       min="1" max="${totalQty}" 
-                       placeholder="Masukkan jumlah" 
-                       style="font-size:1.2rem; font-weight:bold; text-align:center;"
-                       oninput="validatePartialOutQty(${totalQty})"
-                       onkeypress="if(event.key==='Enter') executePartialOut(${no}, ${idx}, '${item.nama.replace(/'/g, "\\'")}', ${totalQty}, '${item.jenis?.replace(/'/g, "\\'") || ''}')">
-                <small id="partialOutWarning" style="display:block; margin-top:4px;"></small>
-            </div>
-            
-            <div style="display:flex; gap:8px; margin-top:16px;">
-                <button class="btn btn-outline" style="flex:1;" onclick="closePartialOutDialog()">
-                    Batal
-                </button>
-                <button class="btn" style="flex:1; background:#ef4444; color:white;" onclick="executePartialOut(${no}, ${idx}, '${item.nama.replace(/'/g, "\\'")}', ${totalQty}, '${item.jenis?.replace(/'/g, "\\'") || ''}')">
-                    <i class="fas fa-sign-out-alt"></i> Keluarkan
-                </button>
-            </div>
-            
-            <button class="btn btn-outline" style="width:100%; margin-top:8px; color:#ef4444; border-color:#ef4444;" onclick="executeFullOutFromDialog(${no}, ${idx})">
-                Atau keluarkan SEMUA (${totalQty})
-            </button>
-        </div>
-    </div>`;
-    
-    // Tambahkan dialog ke body
-    const dialogContainer = document.createElement('div');
-    dialogContainer.id = 'partialOutDialog';
-    dialogContainer.innerHTML = dialogHtml;
-    document.body.appendChild(dialogContainer);
-    
-    // Focus ke input
-    setTimeout(() => {
-        document.getElementById('partialOutQty')?.focus();
-    }, 100);
-}
-
-// Fungsi validasi input partial out
-function validatePartialOutQty(maxQty) {
-    const input = document.getElementById('partialOutQty');
-    const warning = document.getElementById('partialOutWarning');
-    const value = parseInt(input?.value);
-    
-    if (!input || !warning) return;
-    
-    if (!value || isNaN(value) || value <= 0) {
-        warning.innerHTML = '⚠️ Masukkan jumlah yang valid';
-        warning.style.color = '#f59e0b';
-        input.style.borderColor = '#f59e0b';
-    } else if (value > maxQty) {
-        warning.innerHTML = `❌ Maksimal ${maxQty}`;
-        warning.style.color = '#ef4444';
-        input.style.borderColor = '#ef4444';
-        input.value = maxQty;
-    } else if (value === maxQty) {
-        warning.innerHTML = `⚠️ Ini akan mengeluarkan SEMUA (${maxQty})`;
-        warning.style.color = '#f59e0b';
-        input.style.borderColor = '#f59e0b';
-    } else {
-        warning.innerHTML = `✅ Akan tersisa ${maxQty - value}`;
-        warning.style.color = '#10b981';
-        input.style.borderColor = '#10b981';
-    }
-}
-
-// Fungsi eksekusi partial out
-function executePartialOut(no, idx, nama, totalQty, jenis) {
-    const qtyOut = parseInt(document.getElementById('partialOutQty')?.value);
-    
-    if (!qtyOut || qtyOut <= 0) {
-        return showToast('❌ Masukkan jumlah yang valid!');
-    }
-    
-    if (qtyOut > totalQty) {
-        return showToast(`❌ Maksimal ${totalQty}!`);
-    }
-    
-    const basket = currentBaskets()[no];
-    if (!basket || !basket.items[idx]) return;
-    
-    const item = basket.items[idx];
-    const sisa = totalQty - qtyOut;
-    
-    if (sisa <= 0) {
-        // Jika habis, hapus item
-        executeFullOutFromDialog(no, idx);
-        closePartialOutDialog();
-        return;
-    }
-    
-    // Update qty item menjadi sisa
-    item.qty = sisa.toString();
-    
-    // Log transaksi out partial
-    logTransaction('out', {
-        nama: nama,
-        qty: `${qtyOut} dari ${totalQty} (sisa ${sisa})`,
-        jenis: jenis,
-        keranjang: no,
-        section: basket.section,
-        partial: true
-    });
-    
-    saveToFirestore();
-    closePartialOutDialog();
-    showToast(`✅ ${qtyOut} ${nama} dikeluarkan. Sisa: ${sisa}`);
-    showBasketDetail(no);
-}
-
-// Fungsi eksekusi full out
-function executeFullOut(no, idx, item) {
-    const basket = currentBaskets()[no];
-    if (!basket) return;
-    
-    basket.items.splice(idx, 1);
-    
-    // Hapus nomor keranjang jika kosong
-    if (basket.items.length === 0) {
-        removeEmptyBasketNumber(no);
-    }
-    
-    logTransaction('out', {
-        nama: item.nama,
-        qty: item.qty,
-        jenis: item.jenis,
-        keranjang: no,
-        section: basket.section
-    });
-    
-    saveToFirestore();
-    showToast(`✅ ${item.nama} dikeluarkan`);
-    showBasketDetail(no);
-}
-
-// Fungsi full out dari dialog
-function executeFullOutFromDialog(no, idx) {
-    const basket = currentBaskets()[no];
-    if (!basket || !basket.items[idx]) return;
-    
-    const item = basket.items[idx];
-    executeFullOut(no, idx, item);
-    closePartialOutDialog();
-}
-
-// Fungsi untuk menutup dialog
-function closePartialOutDialog() {
-    const dialog = document.getElementById('partialOutDialog');
-    if (dialog) dialog.remove();
-    
-    const overlay = document.getElementById('partialOutOverlay');
-    if (overlay) overlay.remove();
-}
-
+        // ==================== MOVE BASKET ====================
         function showMoveBasketForm(fromNo) {
-    const basket = currentBaskets()[fromNo];
-    if (!basket) return;
-    
-    const sections = Object.keys(currentSections());
-    const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
-    
-    container.innerHTML = `<div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <div>
-                <h3 style="display:inline;">
-                    <i class="fas fa-truck" style="color:#8b5cf6;"></i> 
-                    Pindahkan Keranjang ${fromNo}
-                </h3>
-                <span class="move-type-badge basket-move" style="font-size:0.8rem;">📦 BESERTA ISI</span>
-            </div>
-            <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${fromNo})">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </button>
-        </div>
-        
-        <div style="background:linear-gradient(135deg, #ede9fe, #f5f3ff); border:2px solid #8b5cf6; border-radius:12px; padding:16px; margin-bottom:16px;">
-            <div style="display:flex; gap:12px; align-items:center;">
-                <i class="fas fa-info-circle" style="font-size:2rem; color:#7c3aed;"></i>
-                <div>
-                    <strong style="color:#5b21b6;">⚠️ Perhatian! Ini berbeda dengan "Pindah Barang"</strong>
-                    <br><small style="color:#64748b;">
-                        • <strong>Pindah Keranjang</strong>: Memindahkan SELURUH isi keranjang (${basket.items.length} item) ke lokasi baru<br>
-                        • <strong>Pindah Barang</strong>: Hanya memindahkan SATU barang ke keranjang lain
-                    </small>
+            const basket = currentBaskets()[fromNo];
+            if (!basket) return;
+            const sectionOpts = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
+            container.innerHTML = `<div class="card">
+                <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+                    <h3><i class="fas fa-truck" style="color:#8b5cf6;"></i> Pindah Keranjang ${fromNo}</h3>
+                    <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${fromNo})">← Kembali</button>
                 </div>
-            </div>
-        </div>
-        
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px; margin-bottom:16px;">
-            <strong>📍 Lokasi Saat Ini:</strong>
-            <br>Keranjang ${fromNo} berada di <strong>${basket.section}</strong> Baris <strong>${basket.baris}</strong> Slot <strong>${basket.slot}</strong>
-            <br>Jumlah item: <strong>${basket.items.length}/5</strong>
-        </div>
-        
-        <div style="border-left: 4px solid #8b5cf6; padding-left: 12px; margin-bottom:16px;">
-            <strong style="color:#5b21b6;">Pilih Lokasi Tujuan:</strong>
-        </div>
-        
-        <div class="form-group">
-            <label><i class="fas fa-building"></i> Section Tujuan</label>
-            <select id="moveBasketSection" onchange="updateMoveBasketBaris()">
-                <option value="">-- Pilih Section --</option>
-                ${sectionOpts}
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label><i class="fas fa-grip-lines"></i> Baris Tujuan</label>
-            <select id="moveBasketBaris" onchange="updateMoveBasketSlot()">
-                <option value="">-- Pilih Baris --</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label><i class="fas fa-th"></i> Slot Tujuan (1-5)</label>
-            <select id="moveBasketSlot">
-                <option value="">-- Pilih Slot --</option>
-            </select>
-        </div>
-        
-        <div id="moveBasketInfo" style="margin-bottom:16px;"></div>
-        
-        <button class="btn" style="width:100%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color:white; font-size:1rem; padding:14px;" 
-                onclick="executeMoveBasket(${fromNo})">
-            <i class="fas fa-truck"></i> Pindahkan Seluruh Keranjang ${fromNo}
-        </button>
-        
-        <button class="btn btn-outline" style="width:100%; margin-top:8px;" onclick="showBasketDetail(${fromNo})">
-            <i class="fas fa-times"></i> Batal
-        </button>
-    </div>`;
-}
-        
-function updateMoveBasketBaris() {
-    const section = document.getElementById('moveBasketSection')?.value;
-    const barisSelect = document.getElementById('moveBasketBaris');
-    if (!barisSelect) return;
-    
-    barisSelect.innerHTML = '<option value="">-- Pilih Baris --</option>';
-    if (!section) return;
-    
-    const barisObj = currentSections()[section] || {};
-    Object.keys(barisObj).forEach((baris, idx) => {
-        const label = `${section} ${String(idx+1).padStart(2,'0')}`;
-        barisSelect.innerHTML += `<option value="${baris}">${label}</option>`;
-    });
-    
-    const slotSelect = document.getElementById('moveBasketSlot');
-    if (slotSelect) slotSelect.innerHTML = '<option value="">-- Pilih Slot --</option>';
-}
+                <p>📍 Saat ini: <strong>${basket.section}</strong> Baris <strong>${basket.baris}</strong> Slot <strong>${basket.slot}</strong> (${basket.items.length} item)</p>
+                <div class="form-group"><label>Section Tujuan</label><select id="moveBasketSection" onchange="updateMoveBasketBaris()"><option value="">-- Pilih --</option>${sectionOpts}</select></div>
+                <div class="form-group"><label>Baris Tujuan</label><select id="moveBasketBaris" onchange="updateMoveBasketSlot()"><option value="">-- Pilih --</option></select></div>
+                <div class="form-group"><label>Slot Tujuan</label><select id="moveBasketSlot"><option value="">-- Pilih --</option></select></div>
+                <div id="moveBasketInfo" style="margin-bottom:16px;"></div>
+                <button class="btn" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;" onclick="executeMoveBasket(${fromNo})"><i class="fas fa-truck"></i> Pindahkan</button>
+            </div>`;
+        }
 
-function updateMoveBasketSlot() {
-    const section = document.getElementById('moveBasketSection')?.value;
-    const baris = document.getElementById('moveBasketBaris')?.value;
-    const slotSelect = document.getElementById('moveBasketSlot');
-    const infoDiv = document.getElementById('moveBasketInfo');
-    
-    if (!slotSelect) return;
-    slotSelect.innerHTML = '<option value="">-- Pilih Slot --</option>';
-    if (infoDiv) infoDiv.innerHTML = '';
-    
-    if (!section || !baris) return;
-    
-    const slots = currentSections()[section]?.[baris];
-    if (!slots) return;
-    
-    for (let i = 0; i < 5; i++) {
-        const no = slots[i];
-        const slotNumber = i + 1;
-        
-        if (no === null) {
-            slotSelect.innerHTML += `<option value="${slotNumber}">Slot ${slotNumber} (kosong) ✅</option>`;
-        } else {
-            const count = itemCount(no);
-            slotSelect.innerHTML += `<option value="${slotNumber}" disabled>Slot ${slotNumber}: Keranjang ${no} (${count}/5) ❌</option>`;
+        function updateMoveBasketBaris() {
+            const sec = document.getElementById('moveBasketSection')?.value;
+            const barisSel = document.getElementById('moveBasketBaris');
+            if (!barisSel) return;
+            barisSel.innerHTML = '<option value="">-- Pilih --</option>';
+            if (!sec) return;
+            Object.keys(currentSections()[sec] || {}).forEach((b, i) => {
+                barisSel.innerHTML += `<option value="${b}">${sec} ${String(i+1).padStart(2,'0')}</option>`;
+            });
+            document.getElementById('moveBasketSlot').innerHTML = '<option value="">-- Pilih --</option>';
         }
-    }
-    
-    slotSelect.onchange = function() {
-        const selectedSlot = parseInt(this.value);
-        if (selectedSlot && infoDiv) {
-            infoDiv.innerHTML = `
-                <div style="background:#ecfdf5; border:1px solid #10b981; border-radius:8px; padding:12px;">
-                    <strong>✅ Slot ${selectedSlot} tersedia</strong>
-                    <br>Keranjang akan dipindahkan ke ${section} Baris ${baris} Slot ${selectedSlot}
-                </div>
-            `;
+
+        function updateMoveBasketSlot() {
+            const sec = document.getElementById('moveBasketSection')?.value;
+            const baris = document.getElementById('moveBasketBaris')?.value;
+            const slotSel = document.getElementById('moveBasketSlot');
+            if (!slotSel) return;
+            slotSel.innerHTML = '<option value="">-- Pilih --</option>';
+            if (!sec || !baris) return;
+            const slots = currentSections()[sec]?.[baris] || [];
+            for (let i = 0; i < 5; i++) {
+                if (slots[i] === null) slotSel.innerHTML += `<option value="${i+1}">Slot ${i+1} (kosong) ✅</option>`;
+                else slotSel.innerHTML += `<option value="${i+1}" disabled>Slot ${i+1}: ${slots[i]} ❌</option>`;
+            }
         }
-    };
-}
+
         function executeMoveBasket(fromNo) {
-    const toSection = document.getElementById('moveBasketSection')?.value;
-    const toBaris = document.getElementById('moveBasketBaris')?.value;
-    const toSlot = parseInt(document.getElementById('moveBasketSlot')?.value);
-    
-    if (!toSection || !toBaris || !toSlot) {
-        return showToast('❌ Lengkapi semua pilihan!');
-    }
-    
-    const fromBasket = currentBaskets()[fromNo];
-    if (!fromBasket) return showToast('❌ Keranjang asal tidak ditemukan!');
-    
-    // Validasi: tidak bisa pindah ke tempat yang sama
-    if (fromBasket.section === toSection && fromBasket.baris === toBaris && fromBasket.slot === toSlot) {
-        return showToast('❌ Tidak bisa pindah ke lokasi yang sama!');
-    }
-    
-    const toSlots = currentSections()[toSection]?.[toBaris];
-    if (!toSlots) return showToast('❌ Baris tujuan tidak valid!');
-    
-    // Validasi: slot tujuan harus kosong
-    if (toSlots[toSlot - 1] !== null) {
-        return showToast('❌ Slot tujuan sudah terisi keranjang lain! Pilih slot kosong.');
-    }
-    
-    // Cari lokasi lama dan hapus
-    const fromSection = fromBasket.section;
-    const fromBaris = fromBasket.baris;
-    const fromSlot = fromBasket.slot;
-    
-    const fromSlots = currentSections()[fromSection]?.[fromBaris];
-    if (fromSlots) {
-        fromSlots[fromSlot - 1] = null; // Hapus dari slot lama
-    }
-    
-    // Pasang di lokasi baru
-    toSlots[toSlot - 1] = fromNo;
-    
-    // Update data basket
-    fromBasket.section = toSection;
-    fromBasket.baris = toBaris;
-    fromBasket.slot = toSlot;
-    
-// ✅ Tambahkan riwayat ke setiap item
-    fromBasket.items.forEach((item, idx) => {
-        item.moveHistory = item.moveHistory || [];
-        item.moveHistory.push({
-            from: `${fromSection} ${fromBaris} Slot ${fromSlot}`,
-            to: `${toSection} ${toBaris} Slot ${toSlot}`,
-            timestamp: new Date().toISOString(),
-            user: auth.currentUser?.email
-        });
-    });
-    
-    // ✅ Log transaksi lebih detail
-    logTransaction('move_basket', {
-        keranjang: fromNo,
-        dari: `${fromSection} ${fromBaris} Slot ${fromSlot}`,
-        ke: `${toSection} ${toBaris} Slot ${toSlot}`,
-        jumlahItem: fromBasket.items.length,
-        items: fromBasket.items.map(i => ({ nama: i.nama, qty: i.qty })),
-        timestamp: new Date().toISOString(),
-        user: auth.currentUser?.email
-    });
-    
-    saveToFirestore();
-    showToast(`✅ Keranjang ${fromNo} berhasil dipindahkan ke ${toSection} ${toBaris} Slot ${toSlot}!`);
-    
-    // Kembali ke detail keranjang
-    setTimeout(() => showBasketDetail(fromNo), 500);
-}
-        
-        // ─── INPUT BARANG ───
-       function renderInputForm() {
-    const sectionOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
-    container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3>
-        <form id="inForm" onsubmit="submitIn(event)">
-            <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
-            
-            <!-- ===== HANYA SATU INPUT JUMLAH ===== -->
-            <div class="form-group">
-                <label>Jumlah</label>
-                <input type="text" id="inQty" placeholder="Contoh: 1 Pack" required>
-                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
-                    💡 Bisa diisi angka (10) atau teks (1 Pack, 3 Kg, 5L, dll).
-                </small>
-            </div>
-            
-            <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
-            <div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateEstOutDate()"></div>
-            
-            <div class="form-group">
-                <label>Estimasi Keluar (wajib)</label>
-                <input type="date" id="inEstOutDate" required onchange="validateEstOutDate()">
-                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
-                    ⚠️ Tidak boleh lebih dari Tanggal Exp
-                </small>
-            </div>
-            
-            <div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select></div>
-            <div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option value="">-- Pilih --</option></select></div>
-            <div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option value="">-- Pilih Slot --</option></select></div>
-            
-            <div class="form-group">
-                <label>Nomor Keranjang Baru</label>
-                <input type="number" id="inKeranjangManual" 
-                       placeholder="⚠️ Pilih slot dulu" 
-                       min="1"
-                       style="transition: all 0.3s;">
-                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
-                    💡 Isi hanya jika slot kosong. Jika sudah ada nomor, akan otomatis terisi
-                </small>
-            </div>
-            
-            <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
-        </form></div>`;
-    updateBarisSelect();
-    updateNamaDatalist();
-}
+            const toSection = document.getElementById('moveBasketSection')?.value;
+            const toBaris = document.getElementById('moveBasketBaris')?.value;
+            const toSlot = parseInt(document.getElementById('moveBasketSlot')?.value);
+            if (!toSection || !toBaris || !toSlot) return showToast('Lengkapi semua!');
+            const fromBasket = currentBaskets()[fromNo];
+            if (!fromBasket) return;
+            if (fromBasket.section === toSection && fromBasket.baris === toBaris && fromBasket.slot === toSlot) return showToast('Lokasi sama!');
+            const toSlots = currentSections()[toSection]?.[toBaris];
+            if (!toSlots) return;
+            if (toSlots[toSlot-1] !== null) return showToast('Slot sudah terisi!');
+            const fromSection = fromBasket.section, fromBaris = fromBasket.baris, fromSlot = fromBasket.slot;
+            const fromSlots = currentSections()[fromSection]?.[fromBaris];
+            if (fromSlots) fromSlots[fromSlot-1] = null;
+            toSlots[toSlot-1] = fromNo;
+            fromBasket.section = toSection; fromBasket.baris = toBaris; fromBasket.slot = toSlot;
+            logTransaction('move', { nama: `[KERANJANG ${fromNo}]`, qty: `${fromBasket.items.length} item`, jenis: 'KERANJANG', dari: `${fromSection} ${fromBaris} Slot ${fromSlot}`, ke: `${toSection} ${toBaris} Slot ${toSlot}`, keranjang: fromNo, section: toSection });
+            saveToFirestore();
+            showToast(`✅ Keranjang ${fromNo} dipindahkan!`);
+            setTimeout(() => showBasketDetail(fromNo), 500);
+        }
+
+        // ==================== INPUT FORM ====================
+        function renderInputForm() {
+            const sectionOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
+            container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3>
+                <form id="inForm" onsubmit="submitIn(event)">
+                    <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
+                    <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="Contoh: 1 Pack" required></div>
+                    <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
+                    <div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateEstOutDate()"></div>
+                    <div class="form-group"><label>Estimasi Keluar (wajib)</label><input type="date" id="inEstOutDate" required onchange="validateEstOutDate()"><small style="color:#64748b;">⚠️ Tidak boleh lebih dari Tanggal Exp</small></div>
+                    <div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select></div>
+                    <div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option value="">-- Pilih --</option></select></div>
+                    <div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option value="">-- Pilih Slot --</option></select></div>
+                    <div class="form-group"><label>Nomor Keranjang Baru</label><input type="number" id="inKeranjangManual" placeholder="⚠️ Pilih slot dulu" min="1"><small>Isi jika slot kosong</small></div>
+                    <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
+                </form></div>`;
+            updateBarisSelect();
+            updateNamaDatalist();
+        }
 
         function handleSlotChange() {
-    const slot = parseInt(document.getElementById('inSlot')?.value);
-    const manualInput = document.getElementById('inKeranjangManual');
-    const manualInputGroup = manualInput?.closest('.form-group');
-    
-    if (!manualInput) return;
-
-    // Hapus pesan peringatan sebelumnya
-    const existingWarning = document.getElementById('keranjangWarning');
-    if (existingWarning) existingWarning.remove();
-    
-    // Reset styling
-    manualInput.classList.remove('input-warning', 'input-success');
-
-    if (!slot || isNaN(slot)) {
-        manualInput.disabled = true;
-        manualInput.placeholder = "Pilih slot dulu";
-        return;
-    }
-
-    const section = document.getElementById('inSection')?.value;
-    const baris = document.getElementById('inBaris')?.value;
-    const slots = currentSections()[section]?.[baris];
-    if (!slots) return;
-
-    const no = slots[slot - 1];
-    if (no !== null && no !== undefined) {
-        // Slot sudah terisi keranjang
-        manualInput.disabled = true;
-        manualInput.value = '';
-        manualInput.placeholder = `Menggunakan keranjang ${no}`;
-        manualInput.classList.add('input-success');
-        
-        // Tampilkan info keranjang
-        const count = itemCount(no);
-        const infoDiv = document.createElement('div');
-        infoDiv.id = 'keranjangWarning';
-        infoDiv.className = 'success-message';
-        infoDiv.innerHTML = `<i class="fas fa-check-circle"></i> Keranjang ${no} tersedia (${count}/5 item)`;
-        manualInputGroup?.appendChild(infoDiv);
-        
-    } else {
-        // Slot kosong, perlu nomor baru
-        manualInput.disabled = false;
-        manualInput.placeholder = "⚠️ Masukkan nomor keranjang baru (wajib)";
-        manualInput.classList.add('input-warning');
-        manualInput.focus();
-        
-        // Tambahkan event listener untuk validasi real-time
-        manualInput.oninput = function() {
-            validateKeranjangNumber(this.value);
-        };
-    }
-}
+            const slot = parseInt(document.getElementById('inSlot')?.value);
+            const manualInput = document.getElementById('inKeranjangManual');
+            const manualInputGroup = manualInput?.closest('.form-group');
+            if (!manualInput) return;
+            const existingWarning = document.getElementById('keranjangWarning');
+            if (existingWarning) existingWarning.remove();
+            manualInput.classList.remove('input-warning', 'input-success');
+            if (!slot || isNaN(slot)) { manualInput.disabled = true; manualInput.placeholder = "Pilih slot dulu"; return; }
+            const section = document.getElementById('inSection')?.value;
+            const baris = document.getElementById('inBaris')?.value;
+            const slots = currentSections()[section]?.[baris];
+            if (!slots) return;
+            const no = slots[slot - 1];
+            if (no !== null && no !== undefined) {
+                manualInput.disabled = true; manualInput.value = '';
+                manualInput.placeholder = `Menggunakan keranjang ${no}`;
+                manualInput.classList.add('input-success');
+                const count = itemCount(no);
+                const infoDiv = document.createElement('div'); infoDiv.id = 'keranjangWarning'; infoDiv.className = 'success-message';
+                infoDiv.innerHTML = `<i class="fas fa-check-circle"></i> Keranjang ${no} tersedia (${count}/${getBasketCapacity(no)} item)`;
+                manualInputGroup?.appendChild(infoDiv);
+            } else {
+                manualInput.disabled = false; manualInput.placeholder = "⚠️ Masukkan nomor keranjang baru (wajib)";
+                manualInput.classList.add('input-warning'); manualInput.focus();
+                manualInput.oninput = function() { validateKeranjangNumber(this.value); };
+            }
+        }
 
         function validateKeranjangNumber(value) {
             const manualInput = document.getElementById('inKeranjangManual');
             const manualInputGroup = manualInput?.closest('.form-group');
-            
-            // Hapus pesan sebelumnya
             const existingWarning = document.getElementById('keranjangWarning');
             if (existingWarning) existingWarning.remove();
-            
             if (!value || isNaN(parseInt(value)) || parseInt(value) <= 0) {
-                manualInput.classList.add('input-warning');
-                manualInput.classList.remove('input-success');
-                return;
+                manualInput.classList.add('input-warning'); manualInput.classList.remove('input-success'); return;
             }
-            
             const newNo = parseInt(value);
-            
-            // Cek apakah nomor sudah digunakan di area mana pun
             let duplicateInfo = null;
-            for (const area of ['frozen', 'chiller']) {
+            for (const area of ['frozen','chiller']) {
                 const sections = appData[area].sections;
                 for (const [sec, barisObj] of Object.entries(sections)) {
                     for (const [baris, slots] of Object.entries(barisObj)) {
-                        if (slots.includes(newNo)) {
-                            duplicateInfo = {
-                                area: area,
-                                section: sec,
-                                baris: baris,
-                                slot: slots.indexOf(newNo) + 1
-                            };
-                            break;
-                        }
+                        if (slots.includes(newNo)) { duplicateInfo = { area, section: sec, baris, slot: slots.indexOf(newNo)+1 }; break; }
                     }
                     if (duplicateInfo) break;
                 }
                 if (duplicateInfo) break;
             }
-            
             if (duplicateInfo) {
-                // Nomor sudah digunakan
-                manualInput.classList.add('input-warning');
-                manualInput.classList.remove('input-success');
-                
-                const warningDiv = document.createElement('div');
-                warningDiv.id = 'keranjangWarning';
-                warningDiv.className = 'warning-message';
-                warningDiv.innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i> 
-                    ❌ Nomor ${newNo} sudah digunakan di ${duplicateInfo.area === 'frozen' ? '❄️ Frozen' : '🌡️ Chiller'} 
-                    (${duplicateInfo.section} Baris ${duplicateInfo.baris} Slot ${duplicateInfo.slot})
-                `;
+                manualInput.classList.add('input-warning'); manualInput.classList.remove('input-success');
+                const warningDiv = document.createElement('div'); warningDiv.id = 'keranjangWarning'; warningDiv.className = 'warning-message';
+                warningDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ❌ Nomor ${newNo} sudah digunakan di ${duplicateInfo.area==='frozen'?'❄️ Frozen':'🌡️ Chiller'} (${duplicateInfo.section} Baris ${duplicateInfo.baris} Slot ${duplicateInfo.slot})`;
                 manualInputGroup?.appendChild(warningDiv);
-                
             } else {
-                // Nomor tersedia
-                manualInput.classList.add('input-success');
-                manualInput.classList.remove('input-warning');
-                
-                const successDiv = document.createElement('div');
-                successDiv.id = 'keranjangWarning';
-                successDiv.className = 'success-message';
+                manualInput.classList.add('input-success'); manualInput.classList.remove('input-warning');
+                const successDiv = document.createElement('div'); successDiv.id = 'keranjangWarning'; successDiv.className = 'success-message';
                 successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ✅ Nomor ${newNo} tersedia`;
                 manualInputGroup?.appendChild(successDiv);
             }
         }
 
         function validateEstOutDate() {
-    const expDate = document.getElementById('inExpDate')?.value;
-    const estOutDate = document.getElementById('inEstOutDate')?.value;
-    const estOutInput = document.getElementById('inEstOutDate');
-    const estOutGroup = estOutInput?.closest('.form-group');
-    
-    // Hapus pesan sebelumnya
-    const existingWarning = document.getElementById('estOutWarning');
-    if (existingWarning) existingWarning.remove();
-    
-    // Reset styling
-    estOutInput?.classList.remove('input-warning', 'input-success');
-    
-    if (!expDate || !estOutDate) return;
-    
-    const expDateObj = new Date(expDate);
-    const estOutDateObj = new Date(estOutDate);
-    
-    if (estOutDateObj > expDateObj) {
-        // Estimasi keluar lebih dari exp
-        estOutInput?.classList.add('input-warning');
-        
-        const warningDiv = document.createElement('div');
-        warningDiv.id = 'estOutWarning';
-        warningDiv.className = 'warning-message';
-        warningDiv.innerHTML = `
-            <i class="fas fa-exclamation-triangle"></i> 
-            ❌ Estimasi Keluar (${estOutDate}) tidak boleh lebih dari Tanggal Exp (${expDate})
-        `;
-        estOutGroup?.appendChild(warningDiv);
-        
-    } else if (estOutDateObj.getTime() === expDateObj.getTime()) {
-        // Sama dengan exp
-        estOutInput?.classList.add('input-success');
-        
-        const warningDiv = document.createElement('div');
-        warningDiv.id = 'estOutWarning';
-        warningDiv.className = 'success-message';
-        warningDiv.innerHTML = `
-            <i class="fas fa-info-circle"></i> 
-            ⚠️ Estimasi Keluar sama dengan Tanggal Exp
-        `;
-        estOutGroup?.appendChild(warningDiv);
-        
-    } else {
-        // Valid
-        estOutInput?.classList.add('input-success');
-        
-        const successDiv = document.createElement('div');
-        successDiv.id = 'estOutWarning';
-        successDiv.className = 'success-message';
-        successDiv.innerHTML = `
-            <i class="fas fa-check-circle"></i> 
-            ✅ Estimasi Keluar valid (sebelum Exp)
-        `;
-        estOutGroup?.appendChild(successDiv);
-    }
-}
-        
+            const expDate = document.getElementById('inExpDate')?.value;
+            const estOutDate = document.getElementById('inEstOutDate')?.value;
+            const estOutInput = document.getElementById('inEstOutDate');
+            const estOutGroup = estOutInput?.closest('.form-group');
+            const existingWarning = document.getElementById('estOutWarning');
+            if (existingWarning) existingWarning.remove();
+            estOutInput?.classList.remove('input-warning','input-success');
+            if (!expDate || !estOutDate) return;
+            const expDateObj = new Date(expDate), estOutDateObj = new Date(estOutDate);
+            if (estOutDateObj > expDateObj) {
+                estOutInput?.classList.add('input-warning');
+                const warningDiv = document.createElement('div'); warningDiv.id = 'estOutWarning'; warningDiv.className = 'warning-message';
+                warningDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ❌ Estimasi Keluar (${estOutDate}) tidak boleh lebih dari Tanggal Exp (${expDate})`;
+                estOutGroup?.appendChild(warningDiv);
+            } else if (estOutDateObj.getTime() === expDateObj.getTime()) {
+                estOutInput?.classList.add('input-success');
+                const warningDiv = document.createElement('div'); warningDiv.id = 'estOutWarning'; warningDiv.className = 'success-message';
+                warningDiv.innerHTML = `<i class="fas fa-info-circle"></i> ⚠️ Estimasi Keluar sama dengan Tanggal Exp`;
+                estOutGroup?.appendChild(warningDiv);
+            } else {
+                estOutInput?.classList.add('input-success');
+                const successDiv = document.createElement('div'); successDiv.id = 'estOutWarning'; successDiv.className = 'success-message';
+                successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ✅ Estimasi Keluar valid (sebelum Exp)`;
+                estOutGroup?.appendChild(successDiv);
+            }
+        }
+
         function updateBarisSelect() {
             const section = document.getElementById('inSection')?.value;
             const barisSelect = document.getElementById('inBaris');
@@ -2680,13 +1104,9 @@ function updateMoveBasketSlot() {
             if (section) {
                 const barisObj = currentSections()[section] || {};
                 Object.keys(barisObj).forEach((baris, idx) => {
-                    const label = `${section} ${String(idx+1).padStart(2,'0')}`;
-                    barisSelect.innerHTML += `<option value="${baris}">${label}</option>`;
+                    barisSelect.innerHTML += `<option value="${baris}">${section} ${String(idx+1).padStart(2,'0')}</option>`;
                 });
-                if (Object.keys(barisObj).length > 0) {
-                    barisSelect.value = Object.keys(barisObj)[0];
-                    updateSlotSelect();
-                }
+                if (Object.keys(barisObj).length > 0) { barisSelect.value = Object.keys(barisObj)[0]; updateSlotSelect(); }
             } else {
                 const slotSelect = document.getElementById('inSlot');
                 if (slotSelect) slotSelect.innerHTML = '<option value="">-- Pilih Slot --</option>';
@@ -2700,27 +1120,15 @@ function updateMoveBasketSlot() {
             if (!select) return;
             select.innerHTML = '<option value="">-- Pilih Slot --</option>';
             if (!section || !baris) return;
-
             const slots = currentSections()[section]?.[baris];
             if (!slots) return;
-
             for (let i = 0; i < 5; i++) {
-                const no = slots[i];
-                const slotNumber = i + 1;
-                let label = `Slot ${slotNumber}`;
-                let value = slotNumber;
-
+                const no = slots[i], slotNumber = i+1;
                 if (no !== null) {
                     const count = itemCount(no);
-                    label += `: ${no} (${count}/5)`;
-                    if (count >= 5) {
-                        select.innerHTML += `<option value="${value}" disabled>${label} - PENUH</option>`;
-                    } else {
-                        select.innerHTML += `<option value="${value}">${label}</option>`;
-                    }
+                    select.innerHTML += `<option value="${slotNumber}" ${isBasketFull(no)?'disabled':''}>Slot ${slotNumber}: ${no} (${count}/${getBasketCapacity(no)})${isBasketFull(no)?' - PENUH':''}</option>`;
                 } else {
-                    label += ` (kosong)`;
-                    select.innerHTML += `<option value="${value}">${label}</option>`;
+                    select.innerHTML += `<option value="${slotNumber}">Slot ${slotNumber} (kosong)</option>`;
                 }
             }
         }
@@ -2732,167 +1140,202 @@ function updateMoveBasketSlot() {
             if (dl) dl.innerHTML = [...set].map(n => `<option value="${n}">`).join('');
         }
 
-     function submitIn(e) {
-    e.preventDefault();
-    const nama = document.getElementById('inNama').value.trim();
-    const qty = document.getElementById('inQty').value.trim();
-    const jenis = document.getElementById('inJenis').value;
-    const expDate = document.getElementById('inExpDate').value;
-    const estOutDate = document.getElementById('inEstOutDate').value;
-    const section = document.getElementById('inSection').value;
-    const baris = document.getElementById('inBaris').value;
-    const slotStr = document.getElementById('inSlot').value;
-    const keranjangManual = document.getElementById('inKeranjangManual')?.value.trim();
-
-    if (!nama || !qty) return showToast('Lengkapi data!');
-    if (!baris) return showToast('Pilih Baris terlebih dahulu.');
-    if (!slotStr) return showToast('Pilih Slot (1-5).');
-    if (!expDate) return showToast('Tanggal Exp wajib diisi.');
-    if (!estOutDate) return showToast('Estimasi Keluar wajib diisi.');
-
-    // ========== VALIDASI TAMBAHAN: Est Out tidak boleh > Exp ==========
-    if (estOutDate && expDate) {
-        const expDateObj = new Date(expDate);
-        const estOutDateObj = new Date(estOutDate);
-        
-        if (estOutDateObj > expDateObj) {
-            // Highlight input yang error
-            const estOutInput = document.getElementById('inEstOutDate');
-            estOutInput?.classList.add('input-warning');
-            estOutInput?.focus();
-            
-            // Tampilkan pesan error di bawah input
-            const estOutGroup = estOutInput?.closest('.form-group');
-            const existingWarning = document.getElementById('estOutWarning');
-            if (existingWarning) existingWarning.remove();
-            
-            const warningDiv = document.createElement('div');
-            warningDiv.id = 'estOutWarning';
-            warningDiv.className = 'warning-message';
-            warningDiv.innerHTML = `
-                <i class="fas fa-exclamation-triangle"></i> 
-                ❌ Estimasi Keluar (${estOutDate}) tidak boleh lebih dari Tanggal Exp (${expDate})
-            `;
-            estOutGroup?.appendChild(warningDiv);
-            
-            return showToast('❌ Estimasi Keluar tidak boleh lebih dari Tanggal Exp!');
-        }
-    }
-    // =================================================================
-
-    const slotIndex = parseInt(slotStr) - 1;
-    const slots = currentSections()[section]?.[baris];
-    if (!slots) return showToast('Data baris tidak valid.');
-
-    let no = slots[slotIndex];
-
-    if (no === null || no === undefined) {
-        if (!keranjangManual || isNaN(parseInt(keranjangManual)) || parseInt(keranjangManual) <= 0) {
-            // Highlight input yang error
-            const manualInput = document.getElementById('inKeranjangManual');
-            manualInput?.classList.add('input-warning');
-            manualInput?.focus();
-            return showToast('❌ Slot kosong. Harap masukkan Nomor Keranjang Baru yang valid!');
-        }
-        const newNo = parseInt(keranjangManual);
-        
-        // Cek duplikasi di semua area
-        for (const area of ['frozen', 'chiller']) {
-            for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
-                for (const sl of Object.values(barisObj)) {
-                    if (sl.includes(newNo)) {
-                        const manualInput = document.getElementById('inKeranjangManual');
-                        manualInput?.classList.add('input-warning');
-                        return showToast(`❌ Nomor keranjang ${newNo} sudah digunakan di ${area === 'frozen' ? 'Frozen' : 'Chiller'} (${sec}). Silakan gunakan nomor lain!`);
+        function submitIn(e) {
+            e.preventDefault();
+            const nama = document.getElementById('inNama').value.trim();
+            const qty = document.getElementById('inQty').value.trim();
+            const jenis = document.getElementById('inJenis').value;
+            const expDate = document.getElementById('inExpDate').value;
+            const estOutDate = document.getElementById('inEstOutDate').value;
+            const section = document.getElementById('inSection').value;
+            const baris = document.getElementById('inBaris').value;
+            const slotStr = document.getElementById('inSlot').value;
+            const keranjangManual = document.getElementById('inKeranjangManual')?.value.trim();
+            if (!nama || !qty || !baris || !slotStr || !expDate || !estOutDate) return showToast('Lengkapi data!');
+            if (new Date(estOutDate) > new Date(expDate)) return showToast('❌ Est Keluar tidak boleh > Exp!');
+            const slotIdx = parseInt(slotStr) - 1;
+            const slots = currentSections()[section]?.[baris];
+            if (!slots) return showToast('Data baris tidak valid.');
+            let no = slots[slotIdx];
+            if (no === null || no === undefined) {
+                if (!keranjangManual || isNaN(parseInt(keranjangManual)) || parseInt(keranjangManual) <= 0)
+                    return showToast('❌ Masukkan Nomor Keranjang Baru!');
+                const newNo = parseInt(keranjangManual);
+                for (const area of ['frozen','chiller']) {
+                    for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
+                        for (const sl of Object.values(barisObj)) {
+                            if (sl.includes(newNo)) return showToast(`❌ Nomor ${newNo} sudah digunakan di ${area} ${sec}.`);
+                        }
                     }
                 }
+                slots[slotIdx] = newNo;
+                if (!currentBaskets()[newNo]) currentBaskets()[newNo] = { section, baris, slot: slotIdx+1, items: [] };
+                else { currentBaskets()[newNo].section = section; currentBaskets()[newNo].baris = baris; currentBaskets()[newNo].slot = slotIdx+1; }
+                no = newNo;
+            } else {
+                if (isBasketFull(no)) return showToast(`❌ Keranjang ${no} penuh!`);
             }
+            if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, slot: slotIdx+1, items: [] };
+            const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
+            if (expDate) item.expDate = expDate;
+            if (estOutDate) item.estOutDate = estOutDate;
+            currentBaskets()[no].items.push(item);
+            logTransaction('in', { nama, qty, jenis, keranjang: no, section, baris, expDate, estOutDate });
+            saveToFirestore();
+            showToast('✅ Barang masuk ke keranjang ' + no);
+            setTimeout(() => renderInputForm(), 100);
         }
-        
-        slots[slotIndex] = newNo;
-        if (!currentBaskets()[newNo]) {
-            currentBaskets()[newNo] = { section, baris, slot: slotIndex + 1, items: [] };
-        } else {
-            currentBaskets()[newNo].section = section;
-            currentBaskets()[newNo].baris = baris;
-            currentBaskets()[newNo].slot = slotIndex + 1;
-        }
-        no = newNo;
-    } else {
-        if (itemCount(no) >= 5) {
-            return showToast(`❌ Keranjang ${no} sudah penuh (5/5). Pilih slot lain!`);
-        }
-    }
 
-    if (!currentBaskets()[no]) {
-        currentBaskets()[no] = { section, baris, slot: slotIndex + 1, items: [] };
-    }
-    const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
-    if (expDate) item.expDate = expDate;
-    if (estOutDate) item.estOutDate = estOutDate;
-    currentBaskets()[no].items.push(item);
-    logTransaction('in', { nama, qty, jenis, keranjang: no, section, baris, expDate, estOutDate });
-    saveToFirestore();
-    showToast('✅ Barang berhasil masuk ke keranjang ' + no);
+        // ==================== SEARCH ====================
+        function renderSearch() {
+            container.innerHTML = `
+                <div class="search-container"><h3>🔍 Cari Barang</h3>
+                    <div class="filter-row">
+                        <input type="date" id="searchDateFrom" onchange="performSearch()" placeholder="Exp dari">
+                        <input type="date" id="searchDateTo" onchange="performSearch()" placeholder="Exp sampai">
+                        <select id="searchStatus" onchange="performSearch()">
+                            <option value="">Semua Status</option>
+                            <option value="expired">⚠️ Expired</option>
+                            <option value="active">✅ Aktif</option>
+                            <option value="out">📤 Sudah Keluar</option>
+                        </select>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <input type="text" id="searchInput" placeholder="Cari nama barang..." oninput="performSearch()" autocomplete="off">
+                        <span class="search-icon"><i class="fas fa-search"></i></span>
+                    </div>
+                    <div id="searchResults"><div class="empty-state">Ketik untuk mencari barang di semua area</div></div>
+                </div>`;
+            setTimeout(() => { const si = document.getElementById('searchInput'); if (si) si.focus(); }, 100);
+        }
 
-    setTimeout(() => renderInputForm(), 100);
-}
+        function performSearch() {
+            const query = document.getElementById('searchInput')?.value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            const statusFilter = document.getElementById('searchStatus')?.value;
+            const dateFrom = document.getElementById('searchDateFrom')?.value;
+            const dateTo = document.getElementById('searchDateTo')?.value;
+            if (!query || query.length < 2) {
+                resultsContainer.innerHTML = '<div class="empty-state">Ketik minimal 2 karakter untuk mencari</div>';
+                return;
+            }
+            const allResults = [];
+            collectSearchResults('frozen', query, allResults);
+            collectSearchResults('chiller', query, allResults);
+            let filtered = allResults;
+            if (statusFilter === 'expired') filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) < new Date());
+            else if (statusFilter === 'active') filtered = filtered.filter(r => r.status === 'current');
+            else if (statusFilter === 'out') filtered = filtered.filter(r => r.status === 'out');
+            if (dateFrom) filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) >= new Date(dateFrom));
+            if (dateTo) filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) <= new Date(dateTo));
+            if (filtered.length === 0) {
+                resultsContainer.innerHTML = `<div class="empty-state"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:8px;"></i>Tidak ditemukan barang dengan nama "${query}"</div>`;
+                return;
+            }
+            const currentItems = filtered.filter(r => r.status === 'current');
+            const outItems = filtered.filter(r => r.status === 'out');
+            let html = `
+                <div class="search-stats">
+                    <div class="search-stat"><div class="count">${filtered.length}</div><div class="label">Total</div></div>
+                    <div class="search-stat"><div class="count" style="color:#10b981;">${currentItems.length}</div><div class="label">Masih Ada</div></div>
+                    <div class="search-stat"><div class="count" style="color:#ef4444;">${outItems.length}</div><div class="label">Keluar</div></div>
+                </div>`;
+            filtered.forEach(result => {
+                const areaBadge = result.area === 'frozen' ? '<span class="area-badge area-frozen">❄️ Frozen</span>' : '<span class="area-badge area-chiller">🌡️ Chiller</span>';
+                const statusBadge = result.status === 'current' ? '<span class="search-result-badge badge-current">📦 Masih Ada</span>' : '<span class="search-result-badge badge-out">📤 Sudah Keluar</span>';
+                const highlightName = highlightText(result.item.nama, query);
+                let locationInfo = result.status === 'current' ?
+                    `<div style="margin-top:6px;font-size:0.8rem;color:#64748b;">📍 Section: ${result.section} | Baris: ${result.baris} | Slot: ${result.slot} | Keranjang: ${result.keranjangNo}</div>` :
+                    `<div style="margin-top:6px;font-size:0.8rem;color:#64748b;">📤 Keluar dari Keranjang: ${result.keranjangNo} | Section: ${result.section}<br>📅 Keluar: ${new Date(result.timestamp).toLocaleDateString('id-ID')}</div>`;
+                html += `<div class="search-result-item ${result.status}">
+                    <div class="search-result-header"><div>${areaBadge}${statusBadge}</div><div><small>${result.item.jenis||'-'}</small></div></div>
+                    <div><strong>${highlightName}</strong> <span style="color:#64748b;">Qty: ${result.item.qty}</span></div>
+                    ${locationInfo}
+                    ${result.item.expDate ? `<div style="margin-top:4px;font-size:0.75rem;color:${new Date(result.item.expDate)<new Date()?'#ef4444':'#64748b'};">⏰ Exp: ${new Date(result.item.expDate).toLocaleDateString('id-ID')}${new Date(result.item.expDate)<new Date()?' ⚠️ EXPIRED':''}</div>` : ''}
+                    ${result.item.estOutDate ? `<div style="margin-top:2px;font-size:0.75rem;color:${new Date(result.item.estOutDate)<new Date()?'#ef4444':'#64748b'};">📅 Est. Keluar: ${new Date(result.item.estOutDate).toLocaleDateString('id-ID')}${new Date(result.item.estOutDate)<new Date()?' ⚠️ LEWAT':''}</div>` : ''}
+                    ${result.status === 'current' ? `<button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="navigateToBasket(${result.keranjangNo},'${result.area}')">📍 Lihat Keranjang</button>` : ''}
+                </div>`;
+            });
+            resultsContainer.innerHTML = html;
+        }
 
-        // ─── RIWAYAT dengan badge warna ───
-       function renderHistory() {
-    const list = currentTransactions().slice(0, 100).map(t => {
-        let typeClass = '', badgeClass = '', icon = '', typeLabel = '';
-        
-        if (t.type === 'in') { 
-            typeClass = 'type-in'; badgeClass = 'badge-in'; icon = '📥'; typeLabel = 'MASUK'; 
+        function collectSearchResults(area, query, results) {
+            const baskets = appData[area].baskets;
+            const transactions = appData[area].transactions;
+            for (const [keranjangNo, basket] of Object.entries(baskets)) {
+                if (basket.items && basket.items.length > 0) {
+                    basket.items.forEach(item => {
+                        if (item.nama && item.nama.toLowerCase().includes(query)) {
+                            results.push({ area, status:'current', item, keranjangNo:parseInt(keranjangNo), section:basket.section, baris:basket.baris, slot:basket.slot });
+                        }
+                    });
+                }
+            }
+            const seenOutItems = new Set();
+            transactions.forEach(trans => {
+                if (trans.type === 'out' && trans.detail && trans.detail.nama && trans.detail.nama.toLowerCase().includes(query)) {
+                    const key = `${trans.detail.nama}_${trans.detail.qty}_${trans.timestamp}`;
+                    if (!seenOutItems.has(key)) {
+                        seenOutItems.add(key);
+                        results.push({ area, status:'out', item:{ nama:trans.detail.nama, qty:trans.detail.qty, jenis:trans.detail.jenis||'-', expDate:trans.detail.expDate, estOutDate:trans.detail.estOutDate }, keranjangNo:trans.detail.keranjang||'-', section:trans.detail.section||'-', timestamp:trans.timestamp });
+                    }
+                }
+            });
         }
-        else if (t.type === 'move') { 
-            typeClass = 'type-move'; badgeClass = 'badge-move'; icon = '🔄'; 
-            // Cek apakah ini pindah keranjang atau pindah barang
-            typeLabel = t.detail?.jenis === 'KERANJANG' ? 'PINDAH KERANJANG' : 'PINDAH BARANG';
+
+        function highlightText(text, query) {
+            if (!text || !query) return text || '';
+            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="search-highlight">$1</span>');
         }
-        else if (t.type === 'edit') { 
-            typeClass = 'type-edit'; badgeClass = 'badge-edit'; icon = '✏️'; typeLabel = 'EDIT EST'; 
+
+        function navigateToBasket(keranjangNo, area) {
+            if (currentArea !== area) {
+                currentArea = area;
+                document.getElementById('areaSelect').value = area;
+                document.getElementById('areaTitle').textContent = area==='frozen'?'Frozen':'Chiller';
+            }
+            currentTab = 'dashboard';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const dashboardTab = document.querySelector('.tab-btn[data-tab="dashboard"]');
+            if (dashboardTab) dashboardTab.classList.add('active');
+            renderDashboard();
+            setTimeout(() => { showBasketDetail(keranjangNo); }, 200);
         }
-        else { 
-            typeClass = 'type-out'; badgeClass = 'badge-out'; icon = '📤'; typeLabel = 'KELUAR'; 
-        }
-        
-        const detail = t.detail || {};
-        const extraInfo = t.type === 'move' ? 
-            ` | Dari: ${detail.dari} → Ke: ${detail.ke}` :
-            t.type === 'edit' ? 
-            ` | Est: ${detail.oldEstOutDate} → ${detail.newEstOutDate}` :
-            ` | Keranjang: ${detail.keranjang||'-'} | Section: ${detail.section||'-'}`;
-            
-        return `<div class="history-item ${typeClass}">
-            <div style="font-size:1.5rem;flex-shrink:0;">${icon}</div>
-            <div style="flex:1;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
-                    <span class="history-badge ${badgeClass}">${typeLabel}</span>
-                    <small style="color:#64748b;">${new Date(t.timestamp).toLocaleString('id-ID')}</small>
+
+        // ==================== HISTORY ====================
+        function renderHistory() {
+            const list = currentTransactions().slice(0, 100).map(t => {
+                let typeClass = '', badgeClass = '', icon = '', typeLabel = '';
+                if (t.type === 'in') { typeClass='type-in'; badgeClass='badge-in'; icon='📥'; typeLabel='MASUK'; }
+                else if (t.type === 'move') { typeClass='type-move'; badgeClass='badge-move'; icon='🔄'; typeLabel = t.detail?.jenis==='KERANJANG'?'PINDAH KERANJANG':'PINDAH BARANG'; }
+                else if (t.type === 'edit') { typeClass='type-edit'; badgeClass='badge-edit'; icon='✏️'; typeLabel='EDIT EST'; }
+                else { typeClass='type-out'; badgeClass='badge-out'; icon='📤'; typeLabel='KELUAR'; }
+                const detail = t.detail || {};
+                return `<div class="history-item ${typeClass}">
+                    <div style="font-size:1.5rem;">${icon}</div>
+                    <div style="flex:1;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                            <span class="history-badge ${badgeClass}">${typeLabel}</span>
+                            <small>${new Date(t.timestamp).toLocaleString('id-ID')}</small>
+                        </div>
+                        <strong>${detail.nama||'-'}</strong> — ${detail.qty||'-'} (${detail.jenis||'-'})
+                        ${t.type==='move'?` | ${detail.dari} → ${detail.ke}`:t.type==='edit'?` | Est: ${detail.oldEstOutDate} → ${detail.newEstOutDate}`:` | Keranjang: ${detail.keranjang||'-'}`}
+                        ${detail.partial?'<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</small>':''}
+                    </div>
+                </div>`;
+            }).join('');
+            container.innerHTML = `<div class="card">
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📋 Riwayat</h3><button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button></div>
+                <div style="display:flex;gap:12px;margin-bottom:12px;font-size:0.75rem;">
+                    <span><span class="history-badge badge-move">PINDAH BARANG</span> = Pindah 1 item</span>
+                    <span><span class="history-badge" style="background:#ede9fe;color:#5b21b6;">PINDAH KERANJANG</span> = Pindah semua isi</span>
                 </div>
-                <strong>${detail.nama||'-'}</strong> — ${detail.qty||'-'} (${detail.jenis||'-'})
-${detail.partial ? '<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</small>' : ''}
-            </div>
-        </div>`;
-    }).join('');
-    
-    container.innerHTML = `<div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-            <h3>📋 Riwayat</h3>
-            <button class="btn btn-sm btn-outline" onclick="downloadExcel()">
-                <i class="fas fa-download"></i> Excel
-            </button>
-        </div>
-        <div style="display:flex; gap:12px; margin-bottom:12px; font-size:0.75rem;">
-            <span><span class="history-badge badge-move">PINDAH BARANG</span> = Pindah 1 item</span>
-            <span><span class="history-badge" style="background:#ede9fe; color:#5b21b6;">PINDAH KERANJANG</span> = Pindah semua isi</span>
-        </div>
-        ${list||'<div class="empty-state">Belum ada aktivitas</div>'}
-    </div>`;
-}
-        // ─── REKAP & DOWNLOAD ───
+                ${list||'<div class="empty-state">Belum ada aktivitas</div>'}
+            </div>`;
+        }
+
+        // ==================== REKAP ====================
         function renderRekap() {
             const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
             const trx = currentTransactions();
@@ -2901,7 +1344,7 @@ ${detail.partial ? '<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</sm
             const years = [...yearsSet].sort((a,b)=>b-a);
             const selYear = parseInt(document.getElementById('rekapYearFilter')?.value || nowYear);
             let totalIn = 0, totalOut = 0;
-            trx.forEach(t => t.type === 'in' ? totalIn++ : totalOut++);
+            trx.forEach(t => t.type==='in'?totalIn++:totalOut++);
             const statBoxes = `<div class="stat-grid"><div class="stat-box"><div class="val">${totalIn}</div><div class="lbl">Total Masuk</div></div><div class="stat-box out"><div class="val">${totalOut}</div><div class="lbl">Total Keluar</div></div></div>`;
             const modeTabs = `<div class="rekap-tabs"><button class="rekap-tab ${rekapMode==='bulanan'?'active':''}" onclick="rekapMode='bulanan';renderRekap()">📅 Bulanan</button><button class="rekap-tab ${rekapMode==='tahunan'?'active':''}" onclick="rekapMode='tahunan';renderRekap()">📆 Tahunan</button></div>`;
             if (rekapMode === 'bulanan') {
@@ -2947,17 +1390,17 @@ ${detail.partial ? '<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</sm
             }
         }
 
-        // ... fungsi excel download
         function downloadExcel() {
-            const trx = currentTransactions();
-            if (!trx.length) return showToast('Tidak ada data');
-            let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Riwayat — ${currentArea.toUpperCase()}</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th><th>Jenis Brg</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est Out</th></tr>`;
-            trx.forEach(t => {
+            const allTrx = [...appData.frozen.transactions.map(t=>({...t,area:'Frozen'})), ...appData.chiller.transactions.map(t=>({...t,area:'Chiller'}))];
+            allTrx.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            if (!allTrx.length) return showToast('Tidak ada data');
+            let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Riwayat Lengkap</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Area</th><th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th><th>Jenis Brg</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est Out</th></tr>`;
+            allTrx.forEach(t => {
                 const d = t.detail;
-                h += `<tr><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type==='in'?'Masuk':t.type==='move'?'Pindah':t.type==='edit'?'Edit Estimasi':'Keluar'}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`;
+                h += `<tr><td>${t.area}</td><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type==='in'?'Masuk':t.type==='move'?'Pindah':t.type==='edit'?'Edit Estimasi':'Keluar'}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`;
             });
             h += '</table></body></html>';
-            _dlBlob(h, `riwayat_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);
+            _dlBlob(h, `riwayat_lengkap_${new Date().toISOString().split('T')[0]}.xls`);
         }
 
         function downloadRekapExcel() {
@@ -2968,29 +1411,26 @@ ${detail.partial ? '<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</sm
             const monthData = {};
             trx.forEach(t => {
                 const d = new Date(t.timestamp);
-                const key = rekapMode === 'bulanan' ? `${BULAN[d.getMonth()]} ${d.getFullYear()}` : `${d.getFullYear()}`;
-                if (!monthData[key]) monthData[key] = { in: 0, out: 0 };
+                const key = rekapMode==='bulanan'?`${BULAN[d.getMonth()]} ${d.getFullYear()}`:`${d.getFullYear()}`;
+                if (!monthData[key]) monthData[key] = { in:0, out:0 };
                 monthData[key][t.type]++;
             });
             Object.entries(monthData).forEach(([key, v]) => {
-                h += `<tr><td>${key}</td><td>+${v.in}</td><td>-${v.out}</td><td>${v.in - v.out >= 0 ? '+' : ''}${v.in - v.out}</td></tr>`;
+                h += `<tr><td>${key}</td><td>+${v.in}</td><td>-${v.out}</td><td>${v.in-v.out>=0?'+':''}${v.in-v.out}</td></tr>`;
             });
             h += '</table></body></html>';
             _dlBlob(h, `rekap_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);
         }
 
         function _dlBlob(html, filename) {
-            const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = filename;
-            a.click();
+            const blob = new Blob([html], { type:'application/vnd.ms-excel;charset=utf-8;' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
         }
 
-        // ─── MANAGE (ADMIN ONLY) ───
+        // ==================== MANAGE ====================
         function renderManageBaskets() {
             if (!isAdmin()) {
-                container.innerHTML = '<div class="card"><h3>⚙️ Atur Nomor Keranjang</h3><p style="color:#ef4444; font-weight:600;">🔒 Hanya admin yang dapat mengedit struktur kotak/baris.</p></div>';
+                container.innerHTML = '<div class="card"><h3>⚙️ Atur Nomor Keranjang</h3><p style="color:#ef4444;font-weight:600;">🔒 Hanya admin.</p></div>';
                 return;
             }
             let html = '<div class="card"><h3>⚙️ Atur Slot Keranjang</h3>';
@@ -3002,15 +1442,9 @@ ${detail.partial ? '<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</sm
                         const no = slots[i];
                         if (no) {
                             const cnt = itemCount(no);
-                            html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;">
-                            <span class="chip">Slot ${i+1}: ${no} (${cnt}/5)
-                                <span style="cursor:pointer;color:red;margin-left:4px;" onclick="clearSlot('${section}','${baris}',${i})">✕</span>
-                            </span></div>`;
+                            html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;"><span class="chip">Slot ${i+1}: ${no} (${cnt}/${getBasketCapacity(no)}) <span style="cursor:pointer;color:red;margin-left:4px;" onclick="clearSlot('${section}','${baris}',${i})">✕</span></span></div>`;
                         } else {
-                            html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;">
-                            <span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span>
-                            <input type="number" id="inp_${section}_${baris}_${i}" placeholder="No" style="width:80px;padding:4px;">
-                            <button class="btn btn-sm btn-primary" onclick="fillSlot('${section}','${baris}',${i})">Isi</button></div>`;
+                            html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;"><span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span><input type="number" id="inp_${section}_${baris}_${i}" placeholder="No" style="width:80px;padding:4px;"><button class="btn btn-sm btn-primary" onclick="fillSlot('${section}','${baris}',${i})">Isi</button></div>`;
                         }
                     }
                     html += `</div>`;
@@ -3020,12 +1454,12 @@ ${detail.partial ? '<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</sm
             html += '</div>';
             container.innerHTML = html;
         }
+
         window.clearSlot = function(section, baris, idx) {
             if (!isAdmin()) return;
             const slots = currentSections()[section]?.[baris];
-            if (!slots) return;
+            if (!slots || !slots[idx]) return;
             const no = slots[idx];
-            if (!no) return;
             if (confirm(`Hapus keranjang ${no} dari Slot ${idx+1}? Isi keranjang akan tetap ada.`)) {
                 slots[idx] = null;
                 saveToFirestore();
@@ -3033,35 +1467,35 @@ ${detail.partial ? '<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</sm
                 renderManageBaskets();
             }
         };
+
         window.fillSlot = function(section, baris, idx) {
             if (!isAdmin()) return;
             const inp = document.getElementById(`inp_${section}_${baris}_${idx}`);
             const val = parseInt(inp?.value);
-            if (!val) return showToast('Masukkan nomor keranjang.');
-            const sections = currentSections();
-            for (const [sec, barisObj] of Object.entries(sections)) {
+            if (!val) return showToast('Masukkan nomor.');
+            for (const [sec, barisObj] of Object.entries(currentSections())) {
                 for (const sl of Object.values(barisObj)) {
-                    if (sl.includes(val)) {
-                        return showToast(`Nomor keranjang ${val} sudah digunakan di ${sec}.`);
-                    }
+                    if (sl.includes(val)) return showToast(`Nomor ${val} sudah digunakan di ${sec}.`);
                 }
             }
-            sections[section][baris][idx] = val;
+            currentSections()[section][baris][idx] = val;
             saveToFirestore();
             showToast('Slot diisi.');
             renderManageBaskets();
         };
+
         function addBaris(section) {
             if (!isAdmin()) return;
             const sections = currentSections();
             const barisObj = sections[section];
             const nextBaris = String.fromCharCode(65 + Object.keys(barisObj).length);
-            barisObj[nextBaris] = [null, null, null, null, null];
+            barisObj[nextBaris] = [null,null,null,null,null];
             saveToFirestore();
-            showToast(`Baris ${nextBaris} ditambahkan ke ${section}.`);
+            showToast(`Baris ${nextBaris} ditambahkan.`);
             renderManageBaskets();
         }
 
+        // ==================== INIT ====================
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
