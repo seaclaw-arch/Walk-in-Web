@@ -836,24 +836,33 @@
 
         // ========== FITUR PENCARIAN ==========
         function renderSearch() {
-            container.innerHTML = `
-                <div class="search-container">
-                    <h3 style="margin-bottom: 16px;">🔍 Cari Barang</h3>
-                    <div class="search-input-wrapper">
-                        <input 
-                            type="text" 
-                            id="searchInput" 
-                            placeholder="Cari nama barang..." 
-                            oninput="performSearch()"
-                            autocomplete="off"
-                        >
-                        <span class="search-icon"><i class="fas fa-search"></i></span>
-                    </div>
-                    <div id="searchResults">
-                        <div class="empty-state">Ketik untuk mencari barang di semua area</div>
-                    </div>
-                </div>
-            `;
+    container.innerHTML = `
+        <div class="search-container">
+            <h3>🔍 Cari Barang</h3>
+            
+            <!-- ✅ Tambahan filter -->
+            <div class="filter-row">
+                <input type="date" id="searchDateFrom" 
+                       onchange="performSearch()" 
+                       placeholder="Exp dari">
+                <input type="date" id="searchDateTo" 
+                       onchange="performSearch()" 
+                       placeholder="Exp sampai">
+                <select id="searchStatus" onchange="performSearch()">
+                    <option value="">Semua Status</option>
+                    <option value="expired">⚠️ Expired</option>
+                    <option value="active">✅ Aktif</option>
+                    <option value="out">📤 Sudah Keluar</option>
+                </select>
+            </div>
+            
+            <input type="text" id="searchInput" 
+                   placeholder="Cari nama barang..." 
+                   oninput="performSearch()">
+            <div id="searchResults"></div>
+        </div>
+    `;
+}
             
             // Focus ke input search
             setTimeout(() => {
@@ -1227,7 +1236,60 @@ function getSingleBarisBox(secName, baris) {
     const slots = sections[secName]?.[baris] || [null,null,null,null,null];
     return buildBarisBox(secName, baris, slots);
 }
-       
+       // ✅ FUNGSI BARU: Hitung statistik
+function getAreaStats() {
+    const baskets = currentBaskets();
+    let totalItems = 0;
+    let totalExpired = 0;
+    let totalEstLewat = 0;
+    let totalKeranjang = Object.keys(baskets).length;
+    let totalKeranjangPenuh = 0;
+    
+    for (const [no, basket] of Object.entries(baskets)) {
+        const items = basket.items || [];
+        totalItems += items.length;
+        
+        if (items.length >= getBasketCapacity(no)) {
+            totalKeranjangPenuh++;
+        }
+        
+        items.forEach(item => {
+            if (item.expDate && new Date(item.expDate) < new Date()) totalExpired++;
+            if (item.estOutDate && new Date(item.estOutDate) < new Date()) totalEstLewat++;
+        });
+    }
+    
+    return { totalItems, totalExpired, totalEstLewat, totalKeranjang, totalKeranjangPenuh };
+}
+
+// ✅ Tambahkan di bagian atas denah
+function renderFrozenPlan() {
+    const stats = getAreaStats();
+    
+    container.innerHTML = `
+    <div class="card" style="padding:12px;">
+        <!-- ✅ STATUS BAR -->
+        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+            <span style="background: #dbeafe; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                📦 ${stats.totalItems} item
+            </span>
+            <span style="background: ${stats.totalExpired > 0 ? '#fee2e2' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                ☠️ ${stats.totalExpired} expired
+            </span>
+            <span style="background: ${stats.totalEstLewat > 0 ? '#fff7ed' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                ⏳ ${stats.totalEstLewat} est lewat
+            </span>
+            <span style="background: ${stats.totalKeranjangPenuh > 0 ? '#fffbeb' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                🚫 ${stats.totalKeranjangPenuh}/${stats.totalKeranjang} penuh
+            </span>
+        </div>
+        
+        <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
+        <!-- ... existing denah ... -->
+    </div>`;
+}
+
+
         function renderChillerPlan() {
     const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
     const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Keranjang & Isi (Firestore)</button>` : '';
@@ -1253,7 +1315,60 @@ function getSingleBarisBox(secName, baris) {
         ${adminBtn}
     </div>`;
 }
+// ✅ FUNGSI BARU: Hitung statistik
+function getAreaStats() {
+    const baskets = currentBaskets();
+    let totalItems = 0;
+    let totalExpired = 0;
+    let totalEstLewat = 0;
+    let totalKeranjang = Object.keys(baskets).length;
+    let totalKeranjangPenuh = 0;
+    
+    for (const [no, basket] of Object.entries(baskets)) {
+        const items = basket.items || [];
+        totalItems += items.length;
+        
+        if (items.length >= getBasketCapacity(no)) {
+            totalKeranjangPenuh++;
+        }
+        
+        items.forEach(item => {
+            if (item.expDate && new Date(item.expDate) < new Date()) totalExpired++;
+            if (item.estOutDate && new Date(item.estOutDate) < new Date()) totalEstLewat++;
+        });
+    }
+    
+    return { totalItems, totalExpired, totalEstLewat, totalKeranjang, totalKeranjangPenuh };
+}
 
+// ✅ Tambahkan di bagian atas denah
+function renderFrozenPlan() {
+    const stats = getAreaStats();
+    
+    container.innerHTML = `
+    <div class="card" style="padding:12px;">
+        <!-- ✅ STATUS BAR -->
+        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+            <span style="background: #dbeafe; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                📦 ${stats.totalItems} item
+            </span>
+            <span style="background: ${stats.totalExpired > 0 ? '#fee2e2' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                ☠️ ${stats.totalExpired} expired
+            </span>
+            <span style="background: ${stats.totalEstLewat > 0 ? '#fff7ed' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                ⏳ ${stats.totalEstLewat} est lewat
+            </span>
+            <span style="background: ${stats.totalKeranjangPenuh > 0 ? '#fffbeb' : '#f0fdf4'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                🚫 ${stats.totalKeranjangPenuh}/${stats.totalKeranjang} penuh
+            </span>
+        </div>
+        
+        <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
+        <!-- ... existing denah ... -->
+    </div>`;
+}
+
+// ✅ Implementasi sama untuk renderChillerPlan()
         function renderDashboard() {
             if (currentArea === 'frozen') renderFrozenPlan();
             else renderChillerPlan();
@@ -1403,10 +1518,16 @@ function renderQuickAddForm() {
             
             <div class="form-group">
                 <label>Jumlah</label>
-                <input type="text" id="inQty" placeholder="Contoh: 10 atau 3 Pack" required>
-                <small style="color: #64748b; font-size: 0.7rem; display: block; margin-top: 4px;">
-                    💡 Bisa diisi angka (10) atau teks (3 Pack, 5 Kg, dll)
-                </small>
+                <!-- HANYA SATU input jumlah dengan helper text -->
+<input type="text" id="inQty" 
+       placeholder="Contoh: 10 atau 3 Pack" 
+       required
+       pattern="[0-9].*"
+       title="Masukkan jumlah (angka di depan)">
+<small style="color: #64748b;">
+    💡 Format: [Jumlah] [Satuan]<br>
+    Contoh: "5 Pack", "10 Kg", "3", "2 Box"
+</small>
             </div>
             
             <div class="form-group">
@@ -1470,10 +1591,33 @@ function validateQuickEstOut() {
 }
 
 // Submit quick add
+// ✅ Modifikasi submitQuickAdd dengan validasi real-time
 function submitQuickAdd(e) {
     e.preventDefault();
     const target = window._quickAddTarget;
     if (!target) return showToast('Data keranjang hilang. Silakan coba lagi.');
+    
+    // === VALIDASI REAL-TIME ===
+    const currentCount = itemCount(target.no);
+    
+    // Cek kapasitas
+    if (isBasketFull(target.no)) {
+        return showToast(`❌ Keranjang ${target.no} sudah penuh!`);
+    }
+    
+    // Cek apakah keranjang masih ada (tidak dihapus user lain)
+    const basket = currentBaskets()[target.no];
+    if (!basket) {
+        return showToast('❌ Keranjang tidak ditemukan. Mungkin sudah dipindahkan.');
+    }
+    
+    // Cek konsistensi lokasi
+    if (basket.section !== target.section || 
+        basket.baris !== target.baris || 
+        basket.slot !== target.slot) {
+        return showToast('⚠️ Lokasi keranjang sudah berubah. Silakan refresh.');
+    }
+    // ==========================
     
     const nama = document.getElementById('inNama').value.trim();
     const qty = document.getElementById('inQty').value.trim();
@@ -1481,30 +1625,19 @@ function submitQuickAdd(e) {
     const expDate = document.getElementById('inExpDate').value;
     const estOutDate = document.getElementById('inEstOutDate').value;
     
-    if (!nama || !qty) return showToast('Lengkapi data!');
-    if (!expDate) return showToast('Tanggal Exp wajib diisi.');
-    if (!estOutDate) return showToast('Estimasi Keluar wajib diisi.');
+    // ... validasi field ...
     
-    // Validasi est out
-    if (new Date(estOutDate) > new Date(expDate)) {
-        return showToast('❌ Estimasi Keluar tidak boleh lebih dari Tanggal Exp!');
+    // === VALIDASI TAMBAHAN ===
+    // Cek apakah jenis TH bisa dicampur
+    if (jenis === 'TH' && basket.items.some(i => i.jenis !== 'TH')) {
+        return showToast('❌ TH tidak bisa dicampur dengan jenis lain!');
     }
-    
-    // Validasi keranjang tidak penuh
-    if (itemCount(target.no) >= 5) {
-        return showToast('❌ Keranjang sudah penuh (5/5)!');
+    if (jenis !== 'TH' && basket.items.some(i => i.jenis === 'TH')) {
+        return showToast('❌ Jenis ini tidak bisa dicampur dengan TH!');
     }
+    // =========================
     
-    // Tambahkan item
-    if (!currentBaskets()[target.no]) {
-        currentBaskets()[target.no] = { 
-            section: target.section, 
-            baris: target.baris, 
-            slot: target.slot, 
-            items: [] 
-        };
-    }
-    
+    // Lanjutkan proses tambah...
     const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
     if (expDate) item.expDate = expDate;
     if (estOutDate) item.estOutDate = estOutDate;
@@ -1522,7 +1655,6 @@ function submitQuickAdd(e) {
     saveToFirestore();
     showToast(`✅ ${nama} berhasil ditambahkan ke keranjang ${target.no}`);
     
-    // Kembali ke detail keranjang
     setTimeout(() => showBasketDetail(target.no), 300);
 }
         
@@ -1750,8 +1882,62 @@ function submitQuickAdd(e) {
     }
     
     if (!toNo) return showToast('Pilih keranjang tujuan.');
-    if (toNo === fromNo) return showToast('Tidak bisa pindah ke keranjang yang sama.');
-    if (itemCount(toNo) >= 5) return showToast('Keranjang tujuan sudah penuh.');
+// ✅ ATURAN KAPASITAS (tambahkan di awal script)
+const BASKET_CAPACITY = {
+    DEFAULT: 5,
+    MIXED_WITH_TH: 3,  // Jika ada TH, maksimal 3 item
+    TH_ONLY: 3          // TH saja maksimal 3
+};
+
+// ✅ FUNGSI BARU: Cek kapasitas berdasarkan isi
+function getBasketCapacity(no) {
+    const items = currentBaskets()[no]?.items || [];
+    
+    if (items.length === 0) return BASKET_CAPACITY.DEFAULT;
+    
+    const hasTH = items.some(i => i.jenis === 'TH');
+    return hasTH ? BASKET_CAPACITY.MIXED_WITH_TH : BASKET_CAPACITY.DEFAULT;
+}
+
+function isBasketFull(no) {
+    const items = currentBaskets()[no]?.items || [];
+    const capacity = getBasketCapacity(no);
+    return items.length >= capacity;
+}
+
+function isBasketAlmostFull(no) {
+    const items = currentBaskets()[no]?.items || [];
+    const capacity = getBasketCapacity(no);
+    return items.length >= capacity - 1;
+}
+
+// ✅ Modifikasi semua pengecekan kapasitas
+// Di submitIn():
+if (no !== null && isBasketFull(no)) {
+    return showToast(`❌ Keranjang ${no} penuh (${getBasketCapacity(no)}/${getBasketCapacity(no)})`);
+}
+
+// Di quickAddToBasket():
+if (isBasketFull(no)) {
+    return showToast(`❌ Keranjang ${no} penuh!`);
+}
+
+// Di pindahkanItem():
+if (isBasketFull(toNo)) {
+    return showToast('Keranjang tujuan sudah penuh.');
+}
+
+// ✅ Tambahkan peringatan di buildBasketSlot()
+function buildBasketSlot(no, slotIdx) {
+    // ... existing code ...
+    
+    if (isBasketAlmostFull(no) && !isBasketFull(no)) {
+        // Tambahkan indikator "hampir penuh"
+        tooltipParts.push('⚠️ HAMPIR PENUH');
+    }
+    
+    // ... existing code ...
+}
     
     const fromBasket = currentBaskets()[fromNo];
     if (!fromBasket || !fromBasket.items[fromIdx]) return;
@@ -1811,30 +1997,75 @@ function removeEmptyBasketNumber(keranjangNo) {
     }
 }
         
-      function keluarkanItem(no, idx) {
+     // ✅ FUNGSI BARU: Validasi FEFO
+function cekFEFO(no, idx) {
+    const items = currentBaskets()[no]?.items || [];
+    const selectedItem = items[idx];
+    
+    if (!selectedItem.expDate) return true;
+    
+    const selectedExp = new Date(selectedItem.expDate).getTime();
+    const now = new Date().getTime();
+    
+    // Cari barang yang expired lebih dulu (masih valid)
+    const earlierExp = items
+        .filter((item, i) => i !== idx && item.expDate)
+        .filter(item => {
+            const itemExp = new Date(item.expDate).getTime();
+            return itemExp < selectedExp && itemExp > now;
+        })
+        .sort((a, b) => new Date(a.expDate) - new Date(b.expDate));
+    
+    if (earlierExp.length > 0) {
+        const harusDikeluarkan = earlierExp[0];
+        showToast(
+            `⚠️ FEFO: "${harusDikeluarkan.nama}" expired ${new Date(harusDikeluarkan.expDate).toLocaleDateString('id-ID')} lebih dulu!`
+        );
+        
+        // Highlight di UI (opsional, bisa diskip dulu)
+        return false;
+    }
+    
+    return true;
+}
+
+// ✅ Modifikasi fungsi existing
+function keluarkanItem(no, idx) {
     const basket = currentBaskets()[no];
     if (!basket) return;
     const item = basket.items[idx];
     
-    // Tampilkan prompt untuk input jumlah yang dikeluarkan
+    // === VALIDASI FEFO ===
+    if (item.expDate && !cekFEFO(no, idx)) return;
+    // =====================
+    
     const qtyText = item.qty;
     const qtyNumber = parseFloat(qtyText) || parseInt(qtyText) || 0;
     
-    // Jika qty berupa angka, tampilkan opsi partial
     if (!isNaN(qtyNumber) && qtyNumber > 1) {
-        // Tampilkan dialog custom untuk memilih jumlah
         showPartialOutDialog(no, idx, item, qtyNumber);
     } else if (qtyText.includes('/') || qtyText.includes('&') || qtyText.includes(',')) {
-        // Jika qty kompleks (misal: "3/5 pack"), tanya full out
         if (confirm(`Keluarkan SEMUA "${item.nama}" (${item.qty}) dari keranjang ${no}?`)) {
             executeFullOut(no, idx, item);
         }
     } else {
-        // Jika qty 1 atau text biasa, langsung keluar semua
         if (confirm(`Keluarkan "${item.nama}" (${item.qty}) dari keranjang ${no}?`)) {
             executeFullOut(no, idx, item);
         }
     }
+}
+
+// ✅ Validasi FEFO saat pindah barang
+function pindahkanItem(fromNo, fromIdx) {
+    // ... existing code ...
+    
+    const item = fromBasket.items[fromIdx];
+    
+    // === VALIDASI FEFO SAAT PINDAH ===
+    if (item.expDate && !cekFEFO(fromNo, fromIdx)) return;
+    // ===================================
+    
+    // ... lanjutkan proses pindah ...
 }
 
 // Fungsi untuk menampilkan dialog partial out
@@ -2185,15 +2416,26 @@ function updateMoveBasketSlot() {
     fromBasket.baris = toBaris;
     fromBasket.slot = toSlot;
     
-    // Log transaksi
-    logTransaction('move', {
-        nama: `[KERANJANG ${fromNo}]`,
-        qty: `${fromBasket.items.length} item`,
-        jenis: 'KERANJANG',
+// ✅ Tambahkan riwayat ke setiap item
+    fromBasket.items.forEach((item, idx) => {
+        item.moveHistory = item.moveHistory || [];
+        item.moveHistory.push({
+            from: `${fromSection} ${fromBaris} Slot ${fromSlot}`,
+            to: `${toSection} ${toBaris} Slot ${toSlot}`,
+            timestamp: new Date().toISOString(),
+            user: auth.currentUser?.email
+        });
+    });
+    
+    // ✅ Log transaksi lebih detail
+    logTransaction('move_basket', {
+        keranjang: fromNo,
         dari: `${fromSection} ${fromBaris} Slot ${fromSlot}`,
         ke: `${toSection} ${toBaris} Slot ${toSlot}`,
-        keranjang: fromNo,
-        section: toSection
+        jumlahItem: fromBasket.items.length,
+        items: fromBasket.items.map(i => ({ nama: i.nama, qty: i.qty })),
+        timestamp: new Date().toISOString(),
+        user: auth.currentUser?.email
     });
     
     saveToFirestore();
