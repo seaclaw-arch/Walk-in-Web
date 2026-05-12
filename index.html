@@ -22,25 +22,13 @@
             color: var(--text); min-height: 100vh;
             display: flex; flex-direction: column; align-items: center;
         }
-        .header {
-            background: rgba(15,23,42,0.9); backdrop-filter: blur(10px);
-            width:100%; padding:14px 20px; display:flex; justify-content:space-between;
-            align-items:center; color:white; position:sticky; top:0; z-index:100;
-            gap:12px; flex-wrap:wrap;
-        }
+        .header { background: rgba(15,23,42,0.9); backdrop-filter: blur(10px); width:100%; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; color:white; position:sticky; top:0; z-index:100; gap:12px; flex-wrap:wrap; }
         .header h2 { font-size:1.2rem; font-weight:700; }
         .area-selector { display:flex; align-items:center; gap:8px; }
         .area-selector select { padding:8px 12px; border-radius:12px; border:1px solid #cbd5e1; font-weight:600; }
         .user-row { display:flex; align-items:center; gap:6px; }
-        .tab-bar {
-            display:flex; width:100%; background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(20px); padding:6px 12px; gap:6px; overflow-x:auto;
-        }
-        .tab-btn {
-            flex:1 0 auto; padding:10px 12px; border:none; background:transparent;
-            font-weight:600; color:#64748b; border-radius:40px; cursor:pointer;
-            font-size:0.82rem; white-space:nowrap;
-        }
+        .tab-bar { display:flex; width:100%; background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); padding:6px 12px; gap:6px; overflow-x:auto; }
+        .tab-btn { flex:1 0 auto; padding:10px 12px; border:none; background:transparent; font-weight:600; color:#64748b; border-radius:40px; cursor:pointer; font-size:0.82rem; white-space:nowrap; }
         .tab-btn.active { background:var(--primary); color:white; box-shadow:0 4px 12px rgba(37,99,235,0.3); }
         .container { width:100%; max-width:780px; padding:16px; display:flex; flex-direction:column; gap:16px; margin-bottom:20px; }
         .card { background:var(--card); border-radius:var(--radius); padding:18px 16px; box-shadow:var(--shadow); }
@@ -55,11 +43,7 @@
         .item-row { display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f1f5f9; border-radius:12px; margin-bottom:6px; }
         .item-row.expired { background:#fee2e2; border:1px solid #ef4444; }
         .empty-state { color:#94a3b8; text-align:center; padding:20px; }
-        .toast {
-            position:fixed; bottom:20px; left:20px; right:20px; background:#1e293b; color:white;
-            padding:14px; border-radius:14px; text-align:center; opacity:0; transform:translateY(20px);
-            transition:0.3s; z-index:200;
-        }
+        .toast { position:fixed; bottom:20px; left:20px; right:20px; background:#1e293b; color:white; padding:14px; border-radius:14px; text-align:center; opacity:0; transform:translateY(20px); transition:0.3s; z-index:200; }
         .toast.show { opacity:1; transform:translateY(0); }
         .chip { background:#e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; margin:2px; }
         .baris-label { font-size:0.75rem; font-weight:700; color:#475569; margin-top:10px; margin-bottom:4px; background:#e2e8f0; display:inline-block; padding:2px 10px; border-radius:20px; }
@@ -85,11 +69,7 @@
         .baris-box { width:110px; height:175px; background:#fde68a; border:2.5px solid #d97706; border-radius:10px; padding:5px; display:flex; flex-direction:column; flex-shrink:0; }
         .baris-box-lbl { font-size:0.6rem; font-weight:800; color:#92400e; text-align:center; line-height:1.2; margin-bottom:3px; white-space:nowrap; overflow:hidden; }
         .baris-slots { display:flex; flex-direction:column-reverse; gap:1px; flex:1; min-height:0; }
-        .basket-slot {
-            flex:1; min-height:0; border-radius:5px; background:#fff; border:1.5px solid #cbd5e1;
-            display:flex; flex-direction:column; align-items:center; justify-content:center;
-            cursor:pointer; position:relative; transition:transform 0.1s; overflow:hidden;
-        }
+        .basket-slot { flex:1; min-height:0; border-radius:5px; background:#fff; border:1.5px solid #cbd5e1; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; position:relative; transition:transform 0.1s; overflow:hidden; }
         .basket-slot:active { transform:scale(0.95); }
         .basket-slot.green { border-color:var(--success); background:#ecfdf5; }
         .basket-slot.yellow { border-color:#f59e0b; background:#fffbeb; animation:softPulseYellow 1.8s infinite; }
@@ -172,21 +152,11 @@
             <p id="loginError" style="color:red;margin-top:10px;"></p>
         </div>
     </div>
-
     <div id="appScreen" style="display:none;width:100%;">
         <div class="header">
             <h2>🧊 Walk-in <span id="areaTitle">Frozen</span></h2>
-            <div class="area-selector">
-                <span style="color:white;">Area:</span>
-                <select id="areaSelect" onchange="switchArea()">
-                    <option value="frozen">❄️ Frozen</option>
-                    <option value="chiller">🌡️ Chiller</option>
-                </select>
-            </div>
-            <div class="user-row">
-                <span id="currentUserName" style="font-size:0.8rem;color:white;"></span>
-                <button class="btn-outline" style="color:white;border-color:white;padding:4px 10px;" onclick="logout()">Keluar</button>
-            </div>
+            <div class="area-selector"><span style="color:white;">Area:</span><select id="areaSelect" onchange="switchArea()"><option value="frozen">❄️ Frozen</option><option value="chiller">🌡️ Chiller</option></select></div>
+            <div class="user-row"><span id="currentUserName" style="font-size:0.8rem;color:white;"></span><button class="btn-outline" style="color:white;border-color:white;padding:4px 10px;" onclick="logout()">Keluar</button></div>
         </div>
         <div class="tab-bar">
             <button class="tab-btn active" data-tab="dashboard">🗺️ Denah</button>
@@ -202,1357 +172,119 @@
 
     <script>
         // ==================== FIREBASE INIT ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyA1K3kQ93LSz1yKpBa2cMCRD045alTm6cs",
-            authDomain: "walk-in-web.firebaseapp.com",
-            projectId: "walk-in-web",
-            storageBucket: "walk-in-web.firebasestorage.app",
-            messagingSenderId: "42449089338",
-            appId: "1:42449089338:web:a34b589a7c746b8dcc1603"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyA1K3kQ93LSz1yKpBa2cMCRD045alTm6cs", authDomain: "walk-in-web.firebaseapp.com", projectId: "walk-in-web", storageBucket: "walk-in-web.firebasestorage.app", messagingSenderId: "42449089338", appId: "1:42449089338:web:a34b589a7c746b8dcc1603" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
         // ==================== GLOBAL STATE ====================
         let currentArea = 'frozen';
-        let appData = {
-            frozen: { sections: {}, baskets: {}, transactions: [] },
-            chiller: { sections: {}, baskets: {}, transactions: [] }
-        };
+        let appData = { frozen: { sections: {}, baskets: {}, transactions: [] }, chiller: { sections: {}, baskets: {}, transactions: [] } };
         let currentTab = 'dashboard';
         let rekapMode = 'bulanan';
         let unsubscribe = null;
         const ADMIN_EMAILS = ['slardar.men@gmail.com'];
         const container = document.getElementById('appContainer');
-
-        // ==================== KAPASITAS KERANJANG ====================
         const BASKET_CAPACITY = { DEFAULT: 5, MIXED_WITH_TH: 3, TH_ONLY: 3 };
 
-        function getBasketCapacity(no) {
-            const items = currentBaskets()[no]?.items || [];
-            if (items.length === 0) return BASKET_CAPACITY.DEFAULT;
-            const hasTH = items.some(i => i.jenis === 'TH');
-            return hasTH ? BASKET_CAPACITY.MIXED_WITH_TH : BASKET_CAPACITY.DEFAULT;
-        }
-
-        function isBasketFull(no) {
-            const items = currentBaskets()[no]?.items || [];
-            return items.length >= getBasketCapacity(no);
-        }
+        function getBasketCapacity(no) { const items = currentBaskets()[no]?.items || []; if (items.length === 0) return BASKET_CAPACITY.DEFAULT; return items.some(i => i.jenis === 'TH') ? BASKET_CAPACITY.MIXED_WITH_TH : BASKET_CAPACITY.DEFAULT; }
+        function isBasketFull(no) { return (currentBaskets()[no]?.items || []).length >= getBasketCapacity(no); }
 
         // ==================== DEFAULT DENAH ====================
-        const defaultFrozenSections = {
-            'IMP': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null], D:[null,null,null,null,null], E:[null,null,null,null,null] },
-            'RTL': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] },
-            'NPL': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] },
-            'RDQ': { A:[null,null,null,null,null] },
-            'MTPP': { A:[null,null,null,null,null], B:[null,null,null,null,null] },
-            'MI': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] }
-        };
-        const defaultChillerSections = {
-            'IMP': { A:[null,null,null,null,null] },
-            'RTL': { A:[null,null,null,null,null] },
-            'NPL': { A:[null,null,null,null,null] },
-            'MTPP': { A:[null,null,null,null,null] },
-            'RDQ': { A:[null,null,null,null,null] },
-            'MI': { A:[null,null,null,null,null] },
-            'THAWING': { A:[null,null,null,null,null], B:[null,null,null,null,null] }
-        };
+        const defaultFrozenSections = { 'IMP': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null], D:[null,null,null,null,null], E:[null,null,null,null,null] }, 'RTL': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] }, 'NPL': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] }, 'RDQ': { A:[null,null,null,null,null] }, 'MTPP': { A:[null,null,null,null,null], B:[null,null,null,null,null] }, 'MI': { A:[null,null,null,null,null], B:[null,null,null,null,null], C:[null,null,null,null,null] } };
+        const defaultChillerSections = { 'IMP': { A:[null,null,null,null,null] }, 'RTL': { A:[null,null,null,null,null] }, 'NPL': { A:[null,null,null,null,null] }, 'MTPP': { A:[null,null,null,null,null] }, 'RDQ': { A:[null,null,null,null,null] }, 'MI': { A:[null,null,null,null,null] }, 'THAWING': { A:[null,null,null,null,null], B:[null,null,null,null,null] } };
 
-        function getDefaultSections(area) {
-            return area === 'frozen' ? JSON.parse(JSON.stringify(defaultFrozenSections)) : JSON.parse(JSON.stringify(defaultChillerSections));
-        }
-
-        function upgradeBarisToSlots(barisData) {
-            if (!barisData || !Array.isArray(barisData)) return [null,null,null,null,null];
-            const slots = [null,null,null,null,null];
-            barisData.forEach((no, i) => { if (i < 5 && no !== null && no !== undefined) slots[i] = no; });
-            return slots;
-        }
-
-        function convertSectionsToSlotFormat(sections) {
-            const out = {};
-            for (const [sec, barisObj] of Object.entries(sections)) {
-                const converted = {};
-                for (const [b, val] of Object.entries(barisObj)) {
-                    converted[b] = (Array.isArray(val) && val.length === 5 && val.every(v => v === null || typeof v === 'number')) ? val : upgradeBarisToSlots(val);
-                }
-                out[sec] = converted;
-            }
-            return out;
-        }
+        function getDefaultSections(area) { return area==='frozen'?JSON.parse(JSON.stringify(defaultFrozenSections)):JSON.parse(JSON.stringify(defaultChillerSections)); }
+        function upgradeBarisToSlots(b) { if(!b||!Array.isArray(b))return[null,null,null,null,null]; const s=[null,null,null,null,null]; b.forEach((n,i)=>{if(i<5&&n!==null&&n!==undefined)s[i]=n;}); return s; }
+        function convertSectionsToSlotFormat(sec) { const o={}; for(const[k,v]of Object.entries(sec)){ const c={}; for(const[b,val]of Object.entries(v)){ c[b]=(Array.isArray(val)&&val.length===5&&val.every(x=>x===null||typeof x==='number'))?val:upgradeBarisToSlots(val); } o[k]=c; } return o; }
 
         // ==================== AUTH ====================
-        function login() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPassword').value.trim();
-            if (!email || !pass) {
-                document.getElementById('loginError').textContent = 'Isi email dan password.';
-                return;
-            }
-            auth.signInWithEmailAndPassword(email, pass).catch(e => {
-                document.getElementById('loginError').textContent = 'Gagal: ' + e.message;
-            });
-        }
-
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(e => {
-                document.getElementById('loginError').textContent = 'Google login gagal: ' + e.message;
-            });
-        }
-
+        function login() { const e=document.getElementById('loginEmail').value.trim(), p=document.getElementById('loginPassword').value.trim(); if(!e||!p){document.getElementById('loginError').textContent='Isi email dan password.';return;} auth.signInWithEmailAndPassword(e,p).catch(err=>{document.getElementById('loginError').textContent='Gagal: '+err.message;}); }
+        function loginWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err=>{document.getElementById('loginError').textContent='Google login gagal: '+err.message;}); }
         function logout() { auth.signOut(); }
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('appScreen').style.display = 'block';
-                document.getElementById('currentUserName').textContent = user.email;
-                listenToFirestore();
-            } else {
-                document.getElementById('loginScreen').style.display = 'block';
-                document.getElementById('appScreen').style.display = 'none';
-                if (unsubscribe) unsubscribe();
-            }
-        });
+        auth.onAuthStateChanged(user => { if(user){ document.getElementById('loginScreen').style.display='none'; document.getElementById('appScreen').style.display='block'; document.getElementById('currentUserName').textContent=user.email; listenToFirestore(); } else { document.getElementById('loginScreen').style.display='block'; document.getElementById('appScreen').style.display='none'; if(unsubscribe)unsubscribe(); } });
 
         // ==================== FIRESTORE ====================
-        function listenToFirestore() {
-            if (unsubscribe) unsubscribe();
-            unsubscribe = db.collection('shared').doc('data').onSnapshot(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    let fData = data.frozen || { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
-                    let cData = data.chiller || { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
-                    fData.sections = convertSectionsToSlotFormat(fData.sections || {});
-                    cData.sections = convertSectionsToSlotFormat(cData.sections || {});
-                    appData.frozen = fData;
-                    appData.chiller = cData;
-                    syncBasketsWithSections('frozen');
-                    syncBasketsWithSections('chiller');
-                    if (!data.frozen) saveToFirestore();
-                    renderCurrentTab();
-                } else {
-                    appData.frozen = { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] };
-                    appData.chiller = { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] };
-                    syncBasketsWithSections('frozen');
-                    syncBasketsWithSections('chiller');
-                    saveToFirestore();
-                    renderCurrentTab();
-                }
-            });
-        }
-
-        function saveToFirestore() {
-            db.collection('shared').doc('data').set({ frozen: appData.frozen, chiller: appData.chiller }, { merge: true })
-                .catch((error) => { console.error('❌ Gagal menyimpan:', error); showToast('❌ Gagal menyimpan data!'); });
-        }
-
-        function syncBasketsWithSections(area) {
-            const sections = appData[area].sections;
-            const baskets = appData[area].baskets;
-            const validNos = new Set();
-            for (const barisObj of Object.values(sections))
-                for (const slots of Object.values(barisObj))
-                    slots.forEach(no => { if (no !== null) validNos.add(no); });
-            for (const no of Object.keys(baskets))
-                if (!validNos.has(Number(no))) delete baskets[no];
-            for (const [sec, barisObj] of Object.entries(sections))
-                for (const [baris, slots] of Object.entries(barisObj))
-                    slots.forEach((no, idx) => {
-                        if (no === null) return;
-                        if (!baskets[no]) baskets[no] = { section: sec, baris, slot: idx+1, items: [] };
-                        else { baskets[no].section = sec; baskets[no].baris = baris; baskets[no].slot = idx+1; }
-                    });
-        }
+        function listenToFirestore() { if(unsubscribe)unsubscribe(); unsubscribe=db.collection('shared').doc('data').onSnapshot(doc=>{ if(doc.exists){ const d=doc.data(); let f=d.frozen||{sections:getDefaultSections('frozen'),baskets:{},transactions:[]}; let c=d.chiller||{sections:getDefaultSections('chiller'),baskets:{},transactions:[]}; f.sections=convertSectionsToSlotFormat(f.sections||{}); c.sections=convertSectionsToSlotFormat(c.sections||{}); appData.frozen=f; appData.chiller=c; syncBasketsWithSections('frozen'); syncBasketsWithSections('chiller'); if(!d.frozen)saveToFirestore(); renderCurrentTab(); } else { appData.frozen={sections:getDefaultSections('frozen'),baskets:{},transactions:[]}; appData.chiller={sections:getDefaultSections('chiller'),baskets:{},transactions:[]}; syncBasketsWithSections('frozen'); syncBasketsWithSections('chiller'); saveToFirestore(); renderCurrentTab(); } }); }
+        function saveToFirestore() { db.collection('shared').doc('data').set({frozen:appData.frozen,chiller:appData.chiller},{merge:true}).catch(e=>{console.error(e);showToast('❌ Gagal menyimpan!');}); }
+        function syncBasketsWithSections(area) { const sec=appData[area].sections, bsk=appData[area].baskets, vn=new Set(); for(const bo of Object.values(sec))for(const sl of Object.values(bo))sl.forEach(n=>{if(n!==null)vn.add(n);}); for(const n of Object.keys(bsk))if(!vn.has(Number(n)))delete bsk[n]; for(const[sk,bo]of Object.entries(sec))for(const[br,sl]of Object.entries(bo))sl.forEach((n,i)=>{if(n===null)return; if(!bsk[n])bsk[n]={section:sk,baris:br,slot:i+1,items:[]};else{bsk[n].section=sk;bsk[n].baris=br;bsk[n].slot=i+1;}}); }
 
         // ==================== HELPERS ====================
-        function currentSections() { return appData[currentArea].sections; }
-        function currentBaskets() { return appData[currentArea].baskets; }
-        function currentTransactions() { return appData[currentArea].transactions; }
+        function currentSections(){return appData[currentArea].sections;}
+        function currentBaskets(){return appData[currentArea].baskets;}
+        function currentTransactions(){return appData[currentArea].transactions;}
+        function switchArea(){currentArea=document.getElementById('areaSelect').value;document.getElementById('areaTitle').textContent=currentArea==='frozen'?'Frozen':'Chiller';renderCurrentTab();}
+        function itemCount(no){return(currentBaskets()[no]?.items||[]).length;}
+        function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+        function logTransaction(type,detail){currentTransactions().unshift({id:Date.now(),timestamp:new Date().toISOString(),type,detail,user:auth.currentUser?.email||'unknown'});if(currentTransactions().length>500)currentTransactions().pop();saveToFirestore();}
+        function isAdmin(){const u=auth.currentUser;return u&&u.providerData.some(p=>p.providerId==='google.com')&&ADMIN_EMAILS.includes(u.email);}
+        async function resetAllData(){if(!isAdmin()){showToast('⚠️ Hanya admin.');return;}if(!confirm('⚠️ Hapus SEMUA data?'))return;if(!confirm('⚠️ Data akan hilang permanen. Yakin?'))return;await db.collection('shared').doc('data').set({frozen:{sections:getDefaultSections('frozen'),baskets:{},transactions:[]},chiller:{sections:getDefaultSections('chiller'),baskets:{},transactions:[]}});showToast('✅ Data direset.');}
+        function renderCurrentTab(){try{switch(currentTab){case'dashboard':renderDashboard();break;case'in':renderInputForm();break;case'search':renderSearch();break;case'history':renderHistory();break;case'rekap':renderRekap();break;case'manage':renderManageBaskets();break;}}catch(e){console.error(e);container.innerHTML='<div class="card"><div class="empty-state">Error. Refresh halaman.</div></div>';}}
 
-        function switchArea() {
-            currentArea = document.getElementById('areaSelect').value;
-            document.getElementById('areaTitle').textContent = currentArea === 'frozen' ? 'Frozen' : 'Chiller';
-            renderCurrentTab();
-        }
+        // ==================== FEFO ====================
+        function cekFEFO(no,idx){const items=currentBaskets()[no]?.items||[],sel=items[idx];if(!sel||!sel.expDate)return true;const se=new Date(sel.expDate).getTime(),now=Date.now();const ea=items.filter((it,i)=>i!==idx&&it.expDate).filter(it=>new Date(it.expDate).getTime()<se&&new Date(it.expDate).getTime()>now).sort((a,b)=>new Date(a.expDate)-new Date(b.expDate));if(ea.length>0){showToast(`⚠️ FEFO: "${ea[0].nama}" expired ${new Date(ea[0].expDate).toLocaleDateString('id-ID')} lebih dulu!`);return false;}return true;}
 
-        function itemCount(no) { return (currentBaskets()[no]?.items || []).length; }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
-        }
-
-        function logTransaction(type, detail) {
-    currentTransactions().unshift({
-        id: Date.now(),
-        timestamp: new Date().toISOString(),
-        type, 
-        detail,
-        user: auth.currentUser?.email || 'unknown' // ✅ User otomatis tercatat
-    });
-    if (currentTransactions().length > 500) currentTransactions().pop();
-    saveToFirestore();
-}
-
-        function isAdmin() {
-            const user = auth.currentUser;
-            if (!user) return false;
-            return user.providerData.some(p => p.providerId === 'google.com') && ADMIN_EMAILS.includes(user.email);
-        }
-
-        async function resetAllData() {
-            if (!isAdmin()) { showToast('⚠️ Hanya admin.'); return; }
-            if (!confirm('⚠️ Hapus SEMUA data?')) return;
-            if (!confirm('⚠️ Data akan hilang permanen. Yakin?')) return;
-            await db.collection('shared').doc('data').set({
-                frozen: { sections: getDefaultSections('frozen'), baskets: {}, transactions: [] },
-                chiller: { sections: getDefaultSections('chiller'), baskets: {}, transactions: [] }
-            });
-            showToast('✅ Data direset.');
-        }
-
-        function renderCurrentTab() {
-            try {
-                switch (currentTab) {
-                    case 'dashboard': renderDashboard(); break;
-                    case 'in': renderInputForm(); break;
-                    case 'search': renderSearch(); break;
-                    case 'history': renderHistory(); break;
-                    case 'rekap': renderRekap(); break;
-                    case 'manage': renderManageBaskets(); break;
-                }
-            } catch (e) { console.error(e); container.innerHTML = '<div class="card"><div class="empty-state">Error. Refresh halaman.</div></div>'; }
-        }
-
-        // ==================== FEFO VALIDATION ====================
-        function cekFEFO(no, idx) {
-            const items = currentBaskets()[no]?.items || [];
-            const selectedItem = items[idx];
-            if (!selectedItem || !selectedItem.expDate) return true;
-            const selectedExp = new Date(selectedItem.expDate).getTime();
-            const now = new Date().getTime();
-            const earlierExp = items
-                .filter((item, i) => i !== idx && item.expDate)
-                .filter(item => new Date(item.expDate).getTime() < selectedExp && new Date(item.expDate).getTime() > now)
-                .sort((a, b) => new Date(a.expDate) - new Date(b.expDate));
-            if (earlierExp.length > 0) {
-                const harusDikeluarkan = earlierExp[0];
-                showToast(`⚠️ FEFO: "${harusDikeluarkan.nama}" expired ${new Date(harusDikeluarkan.expDate).toLocaleDateString('id-ID')} lebih dulu!`);
-                return false;
-            }
-            return true;
-        }
-
-        // ==================== BUILD UI COMPONENTS ====================
-        function buildBasketSlot(no, slotIdx) {
-            if (no === null) return `<div class="basket-slot slot-empty"></div>`;
-            const count = itemCount(no);
-            const items = currentBaskets()[no]?.items || [];
-            const now = new Date();
-            const capacity = getBasketCapacity(no);
-            const isFull = count >= capacity;
-            const hasExpired = items.some(i => i.expDate && new Date(i.expDate) < now);
-            const hasEstLewat = items.some(i => i.estOutDate && new Date(i.estOutDate) < now);
-            let cls = 'basket-slot';
-            if (hasExpired || hasEstLewat) cls += ' red';
-            else if (isFull) cls += ' yellow';
-            else if (count > 0) cls += ' green';
-            else cls += ' slot-empty';
-            let icons = [];
-            if (isFull) icons.push(`<span class="status-icon full" title="Penuh"><i class="fas fa-ban"></i></span>`);
-            if (hasExpired) icons.push(`<span class="status-icon expired" title="EXPIRED"><i class="fas fa-skull"></i></span>`);
-            if (hasEstLewat) icons.push(`<span class="status-icon est-lewat" title="EST LEWAT"><i class="fas fa-hourglass-end"></i></span>`);
-            const statusIcons = icons.length > 0 ? `<div class="slot-status-icons">${icons.join('')}</div>` : '';
-            let tooltipParts = [`Keranjang ${no} — ${count}/${capacity}`];
-            if (isFull) tooltipParts.push('🚫 PENUH');
-            if (hasExpired) tooltipParts.push('☠️ EXPIRED');
-            if (hasEstLewat) tooltipParts.push('⏳ EST LEWAT');
-            const tooltip = tooltipParts.join(' | ');
-            return `<div class="${cls}" onclick="showBasketDetail(${no})" title="${tooltip}">${statusIcons}<span class="slot-num">${no}</span><span class="slot-count">${count}/${capacity}</span></div>`;
-        }
-
-        function buildBarisBox(secName, barisKey, slots) {
-            const barisOrder = ['A','B','C','D','E'];
-            const barisNumber = barisOrder.indexOf(barisKey) + 1;
-            const num = String(barisNumber).padStart(2,'0');
-            const lbl = `${secName} ${num}`;
-            let slotElements = '';
-            for (let i = 0; i < 5; i++) slotElements += buildBasketSlot(slots[i], i);
-            return `<div class="baris-box"><div class="baris-box-lbl">${lbl}</div><div class="baris-slots">${slotElements}</div></div>`;
-        }
-
-        function getSingleBarisBox(secName, baris) {
-            const slots = currentSections()[secName]?.[baris] || [null,null,null,null,null];
-            return buildBarisBox(secName, baris, slots);
-        }
-
-        function getSecBoxes(secName) {
-            const barisObj = currentSections()[secName] || {};
-            const sortedKeys = Object.keys(barisObj).sort();
-            return sortedKeys.map(key => buildBarisBox(secName, key, barisObj[key])).join('');
-        }
-
-        function getAreaStats() {
-    const baskets = currentBaskets();
-    let totalItems = 0, totalExpired = 0, totalEstLewat = 0, totalPenuh = 0;
-    
-    for (const [no, basket] of Object.entries(baskets)) {
-        const items = basket.items || [];
-        totalItems += items.length;
-        if (items.length >= getBasketCapacity(no)) totalPenuh++;
-        items.forEach(item => {
-            if (item.expDate && new Date(item.expDate) < new Date()) totalExpired++;
-            if (item.estOutDate && new Date(item.estOutDate) < new Date()) totalEstLewat++;
-        });
-    }
-    
-    // Hanya return jumlah, tanpa total keranjang
-    return { totalItems, totalExpired, totalEstLewat, totalPenuh };
-}
+        // ==================== UI BUILDERS ====================
+        function buildBasketSlot(no,si){if(no===null)return'<div class="basket-slot slot-empty"></div>';const c=itemCount(no),items=currentBaskets()[no]?.items||[],now=new Date(),cap=getBasketCapacity(no),f=c>=cap,he=items.some(i=>i.expDate&&new Date(i.expDate)<now),hl=items.some(i=>i.estOutDate&&new Date(i.estOutDate)<now);let cls='basket-slot';if(he||hl)cls+=' red';else if(f)cls+=' yellow';else if(c>0)cls+=' green';else cls+=' slot-empty';let ics=[];if(f)ics.push('<span class="status-icon full" title="Penuh"><i class="fas fa-ban"></i></span>');if(he)ics.push('<span class="status-icon expired" title="EXPIRED"><i class="fas fa-skull"></i></span>');if(hl)ics.push('<span class="status-icon est-lewat" title="EST LEWAT"><i class="fas fa-hourglass-end"></i></span>');const sii=ics.length>0?`<div class="slot-status-icons">${ics.join('')}</div>`:'';let tp=[`Keranjang ${no} — ${c}/${cap}`];if(f)tp.push('🚫 PENUH');if(he)tp.push('☠️ EXPIRED');if(hl)tp.push('⏳ EST LEWAT');return`<div class="${cls}" onclick="showBasketDetail(${no})" title="${tp.join(' | ')}">${sii}<span class="slot-num">${no}</span><span class="slot-count">${c}/${cap}</span></div>`;}
+        function buildBarisBox(sn,bk,sl){const bo=['A','B','C','D','E'],bn=bo.indexOf(bk)+1,n=String(bn).padStart(2,'0'),l=`${sn} ${n}`;let se='';for(let i=0;i<5;i++)se+=buildBasketSlot(sl[i],i);return`<div class="baris-box"><div class="baris-box-lbl">${l}</div><div class="baris-slots">${se}</div></div>`;}
+        function getSingleBarisBox(sn,b){return buildBarisBox(sn,b,currentSections()[sn]?.[b]||[null,null,null,null,null]);}
+        function getSecBoxes(sn){const bo=currentSections()[sn]||{};return Object.keys(bo).sort().map(k=>buildBarisBox(sn,k,bo[k])).join('');}
+        function getAreaStats(){const bsk=currentBaskets();let ti=0,te=0,tl=0,tp=0;for(const[n,b]of Object.entries(bsk)){const it=b.items||[];ti+=it.length;if(it.length>=getBasketCapacity(n))tp++;it.forEach(i=>{if(i.expDate&&new Date(i.expDate)<new Date())te++;if(i.estOutDate&&new Date(i.estOutDate)<new Date())tl++;});}return{totalItems:ti,totalExpired:te,totalEstLewat:tl,totalPenuh:tp};}
 
         // ==================== DASHBOARD ====================
-        function renderDashboard() {
-            if (currentArea === 'frozen') renderFrozenPlan();
-            else renderChillerPlan();
-        }
-
-        function renderFrozenPlan() {
-            const stats = getAreaStats();
-            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>` : '';
-            container.innerHTML = `
-            <div class="card" style="padding:12px;">
-                <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-    <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
-        📦 ${stats.totalItems} item
-    </span>
-    <span style="background:${stats.totalExpired>0?'#fee2e2':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
-        ☠️ ${stats.totalExpired} expired
-    </span>
-    <span style="background:${stats.totalEstLewat>0?'#fff7ed':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
-        ⏳ ${stats.totalEstLewat} est lewat
-    </span>
-    <!-- ✅ HANYA tampilkan jumlah keranjang penuh, bukan X/Y -->
-    ${stats.totalPenuh > 0 ? `
-    <span style="background:#fffbeb; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
-        🚫 ${stats.totalPenuh} keranjang penuh
-    </span>` : ''}
-</div>
-                <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
-                <div class="fp-room" style="background:#e8f4f8;">
-                    <div style="display:grid; grid-template-columns:110px 110px 110px 110px 110px; gap:8px; width:fit-content; margin:0 auto;">
-                        ${getSingleBarisBox('IMP','A')}${getSingleBarisBox('IMP','B')}${getSingleBarisBox('IMP','C')}${getSingleBarisBox('IMP','D')}${getSingleBarisBox('IMP','E')}
-                        <div style="grid-column:1/6; height:40px;" class="spacer">— Area Kosong —</div>
-                        ${getSingleBarisBox('RTL','A')}${getSingleBarisBox('RTL','B')}${getSingleBarisBox('RTL','C')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','A')}
-                        ${getSingleBarisBox('NPL','A')}${getSingleBarisBox('NPL','B')}${getSingleBarisBox('NPL','C')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','B')}
-                        <div style="grid-column:1/6; height:40px;" class="spacer">— Area Kosong —</div>
-                        ${getSingleBarisBox('RDQ','A')}${getSingleBarisBox('MTPP','A')}${getSingleBarisBox('MTPP','B')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','C')}
-                    </div>
-                </div>
-                <div class="fp-legend">
-                    <span><i class="fas fa-circle" style="color:#10b981;font-size:0.7rem;"></i> Tersedia</span>
-                    <span><span class="status-icon full" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-ban" style="font-size:0.35rem;"></i></span> Penuh</span>
-                    <span><span class="status-icon expired" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-skull" style="font-size:0.35rem;"></i></span> Expired</span>
-                    <span><span class="status-icon est-lewat" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.35rem;"></i></span> Est Lewat</span>
-                    <span><i class="far fa-square" style="color:#d1d5db;font-size:0.7rem;"></i> Kosong</span>
-                </div>
-                ${adminBtn}
-            </div>`;
-        }
-
-        function renderChillerPlan() {
-            const stats = getAreaStats();
-            const stockBox = `<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>`;
-            const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>` : '';
-            const bottomSecs = ['IMP','RTL','NPL','MTPP','RDQ','MI'];
-            container.innerHTML = `
-            <<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-    <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
-        📦 ${stats.totalItems} item
-    </span>
-    <span style="background:${stats.totalExpired>0?'#fee2e2':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
-        ☠️ ${stats.totalExpired} expired
-    </span>
-    <span style="background:${stats.totalEstLewat>0?'#fff7ed':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
-        ⏳ ${stats.totalEstLewat} est lewat
-    </span>
-    <!-- ✅ HANYA tampilkan jumlah keranjang penuh, bukan X/Y -->
-    ${stats.totalPenuh > 0 ? `
-    <span style="background:#fffbeb; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
-        🚫 ${stats.totalPenuh} keranjang penuh
-    </span>` : ''}
-</div>
-                <div class="fp-room-title">🌡️ Denah Walk-in Chiller</div>
-                <div class="fp-room" style="background:#f0fdf4;">
-                    <div class="chl-plan">
-                        <div class="chl-top">${stockBox}${getSecBoxes('THAWING')}</div>
-                        <div class="chl-space">— Area Kosong —</div>
-                        <div class="chl-bot">${bottomSecs.map(s => getSecBoxes(s)).join('')}</div>
-                    </div>
-                </div>
-                <div class="fp-legend">
-                    <span><i class="fas fa-circle" style="color:#10b981;font-size:0.7rem;"></i> Tersedia</span>
-                    <span><span class="status-icon full" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-ban" style="font-size:0.35rem;"></i></span> Penuh</span>
-                    <span><span class="status-icon expired" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-skull" style="font-size:0.35rem;"></i></span> Expired</span>
-                    <span><span class="status-icon est-lewat" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.35rem;"></i></span> Est Lewat</span>
-                    <span><i class="far fa-square" style="color:#d1d5db;font-size:0.7rem;"></i> Kosong</span>
-                </div>
-                ${adminBtn}
-            </div>`;
-        }
+        function renderDashboard(){if(currentArea==='frozen')renderFrozenPlan();else renderChillerPlan();}
+        function renderFrozenPlan(){const s=getAreaStats(),ab=isAdmin()?`<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>`:'';container.innerHTML=`<div class="card" style="padding:12px;"><div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"><span style="background:#dbeafe;padding:4px 12px;border-radius:20px;font-size:0.75rem;">📦 ${s.totalItems} item</span><span style="background:${s.totalExpired>0?'#fee2e2':'#f0fdf4'};padding:4px 12px;border-radius:20px;font-size:0.75rem;">☠️ ${s.totalExpired} expired</span><span style="background:${s.totalEstLewat>0?'#fff7ed':'#f0fdf4'};padding:4px 12px;border-radius:20px;font-size:0.75rem;">⏳ ${s.totalEstLewat} est lewat</span>${s.totalPenuh>0?`<span style="background:#fffbeb;padding:4px 12px;border-radius:20px;font-size:0.75rem;">🚫 ${s.totalPenuh} keranjang penuh</span>`:''}</div><div class="fp-room-title">❄️ Denah Walk-in Frozen</div><div class="fp-room" style="background:#e8f4f8;"><div style="display:grid;grid-template-columns:110px 110px 110px 110px 110px;gap:8px;width:fit-content;margin:0 auto;">${getSingleBarisBox('IMP','A')}${getSingleBarisBox('IMP','B')}${getSingleBarisBox('IMP','C')}${getSingleBarisBox('IMP','D')}${getSingleBarisBox('IMP','E')}<div style="grid-column:1/6;height:40px;" class="spacer">— Area Kosong —</div>${getSingleBarisBox('RTL','A')}${getSingleBarisBox('RTL','B')}${getSingleBarisBox('RTL','C')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','A')}${getSingleBarisBox('NPL','A')}${getSingleBarisBox('NPL','B')}${getSingleBarisBox('NPL','C')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','B')}<div style="grid-column:1/6;height:40px;" class="spacer">— Area Kosong —</div>${getSingleBarisBox('RDQ','A')}${getSingleBarisBox('MTPP','A')}${getSingleBarisBox('MTPP','B')}<div class="spacer-box">Area Kosong</div>${getSingleBarisBox('MI','C')}</div></div><div class="fp-legend"><span><i class="fas fa-circle" style="color:#10b981;font-size:0.7rem;"></i> Tersedia</span><span><span class="status-icon full" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-ban" style="font-size:0.35rem;"></i></span> Penuh</span><span><span class="status-icon expired" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-skull" style="font-size:0.35rem;"></i></span> Expired</span><span><span class="status-icon est-lewat" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.35rem;"></i></span> Est Lewat</span><span><i class="far fa-square" style="color:#d1d5db;font-size:0.7rem;"></i> Kosong</span></div>${ab}</div>`;}
+        function renderChillerPlan(){const s=getAreaStats(),sb='<div class="baris-box stock-box"><div class="baris-box-lbl">📦 Stock<br>Keranjang</div><div class="stock-icon">🧺</div></div>',ab=isAdmin()?`<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>`:'',bts=['IMP','RTL','NPL','MTPP','RDQ','MI'];container.innerHTML=`<div class="card" style="padding:12px;"><div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"><span style="background:#dbeafe;padding:4px 12px;border-radius:20px;font-size:0.75rem;">📦 ${s.totalItems} item</span><span style="background:${s.totalExpired>0?'#fee2e2':'#f0fdf4'};padding:4px 12px;border-radius:20px;font-size:0.75rem;">☠️ ${s.totalExpired} expired</span><span style="background:${s.totalEstLewat>0?'#fff7ed':'#f0fdf4'};padding:4px 12px;border-radius:20px;font-size:0.75rem;">⏳ ${s.totalEstLewat} est lewat</span>${s.totalPenuh>0?`<span style="background:#fffbeb;padding:4px 12px;border-radius:20px;font-size:0.75rem;">🚫 ${s.totalPenuh} keranjang penuh</span>`:''}</div><div class="fp-room-title">🌡️ Denah Walk-in Chiller</div><div class="fp-room" style="background:#f0fdf4;"><div class="chl-plan"><div class="chl-top">${sb}${getSecBoxes('THAWING')}</div><div class="chl-space">— Area Kosong —</div><div class="chl-bot">${bts.map(s=>getSecBoxes(s)).join('')}</div></div></div><div class="fp-legend"><span><i class="fas fa-circle" style="color:#10b981;font-size:0.7rem;"></i> Tersedia</span><span><span class="status-icon full" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-ban" style="font-size:0.35rem;"></i></span> Penuh</span><span><span class="status-icon expired" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-skull" style="font-size:0.35rem;"></i></span> Expired</span><span><span class="status-icon est-lewat" style="display:inline-flex;position:static;width:12px;height:12px;margin-right:4px;"><i class="fas fa-hourglass-end" style="font-size:0.35rem;"></i></span> Est Lewat</span><span><i class="far fa-square" style="color:#d1d5db;font-size:0.7rem;"></i> Kosong</span></div>${ab}</div>`;}
 
         // ==================== BASKET DETAIL ====================
-       function showBasketDetail(no, moveItemIdx = null) {
-    const basket = currentBaskets()[no];
-    const count = itemCount(no);
-    const capacity = getBasketCapacity(no);
-    const now = new Date();
-    
-    let itemsHtml = basket && basket.items.length ?
-        basket.items.map((item, idx) => {
-            let cls = '', lbl = '';
-            if (item.expDate && new Date(item.expDate) < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
-            else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
-            const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
-            
-            // ✅ Tampilkan user yang memasukkan
-            const userInfo = item.addedBy 
-                ? `<br><small style="color:#64748b;">👤 Ditambah: ${item.addedBy} | ${item.tglMasuk ? new Date(item.tglMasuk).toLocaleDateString('id-ID') : '-'}</small>`
-                : `<br><small style="color:#64748b;">📅 Masuk: ${item.tglMasuk ? new Date(item.tglMasuk).toLocaleDateString('id-ID') : '-'}</small>`;
-            
-            // ✅ Tampilkan riwayat perpindahan jika ada
-            const moveHistory = item.moveHistory && item.moveHistory.length > 0
-                ? `<br><small style="color:#8b5cf6;">🔄 Riwayat Pindah: ${item.moveHistory.map(m => `${m.user || '?'} (${new Date(m.timestamp).toLocaleDateString('id-ID')})`).join(' → ')}</small>`
-                : '';
-            
-            return `<div class="item-row ${cls}">
-                <div style="flex:1;">
-                    <strong>${item.nama}</strong> 
-                    <span style="font-size:1rem;font-weight:700;color:var(--primary);">(${item.qty})</span>${lbl}
-                    <br><small>${item.jenis||''} | Exp: ${item.expDate ? new Date(item.expDate).toLocaleDateString('id-ID') : '-'}
-                    ${item.estOutDate ? ' | Est.Keluar: ' + new Date(item.estOutDate).toLocaleDateString('id-ID') : ''}</small>
-                    ${userInfo}
-                    ${moveHistory}
-                </div>
-                <div class="item-actions">
-                    <button class="action-btn move-btn" data-tooltip="Pindah Barang" onclick="event.stopPropagation();showBasketDetail(${no},${idx})"><i class="fas fa-exchange-alt"></i></button>
-                    <button class="action-btn edit-btn" data-tooltip="Edit Est. Keluar" onclick="event.stopPropagation();editEstOutDate(${no},${idx})"><i class="fas fa-calendar-alt"></i></button>
-                    <button class="action-btn out-btn" data-tooltip="Keluarkan Barang" onclick="keluarkanItem(${no},${idx})"><i class="fas fa-sign-out-alt"></i></button>
-                </div>
-                ${moveFormHtml}
-            </div>`;
-        }).join('') : '<div class="empty-state">Keranjang kosong</div>';
-
-    container.innerHTML = `<div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div>
-                <h3 style="display:inline;">🧺 Keranjang ${no}</h3>
-                ${basket ? `<span style="font-size:0.8rem;color:#64748b;margin-left:8px;">📍 ${basket.section} Baris ${basket.baris} Slot ${basket.slot}</span>` : ''}
-            </div>
-            <div style="display:flex;gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="renderDashboard()"><i class="fas fa-arrow-left"></i> Denah</button>
-                <button class="btn btn-sm" style="background:#10b981;color:white;" onclick="quickAddToBasket(${no})"><i class="fas fa-plus"></i> Tambah Barang</button>
-                <button class="basket-move-btn" onclick="showMoveBasketForm(${no})"><i class="fas fa-truck"></i> Pindah Keranjang</button>
-            </div>
-        </div>
-        
-        <!-- ✅ Info user yang terakhir memodifikasi keranjang -->
-        ${basket?.lastModifiedBy ? `
-        <div style="background:#f0f4ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:0.75rem;color:#475569;">
-            👤 Terakhir diubah: <strong>${basket.lastModifiedBy}</strong> 
-            pada ${basket.lastModifiedAt ? new Date(basket.lastModifiedAt).toLocaleString('id-ID') : '-'}
-        </div>` : ''}
-        
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <p style="margin:0;">Total item: <strong>${count}/${capacity}</strong></p>
-            <div style="display:flex;gap:12px;font-size:0.7rem;color:#64748b;">
-                <span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> Pindah</span>
-                <span><i class="fas fa-calendar-alt" style="color:#f59e0b;"></i> Est</span>
-                <span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> Keluar</span>
-            </div>
-        </div>
-        ${itemsHtml}
-    </div>`;
-}
+        function showBasketDetail(no,mi=null){const b=currentBaskets()[no],c=itemCount(no),cap=getBasketCapacity(no),now=new Date();let ih=b&&b.items.length?b.items.map((it,idx)=>{let cls='',lbl='';if(it.expDate&&new Date(it.expDate)<now){cls='expired';lbl=' ⚠️ EXP';}else if(it.estOutDate&&new Date(it.estOutDate)<now){cls='expired';lbl=' ⚠️ EST LEWAT';}const mf=(mi===idx)?renderMoveForm(no,idx):'';const ui=it.addedBy?`<br><small style="color:#64748b;">👤 Ditambah: ${it.addedBy} | ${it.tglMasuk?new Date(it.tglMasuk).toLocaleDateString('id-ID'):'-'}</small>`:`<br><small style="color:#64748b;">📅 Masuk: ${it.tglMasuk?new Date(it.tglMasuk).toLocaleDateString('id-ID'):'-'}</small>`;const mh=it.moveHistory&&it.moveHistory.length>0?`<br><small style="color:#8b5cf6;">🔄 Riwayat Pindah: ${it.moveHistory.map(m=>`${m.user||'?'} (${new Date(m.timestamp).toLocaleDateString('id-ID')})`).join(' → ')}</small>`:'';return`<div class="item-row ${cls}"><div style="flex:1;"><strong>${it.nama}</strong> <span style="font-size:1rem;font-weight:700;color:var(--primary);">(${it.qty})</span>${lbl}<br><small>${it.jenis||''} | Exp: ${it.expDate?new Date(it.expDate).toLocaleDateString('id-ID'):'-'}${it.estOutDate?' | Est.Keluar: '+new Date(it.estOutDate).toLocaleDateString('id-ID'):''}</small>${ui}${mh}</div><div class="item-actions"><button class="action-btn move-btn" data-tooltip="Pindah Barang" onclick="event.stopPropagation();showBasketDetail(${no},${idx})"><i class="fas fa-exchange-alt"></i></button><button class="action-btn edit-btn" data-tooltip="Edit Est. Keluar" onclick="event.stopPropagation();editEstOutDate(${no},${idx})"><i class="fas fa-calendar-alt"></i></button><button class="action-btn out-btn" data-tooltip="Keluarkan Barang" onclick="keluarkanItem(${no},${idx})"><i class="fas fa-sign-out-alt"></i></button></div>${mf}</div>`;}).join(''):'<div class="empty-state">Keranjang kosong</div>';container.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div><h3 style="display:inline;">🧺 Keranjang ${no}</h3>${b?`<span style="font-size:0.8rem;color:#64748b;margin-left:8px;">📍 ${b.section} Baris ${b.baris} Slot ${b.slot}</span>`:''}</div><div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm" onclick="renderDashboard()"><i class="fas fa-arrow-left"></i> Denah</button><button class="btn btn-sm" style="background:#10b981;color:white;" onclick="quickAddToBasket(${no})"><i class="fas fa-plus"></i> Tambah Barang</button><button class="basket-move-btn" onclick="showMoveBasketForm(${no})"><i class="fas fa-truck"></i> Pindah Keranjang</button></div></div>${b?.lastModifiedBy?`<div style="background:#f0f4ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:0.75rem;color:#475569;">👤 Terakhir diubah: <strong>${b.lastModifiedBy}</strong> pada ${b.lastModifiedAt?new Date(b.lastModifiedAt).toLocaleString('id-ID'):'-'}</div>`:''}<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><p style="margin:0;">Total item: <strong>${c}/${cap}</strong></p><div style="display:flex;gap:12px;font-size:0.7rem;color:#64748b;"><span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> Pindah</span><span><i class="fas fa-calendar-alt" style="color:#f59e0b;"></i> Est</span><span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> Keluar</span></div></div>${ih}</div>`;}
 
         // ==================== QUICK ADD ====================
-        function quickAddToBasket(no) {
-            const basket = currentBaskets()[no];
-            if (!basket) return showToast('Keranjang tidak ditemukan!');
-            if (isBasketFull(no)) return showToast(`❌ Keranjang ${no} sudah penuh!`);
-            window._quickAddTarget = { no, section: basket.section, baris: basket.baris, slot: basket.slot };
-            currentTab = 'in';
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            const inTab = document.querySelector('.tab-btn[data-tab="in"]');
-            if (inTab) inTab.classList.add('active');
-            renderQuickAddForm();
-        }
+        function quickAddToBasket(no){const b=currentBaskets()[no];if(!b)return showToast('Keranjang tidak ditemukan!');if(isBasketFull(no))return showToast(`❌ Keranjang ${no} sudah penuh!`);window._quickAddTarget={no,section:b.section,baris:b.baris,slot:b.slot};currentTab='in';document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));const t=document.querySelector('.tab-btn[data-tab="in"]');if(t)t.classList.add('active');renderQuickAddForm();}
+        function renderQuickAddForm(){const t=window._quickAddTarget;if(!t)return renderInputForm();container.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3>📥 Tambah Barang ke Keranjang ${t.no}</h3><button class="btn btn-outline btn-sm" onclick="showBasketDetail(${t.no})">← Kembali</button></div><div style="background:#ecfdf5;border:1px solid #10b981;border-radius:8px;padding:12px;margin-bottom:16px;"><strong>📍 Tujuan:</strong> ${t.section} Baris ${t.baris} Slot ${t.slot} (Keranjang ${t.no})<br>Terisi: <strong>${itemCount(t.no)}/${getBasketCapacity(t.no)}</strong></div><form id="inForm" onsubmit="submitQuickAdd(event)"><div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div><div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="Contoh: 5 Pack" required pattern="[0-9].*"></div><div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div><div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateQuickEstOut()"></div><div class="form-group"><label>Estimasi Keluar (wajib)</label><input type="date" id="inEstOutDate" required onchange="validateQuickEstOut()"><small id="estOutWarning" style="display:block;margin-top:4px;"></small></div><input type="hidden" id="inSection" value="${t.section}"><input type="hidden" id="inBaris" value="${t.baris}"><input type="hidden" id="inSlot" value="${t.slot}"><input type="hidden" id="inKeranjangManual" value="${t.no}"><button type="submit" class="btn btn-primary" style="width:100%;background:#10b981;"><i class="fas fa-plus"></i> Tambah ke Keranjang ${t.no}</button></form></div>`;updateNamaDatalist();}
+        function validateQuickEstOut(){const ed=document.getElementById('inExpDate')?.value,eo=document.getElementById('inEstOutDate')?.value,ei=document.getElementById('inEstOutDate'),w=document.getElementById('estOutWarning');if(!ed||!eo||!w)return;if(new Date(eo)>new Date(ed)){w.innerHTML='❌ Tidak boleh lebih dari Tanggal Exp!';w.style.color='#ef4444';ei.style.borderColor='#ef4444';}else{w.innerHTML='✅ Valid';w.style.color='#10b981';ei.style.borderColor='#10b981';}}
+        function submitQuickAdd(e){e.preventDefault();const t=window._quickAddTarget;if(!t)return showToast('Data keranjang hilang.');if(isBasketFull(t.no))return showToast(`❌ Keranjang ${t.no} sudah penuh!`);const b=currentBaskets()[t.no];if(!b)return showToast('❌ Keranjang tidak ditemukan.');if(b.section!==t.section||b.baris!==t.baris||b.slot!==t.slot)return showToast('⚠️ Lokasi keranjang sudah berubah. Refresh.');const nama=document.getElementById('inNama').value.trim(),qty=document.getElementById('inQty').value.trim(),jenis=document.getElementById('inJenis').value,expDate=document.getElementById('inExpDate').value,estOutDate=document.getElementById('inEstOutDate').value;if(!nama||!qty)return showToast('Lengkapi data!');if(!expDate||!estOutDate)return showToast('Tanggal Exp dan Estimasi Keluar wajib!');if(new Date(estOutDate)>new Date(expDate))return showToast('❌ Est Keluar tidak boleh > Exp!');if(jenis==='TH'&&b.items.some(i=>i.jenis!=='TH'))return showToast('❌ TH tidak bisa dicampur!');if(jenis!=='TH'&&b.items.some(i=>i.jenis==='TH'))return showToast('❌ Tidak bisa dicampur dengan TH!');const cu=auth.currentUser?.email||'unknown';const item={nama,qty,jenis,tglMasuk:new Date().toISOString(),addedBy:cu};if(expDate)item.expDate=expDate;if(estOutDate)item.estOutDate=estOutDate;b.items.push(item);b.lastModifiedBy=cu;b.lastModifiedAt=new Date().toISOString();logTransaction('in',{nama,qty,jenis,keranjang:t.no,section:t.section,baris:t.baris,expDate,estOutDate});saveToFirestore();showToast(`✅ ${nama} ditambahkan ke keranjang ${t.no}`);setTimeout(()=>showBasketDetail(t.no),300);}
 
-        function renderQuickAddForm() {
-            const target = window._quickAddTarget;
-            if (!target) return renderInputForm();
-            container.innerHTML = `<div class="card">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                    <h3>📥 Tambah Barang ke Keranjang ${target.no}</h3>
-                    <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${target.no})">← Kembali</button>
-                </div>
-                <div style="background:#ecfdf5;border:1px solid #10b981;border-radius:8px;padding:12px;margin-bottom:16px;">
-                    <strong>📍 Tujuan:</strong> ${target.section} Baris ${target.baris} Slot ${target.slot} (Keranjang ${target.no})
-                    <br>Terisi: <strong>${itemCount(target.no)}/${getBasketCapacity(target.no)}</strong>
-                </div>
-                <form id="inForm" onsubmit="submitQuickAdd(event)">
-                    <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
-                    <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="Contoh: 5 Pack" required pattern="[0-9].*"></div>
-                    <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
-                    <div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateQuickEstOut()"></div>
-                    <div class="form-group"><label>Estimasi Keluar (wajib)</label><input type="date" id="inEstOutDate" required onchange="validateQuickEstOut()"><small id="estOutWarning" style="display:block;margin-top:4px;"></small></div>
-                    <input type="hidden" id="inSection" value="${target.section}"><input type="hidden" id="inBaris" value="${target.baris}">
-                    <input type="hidden" id="inSlot" value="${target.slot}"><input type="hidden" id="inKeranjangManual" value="${target.no}">
-                    <button type="submit" class="btn btn-primary" style="width:100%;background:#10b981;"><i class="fas fa-plus"></i> Tambah ke Keranjang ${target.no}</button>
-                </form>
-            </div>`;
-            updateNamaDatalist();
-        }
-
-        function validateQuickEstOut() {
-            const expDate = document.getElementById('inExpDate')?.value;
-            const estOutDate = document.getElementById('inEstOutDate')?.value;
-            const estOutInput = document.getElementById('inEstOutDate');
-            const warning = document.getElementById('estOutWarning');
-            if (!expDate || !estOutDate || !warning) return;
-            if (new Date(estOutDate) > new Date(expDate)) {
-                warning.innerHTML = '❌ Tidak boleh lebih dari Tanggal Exp!';
-                warning.style.color = '#ef4444'; estOutInput.style.borderColor = '#ef4444';
-            } else {
-                warning.innerHTML = '✅ Valid';
-                warning.style.color = '#10b981'; estOutInput.style.borderColor = '#10b981';
-            }
-        }
-
-        function submitQuickAdd(e) {
-            e.preventDefault();
-            const target = window._quickAddTarget;
-            if (!target) return showToast('Data keranjang hilang.');
-            if (isBasketFull(target.no)) return showToast(`❌ Keranjang ${target.no} sudah penuh!`);
-            const basket = currentBaskets()[target.no];
-            if (!basket) return showToast('❌ Keranjang tidak ditemukan.');
-            if (basket.section !== target.section || basket.baris !== target.baris || basket.slot !== target.slot)
-                return showToast('⚠️ Lokasi keranjang sudah berubah. Refresh.');
-            const nama = document.getElementById('inNama').value.trim();
-            const qty = document.getElementById('inQty').value.trim();
-            const jenis = document.getElementById('inJenis').value;
-            const expDate = document.getElementById('inExpDate').value;
-            const estOutDate = document.getElementById('inEstOutDate').value;
-            if (!nama || !qty) return showToast('Lengkapi data!');
-            if (!expDate || !estOutDate) return showToast('Tanggal Exp dan Estimasi Keluar wajib!');
-            if (new Date(estOutDate) > new Date(expDate)) return showToast('❌ Est Keluar tidak boleh > Exp!');
-            if (jenis === 'TH' && basket.items.some(i => i.jenis !== 'TH')) return showToast('❌ TH tidak bisa dicampur!');
-            if (jenis !== 'TH' && basket.items.some(i => i.jenis === 'TH')) return showToast('❌ Tidak bisa dicampur dengan TH!');
-            const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
-            if (expDate) item.expDate = expDate;
-            if (estOutDate) item.estOutDate = estOutDate;
-            basket.items.push(item);
-            logTransaction('in', { nama, qty, jenis, keranjang: target.no, section: target.section, baris: target.baris, expDate, estOutDate });
-            saveToFirestore();
-            showToast(`✅ ${nama} ditambahkan ke keranjang ${target.no}`);
-            setTimeout(() => showBasketDetail(target.no), 300);
-        }
-
-        // ==================== EDIT EST OUT ====================
-        function editEstOutDate(no, idx) {
-            const basket = currentBaskets()[no];
-            if (!basket || !basket.items[idx]) return;
-            const item = basket.items[idx];
-            const expDate = item.expDate ? new Date(item.expDate) : null;
-            const currentEst = item.estOutDate ? new Date(item.estOutDate).toISOString().split('T')[0] : '';
-            const newDateStr = prompt(`Edit Estimasi Keluar untuk "${item.nama}"\nTanggal Exp: ${expDate ? expDate.toLocaleDateString('id-ID') : '-'}\nMasukkan tanggal (YYYY-MM-DD):`, currentEst);
-            if (newDateStr === null) return;
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(newDateStr)) return showToast('Format tidak valid.');
-            const newDate = new Date(newDateStr);
-            if (isNaN(newDate.getTime())) return showToast('Tanggal tidak valid.');
-            if (expDate && newDate > expDate) return showToast(`❌ Tidak boleh > Exp (${expDate.toISOString().split('T')[0]}).`);
-            item.estOutDate = newDateStr;
-            logTransaction('edit', { nama: item.nama, qty: item.qty, jenis: item.jenis, keranjang: no, section: basket.section, oldEstOutDate: currentEst, newEstOutDate: newDateStr });
-            saveToFirestore();
-            showToast('✅ Estimasi keluar diperbarui.');
-            showBasketDetail(no);
-        }
+        // ==================== EDIT EST ====================
+        function editEstOutDate(no,idx){const b=currentBaskets()[no];if(!b||!b.items[idx])return;const it=b.items[idx],ed=it.expDate?new Date(it.expDate):null,ce=it.estOutDate?new Date(it.estOutDate).toISOString().split('T')[0]:'';const ns=prompt(`Edit Estimasi Keluar untuk "${it.nama}"\nTanggal Exp: ${ed?ed.toLocaleDateString('id-ID'):'-'}\nMasukkan tanggal (YYYY-MM-DD):`,ce);if(ns===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(ns))return showToast('Format tidak valid.');const nd=new Date(ns);if(isNaN(nd.getTime()))return showToast('Tanggal tidak valid.');if(ed&&nd>ed)return showToast(`❌ Tidak boleh > Exp (${ed.toISOString().split('T')[0]}).`);it.estOutDate=ns;logTransaction('edit',{nama:it.nama,qty:it.qty,jenis:it.jenis,keranjang:no,section:b.section,oldEstOutDate:ce,newEstOutDate:ns});saveToFirestore();showToast('✅ Estimasi keluar diperbarui.');showBasketDetail(no);}
 
         // ==================== MOVE ITEM ====================
-        function renderMoveForm(fromNo, fromIdx) {
-            const sections = Object.keys(currentSections());
-            const sectionOpts = sections.map(s => `<option value="${s}">${s}</option>`).join('');
-            const item = currentBaskets()[fromNo]?.items[fromIdx];
-            return `<div class="move-form" onclick="event.stopPropagation();">
-                <div style="width:100%;">
-                    <div style="background:#f5f3ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;"><strong style="color:#5b21b6;">🔄 Pindah: ${item?.nama||''}</strong></div>
-                    <select id="moveSection" onchange="updateMoveBaris()" style="width:100%;margin-bottom:6px;"><option value="">-- Section --</option>${sectionOpts}</select>
-                    <select id="moveBaris" onchange="updateMoveKeranjang()" style="width:100%;margin-bottom:6px;"><option value="">-- Baris --</option></select>
-                    <select id="moveKeranjang" style="width:100%;margin-bottom:6px;"><option value="">-- Pilih Keranjang --</option></select>
-                    <input type="number" id="moveKeranjangBaru" placeholder="Atau nomor baru" min="1" style="width:100%;margin-bottom:6px;" oninput="validateMoveKeranjangBaru()">
-                    <small id="moveKeranjangWarning" style="display:block;margin-bottom:6px;"></small>
-                    <button class="btn btn-sm btn-primary" style="width:100%;" onclick="pindahkanItem(${fromNo},${fromIdx})"><i class="fas fa-exchange-alt"></i> Pindahkan</button>
-                    <button class="btn btn-sm btn-outline" style="width:100%;margin-top:4px;" onclick="showBasketDetail(${fromNo})">Batal</button>
-                </div>
-            </div>`;
-        }
+        function renderMoveForm(fn,fi){const ss=Object.keys(currentSections()),so=ss.map(s=>`<option value="${s}">${s}</option>`).join(''),it=currentBaskets()[fn]?.items[fi];return`<div class="move-form" onclick="event.stopPropagation();"><div style="width:100%;"><div style="background:#f5f3ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;"><strong style="color:#5b21b6;">🔄 Pindah: ${it?.nama||''}</strong></div><select id="moveSection" onchange="updateMoveBaris()" style="width:100%;margin-bottom:6px;"><option value="">-- Section --</option>${so}</select><select id="moveBaris" onchange="updateMoveKeranjang()" style="width:100%;margin-bottom:6px;"><option value="">-- Baris --</option></select><select id="moveKeranjang" style="width:100%;margin-bottom:6px;"><option value="">-- Pilih Keranjang --</option></select><input type="number" id="moveKeranjangBaru" placeholder="Atau nomor baru" min="1" style="width:100%;margin-bottom:6px;" oninput="validateMoveKeranjangBaru()"><small id="moveKeranjangWarning" style="display:block;margin-bottom:6px;"></small><button class="btn btn-sm btn-primary" style="width:100%;" onclick="pindahkanItem(${fn},${fi})"><i class="fas fa-exchange-alt"></i> Pindahkan</button><button class="btn btn-sm btn-outline" style="width:100%;margin-top:4px;" onclick="showBasketDetail(${fn})">Batal</button></div></div>`;}
+        function updateMoveBaris(){const s=document.getElementById('moveSection')?.value,bs=document.getElementById('moveBaris');if(!bs)return;bs.innerHTML='<option value="">-- Baris --</option>';if(!s)return;const bo=currentSections()[s]||{};Object.keys(bo).forEach((b,i)=>{bs.innerHTML+=`<option value="${b}">${s} ${String(i+1).padStart(2,'0')}</option>`;});updateMoveKeranjang();}
+        function updateMoveKeranjang(){const s=document.getElementById('moveSection')?.value,b=document.getElementById('moveBaris')?.value,ks=document.getElementById('moveKeranjang');if(!ks)return;ks.innerHTML='<option value="">-- Pilih Keranjang --</option>';if(!s||!b)return;const sl=currentSections()[s]?.[b];if(sl){sl.forEach((n,i)=>{if(n===null)return;const c=itemCount(n);ks.innerHTML+=`<option value="${n}" ${c>=getBasketCapacity(n)?'disabled':''}>Keranjang ${n} (${c}/${getBasketCapacity(n)})</option>`;});}}
+        function validateMoveKeranjangBaru(){const ip=document.getElementById('moveKeranjangBaru'),w=document.getElementById('moveKeranjangWarning'),v=parseInt(ip?.value);if(!ip||!w)return;if(!v||v<=0){w.innerHTML='';ip.style.borderColor='#cbd5e1';return;}for(const a of['frozen','chiller']){for(const[sk,bo]of Object.entries(appData[a].sections)){for(const sl of Object.values(bo)){if(sl.includes(v)){w.innerHTML=`❌ Nomor ${v} sudah digunakan`;w.style.color='#ef4444';ip.style.borderColor='#ef4444';return;}}}}w.innerHTML=`✅ Nomor ${v} tersedia`;w.style.color='#10b981';ip.style.borderColor='#10b981';}
+        function pindahkanItem(fn,fi){const fb=currentBaskets()[fn];if(!fb||!fb.items[fi])return;const it=fb.items[fi];if(it.expDate&&!cekFEFO(fn,fi))return;const ts=document.getElementById('moveSection')?.value,tb=document.getElementById('moveBaris')?.value;let tn=parseInt(document.getElementById('moveKeranjang')?.value);const ti=document.getElementById('moveKeranjangBaru')?.value;if(!tn&&ti){tn=parseInt(ti);if(!tn||tn<=0)return showToast('Masukkan nomor keranjang.');for(const a of['frozen','chiller']){for(const[sk,bo]of Object.entries(appData[a].sections)){for(const sl of Object.values(bo)){if(sl.includes(tn))return showToast(`❌ Nomor ${tn} sudah digunakan.`);}}}if(ts&&tb){const tsl=currentSections()[ts]?.[tb];if(tsl){const ei=tsl.findIndex(s=>s===null);if(ei!==-1)tsl[ei]=tn;}}}if(!tn)return showToast('Pilih keranjang tujuan.');if(tn===fn)return showToast('Tidak bisa ke keranjang yang sama.');if(isBasketFull(tn))return showToast('Keranjang tujuan penuh.');const cu=auth.currentUser?.email||'unknown';it.moveHistory=it.moveHistory||[];it.moveHistory.push({from:`Keranjang ${fn}`,to:`Keranjang ${tn}`,timestamp:new Date().toISOString(),user:cu});fb.items.splice(fi,1);if(fb.items.length===0)removeEmptyBasketNumber(fn);if(!currentBaskets()[tn])currentBaskets()[tn]={section:ts||'',baris:tb||'',items:[]};currentBaskets()[tn].items.push(it);if(currentBaskets()[fn]){currentBaskets()[fn].lastModifiedBy=cu;currentBaskets()[fn].lastModifiedAt=new Date().toISOString();}if(currentBaskets()[tn]){currentBaskets()[tn].lastModifiedBy=cu;currentBaskets()[tn].lastModifiedAt=new Date().toISOString();}logTransaction('move',{nama:it.nama,qty:it.qty,jenis:it.jenis,dari:fn,ke:tn,section:ts});saveToFirestore();showToast('✅ Barang dipindahkan ke '+tn);showBasketDetail(fn);}
+        function removeEmptyBasketNumber(kn){for(const a of['frozen','chiller']){const sec=appData[a].sections,bsk=appData[a].baskets;for(const[sk,bo]of Object.entries(sec)){for(const[br,sl]of Object.entries(bo)){const i=sl.indexOf(kn);if(i!==-1){sl[i]=null;if(bsk[kn])delete bsk[kn];return;}}}}}
 
-        function updateMoveBaris() {
-            const sec = document.getElementById('moveSection')?.value;
-            const barisSel = document.getElementById('moveBaris');
-            if (!barisSel) return;
-            barisSel.innerHTML = '<option value="">-- Baris --</option>';
-            if (!sec) return;
-            const barisObj = currentSections()[sec] || {};
-            Object.keys(barisObj).forEach((baris, idx) => {
-                barisSel.innerHTML += `<option value="${baris}">${sec} ${String(idx+1).padStart(2,'0')}</option>`;
-            });
-            updateMoveKeranjang();
-        }
-
-        function updateMoveKeranjang() {
-            const sec = document.getElementById('moveSection')?.value;
-            const baris = document.getElementById('moveBaris')?.value;
-            const kerSel = document.getElementById('moveKeranjang');
-            if (!kerSel) return;
-            kerSel.innerHTML = '<option value="">-- Pilih Keranjang --</option>';
-            if (!sec || !baris) return;
-            const slots = currentSections()[sec]?.[baris];
-            if (slots) {
-                slots.forEach((no, idx) => {
-                    if (no === null) return;
-                    const c = itemCount(no);
-                    kerSel.innerHTML += `<option value="${no}" ${c>=getBasketCapacity(no)?'disabled':''}>Keranjang ${no} (${c}/${getBasketCapacity(no)})</option>`;
-                });
-            }
-        }
-
-        function validateMoveKeranjangBaru() {
-            const input = document.getElementById('moveKeranjangBaru');
-            const warning = document.getElementById('moveKeranjangWarning');
-            const value = parseInt(input?.value);
-            if (!input || !warning) return;
-            if (!value || value <= 0) { warning.innerHTML = ''; input.style.borderColor = '#cbd5e1'; return; }
-            for (const area of ['frozen','chiller']) {
-                for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
-                    for (const sl of Object.values(barisObj)) {
-                        if (sl.includes(value)) {
-                            warning.innerHTML = `❌ Nomor ${value} sudah digunakan`;
-                            warning.style.color = '#ef4444'; input.style.borderColor = '#ef4444';
-                            return;
-                        }
-                    }
-                }
-            }
-            warning.innerHTML = `✅ Nomor ${value} tersedia`;
-            warning.style.color = '#10b981'; input.style.borderColor = '#10b981';
-        }
-
-        function pindahkanItem(fromNo, fromIdx) {
-            const fromBasket = currentBaskets()[fromNo];
-            if (!fromBasket || !fromBasket.items[fromIdx]) return;
-            const item = fromBasket.items[fromIdx];
-            if (item.expDate && !cekFEFO(fromNo, fromIdx)) return;
-            const toSection = document.getElementById('moveSection')?.value;
-            const toBaris = document.getElementById('moveBaris')?.value;
-            let toNo = parseInt(document.getElementById('moveKeranjang')?.value);
-            const toNoInput = document.getElementById('moveKeranjangBaru')?.value;
-            if (!toNo && toNoInput) {
-                toNo = parseInt(toNoInput);
-                if (!toNo || toNo <= 0) return showToast('Masukkan nomor keranjang.');
-                for (const area of ['frozen','chiller']) {
-                    for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
-                        for (const sl of Object.values(barisObj)) {
-                            if (sl.includes(toNo)) return showToast(`❌ Nomor ${toNo} sudah digunakan.`);
-                        }
-                    }
-                }
-                if (toSection && toBaris) {
-                    const toSlots = currentSections()[toSection]?.[toBaris];
-                    if (toSlots) { const emptyIdx = toSlots.findIndex(s => s === null); if (emptyIdx !== -1) toSlots[emptyIdx] = toNo; }
-                }
-            }
-            if (!toNo) return showToast('Pilih keranjang tujuan.');
-            if (toNo === fromNo) return showToast('Tidak bisa ke keranjang yang sama.');
-            if (isBasketFull(toNo)) return showToast('Keranjang tujuan penuh.');
-            fromBasket.items.splice(fromIdx, 1);
-            if (fromBasket.items.length === 0) removeEmptyBasketNumber(fromNo);
-            if (!currentBaskets()[toNo]) currentBaskets()[toNo] = { section: toSection || '', baris: toBaris || '', items: [] };
-            currentBaskets()[toNo].items.push(item);
-            logTransaction('move', { nama: item.nama, qty: item.qty, jenis: item.jenis, dari: fromNo, ke: toNo, section: toSection });
-            saveToFirestore();
-            showToast('✅ Barang dipindahkan ke ' + toNo);
-            showBasketDetail(fromNo);
-        }
-
-        function removeEmptyBasketNumber(keranjangNo) {
-            for (const area of ['frozen','chiller']) {
-                const sections = appData[area].sections;
-                const baskets = appData[area].baskets;
-                for (const [sec, barisObj] of Object.entries(sections)) {
-                    for (const [baris, slots] of Object.entries(barisObj)) {
-                        const idx = slots.indexOf(keranjangNo);
-                        if (idx !== -1) { slots[idx] = null; if (baskets[keranjangNo]) delete baskets[keranjangNo]; return; }
-                    }
-                }
-            }
-        }
-
-        // ==================== KELUARKAN ITEM ====================
-        function keluarkanItem(no, idx) {
-            const basket = currentBaskets()[no];
-            if (!basket) return;
-            const item = basket.items[idx];
-            if (item.expDate && !cekFEFO(no, idx)) return;
-            const qtyNumber = parseFloat(item.qty) || parseInt(item.qty) || 0;
-            if (!isNaN(qtyNumber) && qtyNumber > 1) {
-                showPartialOutDialog(no, idx, item, qtyNumber);
-            } else {
-                if (confirm(`Keluarkan "${item.nama}" dari keranjang ${no}?`)) executeFullOut(no, idx, item);
-            }
-        }
-
-        function showPartialOutDialog(no, idx, item, totalQty) {
-            const dialogHtml = `
-            <div id="partialOutOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:300;display:flex;align-items:center;justify-content:center;" onclick="closePartialOutDialog()">
-                <div class="card" style="width:90%;max-width:400px;" onclick="event.stopPropagation();">
-                    <h3>📤 Keluarkan Sebagian</h3>
-                    <div style="background:#f0f4ff;border-radius:8px;padding:12px;margin-bottom:16px;"><strong>${item.nama}</strong><br>Total: <strong>${totalQty}</strong></div>
-                    <input type="number" id="partialOutQty" min="1" max="${totalQty}" placeholder="Jumlah" style="font-size:1.2rem;text-align:center;width:100%;margin-bottom:8px;" onkeypress="if(event.key==='Enter')executePartialOut(${no},${idx},'${item.nama.replace(/'/g,"\\'")}',${totalQty},'${item.jenis||''}')">
-                    <small id="partialOutWarning" style="display:block;margin-bottom:8px;"></small>
-                    <div style="display:flex;gap:8px;">
-                        <button class="btn btn-outline" style="flex:1;" onclick="closePartialOutDialog()">Batal</button>
-                        <button class="btn" style="flex:1;background:#ef4444;color:white;" onclick="executePartialOut(${no},${idx},'${item.nama.replace(/'/g,"\\'")}',${totalQty},'${item.jenis||''}')">Keluarkan</button>
-                    </div>
-                </div>
-            </div>`;
-            const dc = document.createElement('div'); dc.id = 'partialOutDialog'; dc.innerHTML = dialogHtml; document.body.appendChild(dc);
-            setTimeout(() => document.getElementById('partialOutQty')?.focus(), 100);
-        }
-
-        function executePartialOut(no, idx, nama, totalQty, jenis) {
-            const qtyOut = parseInt(document.getElementById('partialOutQty')?.value);
-            if (!qtyOut || qtyOut <= 0) return showToast('❌ Jumlah tidak valid!');
-            if (qtyOut > totalQty) return showToast(`❌ Maksimal ${totalQty}!`);
-            const basket = currentBaskets()[no];
-            if (!basket || !basket.items[idx]) return;
-            const sisa = totalQty - qtyOut;
-            if (sisa <= 0) { executeFullOut(no, idx, basket.items[idx]); closePartialOutDialog(); return; }
-            basket.items[idx].qty = sisa.toString();
-            logTransaction('out', { nama, qty: `${qtyOut} dari ${totalQty} (sisa ${sisa})`, jenis, keranjang: no, section: basket.section, partial: true });
-            saveToFirestore();
-            closePartialOutDialog();
-            showToast(`✅ ${qtyOut} ${nama} dikeluarkan. Sisa: ${sisa}`);
-            showBasketDetail(no);
-        }
-
-        function executeFullOut(no, idx, item) {
-            const basket = currentBaskets()[no];
-            if (!basket) return;
-            basket.items.splice(idx, 1);
-            if (basket.items.length === 0) removeEmptyBasketNumber(no);
-            logTransaction('out', { nama: item.nama, qty: item.qty, jenis: item.jenis, keranjang: no, section: basket.section });
-            saveToFirestore();
-            showToast(`✅ ${item.nama} dikeluarkan`);
-            showBasketDetail(no);
-        }
-
-        function closePartialOutDialog() {
-            document.getElementById('partialOutDialog')?.remove();
-            document.getElementById('partialOutOverlay')?.remove();
-        }
+        // ==================== KELUARKAN ====================
+        function keluarkanItem(no,idx){const b=currentBaskets()[no];if(!b)return;const it=b.items[idx];if(it.expDate&&!cekFEFO(no,idx))return;const qn=parseFloat(it.qty)||parseInt(it.qty)||0;if(!isNaN(qn)&&qn>1){showPartialOutDialog(no,idx,it,qn);}else{if(confirm(`Keluarkan "${it.nama}" dari keranjang ${no}?`))executeFullOut(no,idx,it);}}
+        function showPartialOutDialog(no,idx,it,tq){const dh=`<div id="partialOutOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:300;display:flex;align-items:center;justify-content:center;" onclick="closePartialOutDialog()"><div class="card" style="width:90%;max-width:400px;" onclick="event.stopPropagation();"><h3>📤 Keluarkan Sebagian</h3><div style="background:#f0f4ff;border-radius:8px;padding:12px;margin-bottom:16px;"><strong>${it.nama}</strong><br>Total: <strong>${tq}</strong></div><input type="number" id="partialOutQty" min="1" max="${tq}" placeholder="Jumlah" style="font-size:1.2rem;text-align:center;width:100%;margin-bottom:8px;" onkeypress="if(event.key==='Enter')executePartialOut(${no},${idx},'${it.nama.replace(/'/g,"\\'")}',${tq},'${it.jenis||''}')"><small id="partialOutWarning" style="display:block;margin-bottom:8px;"></small><div style="display:flex;gap:8px;"><button class="btn btn-outline" style="flex:1;" onclick="closePartialOutDialog()">Batal</button><button class="btn" style="flex:1;background:#ef4444;color:white;" onclick="executePartialOut(${no},${idx},'${it.nama.replace(/'/g,"\\'")}',${tq},'${it.jenis||''}')">Keluarkan</button></div></div></div>`;const dc=document.createElement('div');dc.id='partialOutDialog';dc.innerHTML=dh;document.body.appendChild(dc);setTimeout(()=>document.getElementById('partialOutQty')?.focus(),100);}
+        function executePartialOut(no,idx,nm,tq,js){const qo=parseInt(document.getElementById('partialOutQty')?.value);if(!qo||qo<=0)return showToast('❌ Jumlah tidak valid!');if(qo>tq)return showToast(`❌ Maksimal ${tq}!`);const b=currentBaskets()[no];if(!b||!b.items[idx])return;const sisa=tq-qo;if(sisa<=0){executeFullOut(no,idx,b.items[idx]);closePartialOutDialog();return;}const cu=auth.currentUser?.email||'unknown';b.items[idx].qty=sisa.toString();b.lastModifiedBy=cu;b.lastModifiedAt=new Date().toISOString();logTransaction('out',{nama:nm,qty:`${qo} dari ${tq} (sisa ${sisa})`,jenis:js,keranjang:no,section:b.section,partial:true});saveToFirestore();closePartialOutDialog();showToast(`✅ ${qo} ${nm} dikeluarkan. Sisa: ${sisa}`);showBasketDetail(no);}
+        function executeFullOut(no,idx,it){const b=currentBaskets()[no];if(!b)return;const cu=auth.currentUser?.email||'unknown';b.items.splice(idx,1);if(b.items.length===0)removeEmptyBasketNumber(no);else{b.lastModifiedBy=cu;b.lastModifiedAt=new Date().toISOString();}logTransaction('out',{nama:it.nama,qty:it.qty,jenis:it.jenis,keranjang:no,section:b.section});saveToFirestore();showToast(`✅ ${it.nama} dikeluarkan`);showBasketDetail(no);}
+        function closePartialOutDialog(){document.getElementById('partialOutDialog')?.remove();document.getElementById('partialOutOverlay')?.remove();}
 
         // ==================== MOVE BASKET ====================
-        function showMoveBasketForm(fromNo) {
-            const basket = currentBaskets()[fromNo];
-            if (!basket) return;
-            const sectionOpts = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
-            container.innerHTML = `<div class="card">
-                <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
-                    <h3><i class="fas fa-truck" style="color:#8b5cf6;"></i> Pindah Keranjang ${fromNo}</h3>
-                    <button class="btn btn-outline btn-sm" onclick="showBasketDetail(${fromNo})">← Kembali</button>
-                </div>
-                <p>📍 Saat ini: <strong>${basket.section}</strong> Baris <strong>${basket.baris}</strong> Slot <strong>${basket.slot}</strong> (${basket.items.length} item)</p>
-                <div class="form-group"><label>Section Tujuan</label><select id="moveBasketSection" onchange="updateMoveBasketBaris()"><option value="">-- Pilih --</option>${sectionOpts}</select></div>
-                <div class="form-group"><label>Baris Tujuan</label><select id="moveBasketBaris" onchange="updateMoveBasketSlot()"><option value="">-- Pilih --</option></select></div>
-                <div class="form-group"><label>Slot Tujuan</label><select id="moveBasketSlot"><option value="">-- Pilih --</option></select></div>
-                <div id="moveBasketInfo" style="margin-bottom:16px;"></div>
-                <button class="btn" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;" onclick="executeMoveBasket(${fromNo})"><i class="fas fa-truck"></i> Pindahkan</button>
-            </div>`;
-        }
-
-        function updateMoveBasketBaris() {
-            const sec = document.getElementById('moveBasketSection')?.value;
-            const barisSel = document.getElementById('moveBasketBaris');
-            if (!barisSel) return;
-            barisSel.innerHTML = '<option value="">-- Pilih --</option>';
-            if (!sec) return;
-            Object.keys(currentSections()[sec] || {}).forEach((b, i) => {
-                barisSel.innerHTML += `<option value="${b}">${sec} ${String(i+1).padStart(2,'0')}</option>`;
-            });
-            document.getElementById('moveBasketSlot').innerHTML = '<option value="">-- Pilih --</option>';
-        }
-
-        function updateMoveBasketSlot() {
-            const sec = document.getElementById('moveBasketSection')?.value;
-            const baris = document.getElementById('moveBasketBaris')?.value;
-            const slotSel = document.getElementById('moveBasketSlot');
-            if (!slotSel) return;
-            slotSel.innerHTML = '<option value="">-- Pilih --</option>';
-            if (!sec || !baris) return;
-            const slots = currentSections()[sec]?.[baris] || [];
-            for (let i = 0; i < 5; i++) {
-                if (slots[i] === null) slotSel.innerHTML += `<option value="${i+1}">Slot ${i+1} (kosong) ✅</option>`;
-                else slotSel.innerHTML += `<option value="${i+1}" disabled>Slot ${i+1}: ${slots[i]} ❌</option>`;
-            }
-        }
-
-        function executeMoveBasket(fromNo) {
-            const toSection = document.getElementById('moveBasketSection')?.value;
-            const toBaris = document.getElementById('moveBasketBaris')?.value;
-            const toSlot = parseInt(document.getElementById('moveBasketSlot')?.value);
-            if (!toSection || !toBaris || !toSlot) return showToast('Lengkapi semua!');
-            const fromBasket = currentBaskets()[fromNo];
-            if (!fromBasket) return;
-            if (fromBasket.section === toSection && fromBasket.baris === toBaris && fromBasket.slot === toSlot) return showToast('Lokasi sama!');
-            const toSlots = currentSections()[toSection]?.[toBaris];
-            if (!toSlots) return;
-            if (toSlots[toSlot-1] !== null) return showToast('Slot sudah terisi!');
-            const fromSection = fromBasket.section, fromBaris = fromBasket.baris, fromSlot = fromBasket.slot;
-            const fromSlots = currentSections()[fromSection]?.[fromBaris];
-            if (fromSlots) fromSlots[fromSlot-1] = null;
-            toSlots[toSlot-1] = fromNo;
-            fromBasket.section = toSection; fromBasket.baris = toBaris; fromBasket.slot = toSlot;
-            logTransaction('move', { nama: `[KERANJANG ${fromNo}]`, qty: `${fromBasket.items.length} item`, jenis: 'KERANJANG', dari: `${fromSection} ${fromBaris} Slot ${fromSlot}`, ke: `${toSection} ${toBaris} Slot ${toSlot}`, keranjang: fromNo, section: toSection });
-            saveToFirestore();
-            showToast(`✅ Keranjang ${fromNo} dipindahkan!`);
-            setTimeout(() => showBasketDetail(fromNo), 500);
-        }
+        function showMoveBasketForm(fn){const b=currentBaskets()[fn];if(!b)return;const so=Object.keys(currentSections()).map(s=>`<option value="${s}">${s}</option>`).join('');container.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:16px;"><h3><i class="fas fa-truck" style="color:#8b5cf6;"></i> Pindah Keranjang ${fn}</h3><button class="btn btn-outline btn-sm" onclick="showBasketDetail(${fn})">← Kembali</button></div><p>📍 Saat ini: <strong>${b.section}</strong> Baris <strong>${b.baris}</strong> Slot <strong>${b.slot}</strong> (${b.items.length} item)</p><div class="form-group"><label>Section Tujuan</label><select id="moveBasketSection" onchange="updateMoveBasketBaris()"><option value="">-- Pilih --</option>${so}</select></div><div class="form-group"><label>Baris Tujuan</label><select id="moveBasketBaris" onchange="updateMoveBasketSlot()"><option value="">-- Pilih --</option></select></div><div class="form-group"><label>Slot Tujuan</label><select id="moveBasketSlot"><option value="">-- Pilih --</option></select></div><div id="moveBasketInfo" style="margin-bottom:16px;"></div><button class="btn" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;" onclick="executeMoveBasket(${fn})"><i class="fas fa-truck"></i> Pindahkan</button></div>`;}
+        function updateMoveBasketBaris(){const s=document.getElementById('moveBasketSection')?.value,bs=document.getElementById('moveBasketBaris');if(!bs)return;bs.innerHTML='<option value="">-- Pilih --</option>';if(!s)return;Object.keys(currentSections()[s]||{}).forEach((b,i)=>{bs.innerHTML+=`<option value="${b}">${s} ${String(i+1).padStart(2,'0')}</option>`;});document.getElementById('moveBasketSlot').innerHTML='<option value="">-- Pilih --</option>';}
+        function updateMoveBasketSlot(){const s=document.getElementById('moveBasketSection')?.value,b=document.getElementById('moveBasketBaris')?.value,ss=document.getElementById('moveBasketSlot');if(!ss)return;ss.innerHTML='<option value="">-- Pilih --</option>';if(!s||!b)return;const sl=currentSections()[s]?.[b]||[];for(let i=0;i<5;i++){if(sl[i]===null)ss.innerHTML+=`<option value="${i+1}">Slot ${i+1} (kosong) ✅</option>`;else ss.innerHTML+=`<option value="${i+1}" disabled>Slot ${i+1}: ${sl[i]} ❌</option>`;}}
+        function executeMoveBasket(fn){const ts=document.getElementById('moveBasketSection')?.value,tb=document.getElementById('moveBasketBaris')?.value,tsl=parseInt(document.getElementById('moveBasketSlot')?.value);if(!ts||!tb||!tsl)return showToast('Lengkapi semua!');const fb=currentBaskets()[fn];if(!fb)return;if(fb.section===ts&&fb.baris===tb&&fb.slot===tsl)return showToast('Lokasi sama!');const toSl=currentSections()[ts]?.[tb];if(!toSl)return;if(toSl[tsl-1]!==null)return showToast('Slot sudah terisi!');const fs=fb.section,fbr=fb.baris,fsl=fb.slot;const frSl=currentSections()[fs]?.[fbr];if(frSl)frSl[fsl-1]=null;toSl[tsl-1]=fn;fb.section=ts;fb.baris=tb;fb.slot=tsl;logTransaction('move',{nama:`[KERANJANG ${fn}]`,qty:`${fb.items.length} item`,jenis:'KERANJANG',dari:`${fs} ${fbr} Slot ${fsl}`,ke:`${ts} ${tb} Slot ${tsl}`,keranjang:fn,section:ts});saveToFirestore();showToast(`✅ Keranjang ${fn} dipindahkan!`);setTimeout(()=>showBasketDetail(fn),500);}
 
         // ==================== INPUT FORM ====================
-        function renderInputForm() {
-            const sectionOpt = Object.keys(currentSections()).map(s => `<option value="${s}">${s}</option>`).join('');
-            container.innerHTML = `<div class="card"><h3>📥 Barang Masuk</h3>
-                <form id="inForm" onsubmit="submitIn(event)">
-                    <div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div>
-                    <div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="Contoh: 1 Pack" required></div>
-                    <div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div>
-                    <div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateEstOutDate()"></div>
-                    <div class="form-group"><label>Estimasi Keluar (wajib)</label><input type="date" id="inEstOutDate" required onchange="validateEstOutDate()"><small style="color:#64748b;">⚠️ Tidak boleh lebih dari Tanggal Exp</small></div>
-                    <div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${sectionOpt}</select></div>
-                    <div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option value="">-- Pilih --</option></select></div>
-                    <div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option value="">-- Pilih Slot --</option></select></div>
-                    <div class="form-group"><label>Nomor Keranjang Baru</label><input type="number" id="inKeranjangManual" placeholder="⚠️ Pilih slot dulu" min="1"><small>Isi jika slot kosong</small></div>
-                    <button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button>
-                </form></div>`;
-            updateBarisSelect();
-            updateNamaDatalist();
-        }
-
-        function handleSlotChange() {
-            const slot = parseInt(document.getElementById('inSlot')?.value);
-            const manualInput = document.getElementById('inKeranjangManual');
-            const manualInputGroup = manualInput?.closest('.form-group');
-            if (!manualInput) return;
-            const existingWarning = document.getElementById('keranjangWarning');
-            if (existingWarning) existingWarning.remove();
-            manualInput.classList.remove('input-warning', 'input-success');
-            if (!slot || isNaN(slot)) { manualInput.disabled = true; manualInput.placeholder = "Pilih slot dulu"; return; }
-            const section = document.getElementById('inSection')?.value;
-            const baris = document.getElementById('inBaris')?.value;
-            const slots = currentSections()[section]?.[baris];
-            if (!slots) return;
-            const no = slots[slot - 1];
-            if (no !== null && no !== undefined) {
-                manualInput.disabled = true; manualInput.value = '';
-                manualInput.placeholder = `Menggunakan keranjang ${no}`;
-                manualInput.classList.add('input-success');
-                const count = itemCount(no);
-                const infoDiv = document.createElement('div'); infoDiv.id = 'keranjangWarning'; infoDiv.className = 'success-message';
-                infoDiv.innerHTML = `<i class="fas fa-check-circle"></i> Keranjang ${no} tersedia (${count}/${getBasketCapacity(no)} item)`;
-                manualInputGroup?.appendChild(infoDiv);
-            } else {
-                manualInput.disabled = false; manualInput.placeholder = "⚠️ Masukkan nomor keranjang baru (wajib)";
-                manualInput.classList.add('input-warning'); manualInput.focus();
-                manualInput.oninput = function() { validateKeranjangNumber(this.value); };
-            }
-        }
-
-        function validateKeranjangNumber(value) {
-            const manualInput = document.getElementById('inKeranjangManual');
-            const manualInputGroup = manualInput?.closest('.form-group');
-            const existingWarning = document.getElementById('keranjangWarning');
-            if (existingWarning) existingWarning.remove();
-            if (!value || isNaN(parseInt(value)) || parseInt(value) <= 0) {
-                manualInput.classList.add('input-warning'); manualInput.classList.remove('input-success'); return;
-            }
-            const newNo = parseInt(value);
-            let duplicateInfo = null;
-            for (const area of ['frozen','chiller']) {
-                const sections = appData[area].sections;
-                for (const [sec, barisObj] of Object.entries(sections)) {
-                    for (const [baris, slots] of Object.entries(barisObj)) {
-                        if (slots.includes(newNo)) { duplicateInfo = { area, section: sec, baris, slot: slots.indexOf(newNo)+1 }; break; }
-                    }
-                    if (duplicateInfo) break;
-                }
-                if (duplicateInfo) break;
-            }
-            if (duplicateInfo) {
-                manualInput.classList.add('input-warning'); manualInput.classList.remove('input-success');
-                const warningDiv = document.createElement('div'); warningDiv.id = 'keranjangWarning'; warningDiv.className = 'warning-message';
-                warningDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ❌ Nomor ${newNo} sudah digunakan di ${duplicateInfo.area==='frozen'?'❄️ Frozen':'🌡️ Chiller'} (${duplicateInfo.section} Baris ${duplicateInfo.baris} Slot ${duplicateInfo.slot})`;
-                manualInputGroup?.appendChild(warningDiv);
-            } else {
-                manualInput.classList.add('input-success'); manualInput.classList.remove('input-warning');
-                const successDiv = document.createElement('div'); successDiv.id = 'keranjangWarning'; successDiv.className = 'success-message';
-                successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ✅ Nomor ${newNo} tersedia`;
-                manualInputGroup?.appendChild(successDiv);
-            }
-        }
-
-        function validateEstOutDate() {
-            const expDate = document.getElementById('inExpDate')?.value;
-            const estOutDate = document.getElementById('inEstOutDate')?.value;
-            const estOutInput = document.getElementById('inEstOutDate');
-            const estOutGroup = estOutInput?.closest('.form-group');
-            const existingWarning = document.getElementById('estOutWarning');
-            if (existingWarning) existingWarning.remove();
-            estOutInput?.classList.remove('input-warning','input-success');
-            if (!expDate || !estOutDate) return;
-            const expDateObj = new Date(expDate), estOutDateObj = new Date(estOutDate);
-            if (estOutDateObj > expDateObj) {
-                estOutInput?.classList.add('input-warning');
-                const warningDiv = document.createElement('div'); warningDiv.id = 'estOutWarning'; warningDiv.className = 'warning-message';
-                warningDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ❌ Estimasi Keluar (${estOutDate}) tidak boleh lebih dari Tanggal Exp (${expDate})`;
-                estOutGroup?.appendChild(warningDiv);
-            } else if (estOutDateObj.getTime() === expDateObj.getTime()) {
-                estOutInput?.classList.add('input-success');
-                const warningDiv = document.createElement('div'); warningDiv.id = 'estOutWarning'; warningDiv.className = 'success-message';
-                warningDiv.innerHTML = `<i class="fas fa-info-circle"></i> ⚠️ Estimasi Keluar sama dengan Tanggal Exp`;
-                estOutGroup?.appendChild(warningDiv);
-            } else {
-                estOutInput?.classList.add('input-success');
-                const successDiv = document.createElement('div'); successDiv.id = 'estOutWarning'; successDiv.className = 'success-message';
-                successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ✅ Estimasi Keluar valid (sebelum Exp)`;
-                estOutGroup?.appendChild(successDiv);
-            }
-        }
-
-        function updateBarisSelect() {
-            const section = document.getElementById('inSection')?.value;
-            const barisSelect = document.getElementById('inBaris');
-            if (!barisSelect) return;
-            barisSelect.innerHTML = '<option value="">-- Pilih --</option>';
-            if (section) {
-                const barisObj = currentSections()[section] || {};
-                Object.keys(barisObj).forEach((baris, idx) => {
-                    barisSelect.innerHTML += `<option value="${baris}">${section} ${String(idx+1).padStart(2,'0')}</option>`;
-                });
-                if (Object.keys(barisObj).length > 0) { barisSelect.value = Object.keys(barisObj)[0]; updateSlotSelect(); }
-            } else {
-                const slotSelect = document.getElementById('inSlot');
-                if (slotSelect) slotSelect.innerHTML = '<option value="">-- Pilih Slot --</option>';
-            }
-        }
-
-        function updateSlotSelect() {
-            const section = document.getElementById('inSection')?.value;
-            const baris = document.getElementById('inBaris')?.value;
-            const select = document.getElementById('inSlot');
-            if (!select) return;
-            select.innerHTML = '<option value="">-- Pilih Slot --</option>';
-            if (!section || !baris) return;
-            const slots = currentSections()[section]?.[baris];
-            if (!slots) return;
-            for (let i = 0; i < 5; i++) {
-                const no = slots[i], slotNumber = i+1;
-                if (no !== null) {
-                    const count = itemCount(no);
-                    select.innerHTML += `<option value="${slotNumber}" ${isBasketFull(no)?'disabled':''}>Slot ${slotNumber}: ${no} (${count}/${getBasketCapacity(no)})${isBasketFull(no)?' - PENUH':''}</option>`;
-                } else {
-                    select.innerHTML += `<option value="${slotNumber}">Slot ${slotNumber} (kosong)</option>`;
-                }
-            }
-        }
-
-        function updateNamaDatalist() {
-            const set = new Set();
-            currentTransactions().forEach(t => { if (t.detail?.nama) set.add(t.detail.nama); });
-            const dl = document.getElementById('namaList');
-            if (dl) dl.innerHTML = [...set].map(n => `<option value="${n}">`).join('');
-        }
-
-        function submitIn(e) {
-            e.preventDefault();
-            const nama = document.getElementById('inNama').value.trim();
-            const qty = document.getElementById('inQty').value.trim();
-            const jenis = document.getElementById('inJenis').value;
-            const expDate = document.getElementById('inExpDate').value;
-            const estOutDate = document.getElementById('inEstOutDate').value;
-            const section = document.getElementById('inSection').value;
-            const baris = document.getElementById('inBaris').value;
-            const slotStr = document.getElementById('inSlot').value;
-            const keranjangManual = document.getElementById('inKeranjangManual')?.value.trim();
-            if (!nama || !qty || !baris || !slotStr || !expDate || !estOutDate) return showToast('Lengkapi data!');
-            if (new Date(estOutDate) > new Date(expDate)) return showToast('❌ Est Keluar tidak boleh > Exp!');
-            const slotIdx = parseInt(slotStr) - 1;
-            const slots = currentSections()[section]?.[baris];
-            if (!slots) return showToast('Data baris tidak valid.');
-            let no = slots[slotIdx];
-            if (no === null || no === undefined) {
-                if (!keranjangManual || isNaN(parseInt(keranjangManual)) || parseInt(keranjangManual) <= 0)
-                    return showToast('❌ Masukkan Nomor Keranjang Baru!');
-                const newNo = parseInt(keranjangManual);
-                for (const area of ['frozen','chiller']) {
-                    for (const [sec, barisObj] of Object.entries(appData[area].sections)) {
-                        for (const sl of Object.values(barisObj)) {
-                            if (sl.includes(newNo)) return showToast(`❌ Nomor ${newNo} sudah digunakan di ${area} ${sec}.`);
-                        }
-                    }
-                }
-                slots[slotIdx] = newNo;
-                if (!currentBaskets()[newNo]) currentBaskets()[newNo] = { section, baris, slot: slotIdx+1, items: [] };
-                else { currentBaskets()[newNo].section = section; currentBaskets()[newNo].baris = baris; currentBaskets()[newNo].slot = slotIdx+1; }
-                no = newNo;
-            } else {
-                if (isBasketFull(no)) return showToast(`❌ Keranjang ${no} penuh!`);
-            }
-            if (!currentBaskets()[no]) currentBaskets()[no] = { section, baris, slot: slotIdx+1, items: [] };
-            const item = { nama, qty, jenis, tglMasuk: new Date().toISOString() };
-            if (expDate) item.expDate = expDate;
-            if (estOutDate) item.estOutDate = estOutDate;
-            currentBaskets()[no].items.push(item);
-            logTransaction('in', { nama, qty, jenis, keranjang: no, section, baris, expDate, estOutDate });
-            saveToFirestore();
-            showToast('✅ Barang masuk ke keranjang ' + no);
-            setTimeout(() => renderInputForm(), 100);
-        const currentUser = auth.currentUser?.email || 'unknown';
-    
-    const item = { 
-        nama, qty, jenis, 
-        tglMasuk: new Date().toISOString(),
-        addedBy: currentUser // ✅ Simpan siapa yang menambah
-    };
-    if (expDate) item.expDate = expDate;
-    if (estOutDate) item.estOutDate = estOutDate;
-    
-    currentBaskets()[no].items.push(item);
-    
-    // ✅ Update last modified info di basket
-    currentBaskets()[no].lastModifiedBy = currentUser;
-    currentBaskets()[no].lastModifiedAt = new Date().toISOString();
-    
-    logTransaction('in', { 
-        nama, qty, jenis, 
-        keranjang: no, section, baris, 
-        expDate, estOutDate,
-        addedBy: currentUser // ✅ Double record di transaksi
-    });
-    
-    saveToFirestore();
-    showToast('✅ Barang masuk ke keranjang ' + no);
-    setTimeout(() => renderInputForm(), 100);
-}
-
-// ✅ submitQuickAdd()
-function submitQuickAdd(e) {
-    // ... existing code ...
-    const currentUser = auth.currentUser?.email || 'unknown';
-    
-    const item = { 
-        nama, qty, jenis, 
-        tglMasuk: new Date().toISOString(),
-        addedBy: currentUser // ✅ Simpan user
-    };
-    if (expDate) item.expDate = expDate;
-    if (estOutDate) item.estOutDate = estOutDate;
-    
-    basket.items.push(item);
-    basket.lastModifiedBy = currentUser;
-    basket.lastModifiedAt = new Date().toISOString();
-    
-    logTransaction('in', { 
-        nama, qty, jenis, 
-        keranjang: target.no, section: target.section, baris: target.baris, 
-        expDate, estOutDate 
-    });
-    // logTransaction sudah otomatis mencatat user
-    
-    saveToFirestore();
-    showToast(`✅ ${nama} ditambahkan ke keranjang ${target.no}`);
-    setTimeout(() => showBasketDetail(target.no), 300);
-}
-
-// ✅ pindahkanItem()
-function pindahkanItem(fromNo, fromIdx) {
-    // ... existing code ...
-    const currentUser = auth.currentUser?.email || 'unknown';
-    
-    const item = fromBasket.items[fromIdx];
-    
-    // ✅ Catat riwayat perpindahan
-    item.moveHistory = item.moveHistory || [];
-    item.moveHistory.push({
-        from: `Keranjang ${fromNo}`,
-        to: `Keranjang ${toNo}`,
-        timestamp: new Date().toISOString(),
-        user: currentUser
-    });
-    
-    // ... pindahkan item ...
-    
-    // ✅ Update last modified
-    if (currentBaskets()[fromNo]) {
-        currentBaskets()[fromNo].lastModifiedBy = currentUser;
-        currentBaskets()[fromNo].lastModifiedAt = new Date().toISOString();
-    }
-    if (currentBaskets()[toNo]) {
-        currentBaskets()[toNo].lastModifiedBy = currentUser;
-        currentBaskets()[toNo].lastModifiedAt = new Date().toISOString();
-    }
-    
-    logTransaction('move', { 
-        nama: item.nama, qty: item.qty, jenis: item.jenis, 
-        dari: fromNo, ke: toNo, section: toSection 
-    });
-    
-    saveToFirestore();
-    showToast('✅ Barang dipindahkan ke ' + toNo);
-    showBasketDetail(fromNo);
-}
-
-// ✅ executeFullOut() & executePartialOut()
-function executeFullOut(no, idx, item) {
-    const basket = currentBaskets()[no];
-    if (!basket) return;
-    const currentUser = auth.currentUser?.email || 'unknown';
-    
-    basket.items.splice(idx, 1);
-    if (basket.items.length === 0) removeEmptyBasketNumber(no);
-    else {
-        basket.lastModifiedBy = currentUser;
-        basket.lastModifiedAt = new Date().toISOString();
-    }
-    
-    logTransaction('out', { 
-        nama: item.nama, qty: item.qty, jenis: item.jenis, 
-        keranjang: no, section: basket.section 
-    });
-    // logTransaction sudah otomatis mencatat user
-    
-    saveToFirestore();
-    showToast(`✅ ${item.nama} dikeluarkan`);
-    showBasketDetail(no);
-}
+        function renderInputForm(){const so=Object.keys(currentSections()).map(s=>`<option value="${s}">${s}</option>`).join('');container.innerHTML=`<div class="card"><h3>📥 Barang Masuk</h3><form id="inForm" onsubmit="submitIn(event)"><div class="form-group"><label>Nama Barang</label><input type="text" id="inNama" list="namaList" required><datalist id="namaList"></datalist></div><div class="form-group"><label>Jumlah</label><input type="text" id="inQty" placeholder="Contoh: 1 Pack" required></div><div class="form-group"><label>Jenis</label><select id="inJenis"><option value="IIP">IIP</option><option value="RM">RM</option><option value="TH">TH</option></select></div><div class="form-group"><label>Tanggal Exp (wajib)</label><input type="date" id="inExpDate" required onchange="validateEstOutDate()"></div><div class="form-group"><label>Estimasi Keluar (wajib)</label><input type="date" id="inEstOutDate" required onchange="validateEstOutDate()"><small style="color:#64748b;">⚠️ Tidak boleh lebih dari Tanggal Exp</small></div><div class="form-group"><label>Section</label><select id="inSection" onchange="updateBarisSelect()">${so}</select></div><div class="form-group"><label>Baris</label><select id="inBaris" onchange="updateSlotSelect()"><option value="">-- Pilih --</option></select></div><div class="form-group"><label>Slot (1-5)</label><select id="inSlot" onchange="handleSlotChange()"><option value="">-- Pilih Slot --</option></select></div><div class="form-group"><label>Nomor Keranjang Baru</label><input type="number" id="inKeranjangManual" placeholder="⚠️ Pilih slot dulu" min="1"><small>Isi jika slot kosong</small></div><button type="submit" class="btn btn-primary" style="width:100%">💾 Simpan</button></form></div>`;updateBarisSelect();updateNamaDatalist();}
+        function handleSlotChange(){const sl=parseInt(document.getElementById('inSlot')?.value),mi=document.getElementById('inKeranjangManual'),mg=mi?.closest('.form-group');if(!mi)return;const ew=document.getElementById('keranjangWarning');if(ew)ew.remove();mi.classList.remove('input-warning','input-success');if(!sl||isNaN(sl)){mi.disabled=true;mi.placeholder="Pilih slot dulu";return;}const s=document.getElementById('inSection')?.value,b=document.getElementById('inBaris')?.value,sls=currentSections()[s]?.[b];if(!sls)return;const no=sls[sl-1];if(no!==null&&no!==undefined){mi.disabled=true;mi.value='';mi.placeholder=`Menggunakan keranjang ${no}`;mi.classList.add('input-success');const c=itemCount(no),id=document.createElement('div');id.id='keranjangWarning';id.className='success-message';id.innerHTML=`<i class="fas fa-check-circle"></i> Keranjang ${no} tersedia (${c}/${getBasketCapacity(no)} item)`;mg?.appendChild(id);}else{mi.disabled=false;mi.placeholder="⚠️ Masukkan nomor keranjang baru (wajib)";mi.classList.add('input-warning');mi.focus();mi.oninput=function(){validateKeranjangNumber(this.value);};}}
+        function validateKeranjangNumber(v){const mi=document.getElementById('inKeranjangManual'),mg=mi?.closest('.form-group'),ew=document.getElementById('keranjangWarning');if(ew)ew.remove();if(!v||isNaN(parseInt(v))||parseInt(v)<=0){mi.classList.add('input-warning');mi.classList.remove('input-success');return;}const nn=parseInt(v);let di=null;for(const a of['frozen','chiller']){const sec=appData[a].sections;for(const[sk,bo]of Object.entries(sec)){for(const[br,sl]of Object.entries(bo)){if(sl.includes(nn)){di={area:a,section:sk,baris:br,slot:sl.indexOf(nn)+1};break;}}if(di)break;}if(di)break;}if(di){mi.classList.add('input-warning');mi.classList.remove('input-success');const wd=document.createElement('div');wd.id='keranjangWarning';wd.className='warning-message';wd.innerHTML=`<i class="fas fa-exclamation-triangle"></i> ❌ Nomor ${nn} sudah digunakan di ${di.area==='frozen'?'❄️ Frozen':'🌡️ Chiller'} (${di.section} Baris ${di.baris} Slot ${di.slot})`;mg?.appendChild(wd);}else{mi.classList.add('input-success');mi.classList.remove('input-warning');const sd=document.createElement('div');sd.id='keranjangWarning';sd.className='success-message';sd.innerHTML=`<i class="fas fa-check-circle"></i> ✅ Nomor ${nn} tersedia`;mg?.appendChild(sd);}}
+        function validateEstOutDate(){const ed=document.getElementById('inExpDate')?.value,eo=document.getElementById('inEstOutDate')?.value,ei=document.getElementById('inEstOutDate'),eg=ei?.closest('.form-group'),ew=document.getElementById('estOutWarning');if(ew)ew.remove();ei?.classList.remove('input-warning','input-success');if(!ed||!eo)return;const eoD=new Date(eo),edD=new Date(ed);if(eoD>edD){ei?.classList.add('input-warning');const wd=document.createElement('div');wd.id='estOutWarning';wd.className='warning-message';wd.innerHTML=`<i class="fas fa-exclamation-triangle"></i> ❌ Estimasi Keluar (${eo}) tidak boleh lebih dari Tanggal Exp (${ed})`;eg?.appendChild(wd);}else if(eoD.getTime()===edD.getTime()){ei?.classList.add('input-success');const wd=document.createElement('div');wd.id='estOutWarning';wd.className='success-message';wd.innerHTML='<i class="fas fa-info-circle"></i> ⚠️ Estimasi Keluar sama dengan Tanggal Exp';eg?.appendChild(wd);}else{ei?.classList.add('input-success');const sd=document.createElement('div');sd.id='estOutWarning';sd.className='success-message';sd.innerHTML='<i class="fas fa-check-circle"></i> ✅ Estimasi Keluar valid (sebelum Exp)';eg?.appendChild(sd);}}
+        function updateBarisSelect(){const s=document.getElementById('inSection')?.value,bs=document.getElementById('inBaris');if(!bs)return;bs.innerHTML='<option value="">-- Pilih --</option>';if(s){const bo=currentSections()[s]||{};Object.keys(bo).forEach((b,i)=>{bs.innerHTML+=`<option value="${b}">${s} ${String(i+1).padStart(2,'0')}</option>`;});if(Object.keys(bo).length>0){bs.value=Object.keys(bo)[0];updateSlotSelect();}}else{const ss=document.getElementById('inSlot');if(ss)ss.innerHTML='<option value="">-- Pilih Slot --</option>';}}
+        function updateSlotSelect(){const s=document.getElementById('inSection')?.value,b=document.getElementById('inBaris')?.value,sel=document.getElementById('inSlot');if(!sel)return;sel.innerHTML='<option value="">-- Pilih Slot --</option>';if(!s||!b)return;const sls=currentSections()[s]?.[b];if(!sls)return;for(let i=0;i<5;i++){const no=sls[i],sn=i+1;if(no!==null){const c=itemCount(no);sel.innerHTML+=`<option value="${sn}" ${isBasketFull(no)?'disabled':''}>Slot ${sn}: ${no} (${c}/${getBasketCapacity(no)})${isBasketFull(no)?' - PENUH':''}</option>`;}else{sel.innerHTML+=`<option value="${sn}">Slot ${sn} (kosong)</option>`;}}}
+        function updateNamaDatalist(){const set=new Set();currentTransactions().forEach(t=>{if(t.detail?.nama)set.add(t.detail.nama);});const dl=document.getElementById('namaList');if(dl)dl.innerHTML=[...set].map(n=>`<option value="${n}">`).join('');}
+        function submitIn(e){e.preventDefault();const nama=document.getElementById('inNama').value.trim(),qty=document.getElementById('inQty').value.trim(),jenis=document.getElementById('inJenis').value,expDate=document.getElementById('inExpDate').value,estOutDate=document.getElementById('inEstOutDate').value,section=document.getElementById('inSection').value,baris=document.getElementById('inBaris').value,slotStr=document.getElementById('inSlot').value,km=document.getElementById('inKeranjangManual')?.value.trim();if(!nama||!qty||!baris||!slotStr||!expDate||!estOutDate)return showToast('Lengkapi data!');if(new Date(estOutDate)>new Date(expDate))return showToast('❌ Est Keluar tidak boleh > Exp!');const si=parseInt(slotStr)-1,slots=currentSections()[section]?.[baris];if(!slots)return showToast('Data baris tidak valid.');let no=slots[si];if(no===null||no===undefined){if(!km||isNaN(parseInt(km))||parseInt(km)<=0)return showToast('❌ Masukkan Nomor Keranjang Baru!');const nn=parseInt(km);for(const a of['frozen','chiller']){for(const[sk,bo]of Object.entries(appData[a].sections)){for(const sl of Object.values(bo)){if(sl.includes(nn))return showToast(`❌ Nomor ${nn} sudah digunakan di ${a} ${sk}.`);}}}slots[si]=nn;if(!currentBaskets()[nn])currentBaskets()[nn]={section,baris,slot:si+1,items:[]};else{currentBaskets()[nn].section=section;currentBaskets()[nn].baris=baris;currentBaskets()[nn].slot=si+1;}no=nn;}else{if(isBasketFull(no))return showToast(`❌ Keranjang ${no} penuh!`);}if(!currentBaskets()[no])currentBaskets()[no]={section,baris,slot:si+1,items:[]};const cu=auth.currentUser?.email||'unknown';const item={nama,qty,jenis,tglMasuk:new Date().toISOString(),addedBy:cu};if(expDate)item.expDate=expDate;if(estOutDate)item.estOutDate=estOutDate;currentBaskets()[no].items.push(item);currentBaskets()[no].lastModifiedBy=cu;currentBaskets()[no].lastModifiedAt=new Date().toISOString();logTransaction('in',{nama,qty,jenis,keranjang:no,section,baris,expDate,estOutDate,addedBy:cu});saveToFirestore();showToast('✅ Barang masuk ke keranjang '+no);setTimeout(()=>renderInputForm(),100);}
 
         // ==================== SEARCH ====================
-        function renderSearch() {
-            container.innerHTML = `
-                <div class="search-container"><h3>🔍 Cari Barang</h3>
-                    <div class="filter-row">
-                        <input type="date" id="searchDateFrom" onchange="performSearch()" placeholder="Exp dari">
-                        <input type="date" id="searchDateTo" onchange="performSearch()" placeholder="Exp sampai">
-                        <select id="searchStatus" onchange="performSearch()">
-                            <option value="">Semua Status</option>
-                            <option value="expired">⚠️ Expired</option>
-                            <option value="active">✅ Aktif</option>
-                            <option value="out">📤 Sudah Keluar</option>
-                        </select>
-                    </div>
-                    <div class="search-input-wrapper">
-                        <input type="text" id="searchInput" placeholder="Cari nama barang..." oninput="performSearch()" autocomplete="off">
-                        <span class="search-icon"><i class="fas fa-search"></i></span>
-                    </div>
-                    <div id="searchResults"><div class="empty-state">Ketik untuk mencari barang di semua area</div></div>
-                </div>`;
-            setTimeout(() => { const si = document.getElementById('searchInput'); if (si) si.focus(); }, 100);
-        }
-
-        function performSearch() {
-    const query = document.getElementById('searchInput')?.value.trim().toLowerCase();
-    const resultsContainer = document.getElementById('searchResults');
-    const statusFilter = document.getElementById('searchStatus')?.value;
-    const dateFrom = document.getElementById('searchDateFrom')?.value;
-    const dateTo = document.getElementById('searchDateTo')?.value;
-    
-    if (!query || query.length < 2) {
-        resultsContainer.innerHTML = '<div class="empty-state">Ketik minimal 2 karakter untuk mencari</div>';
-        return;
-    }
-
-    const allResults = [];
-    collectSearchResults('frozen', query, allResults);
-    collectSearchResults('chiller', query, allResults);
-    
-    // Filter...
-    let filtered = allResults;
-    if (statusFilter === 'expired') filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) < new Date());
-    else if (statusFilter === 'active') filtered = filtered.filter(r => r.status === 'current');
-    else if (statusFilter === 'out') filtered = filtered.filter(r => r.status === 'out');
-    if (dateFrom) filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) >= new Date(dateFrom));
-    if (dateTo) filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) <= new Date(dateTo));
-    
-    if (filtered.length === 0) {
-        resultsContainer.innerHTML = `<div class="empty-state">Tidak ditemukan barang dengan nama "${query}"</div>`;
-        return;
-    }
-    
-    const currentItems = filtered.filter(r => r.status === 'current');
-    const outItems = filtered.filter(r => r.status === 'out');
-    
-    let html = `
-        <div class="search-stats">
-            <div class="search-stat"><div class="count">${filtered.length}</div><div class="label">Total</div></div>
-            <div class="search-stat"><div class="count" style="color:#10b981;">${currentItems.length}</div><div class="label">Masih Ada</div></div>
-            <div class="search-stat"><div class="count" style="color:#ef4444;">${outItems.length}</div><div class="label">Keluar</div></div>
-        </div>`;
-    
-    filtered.forEach(result => {
-        const areaBadge = result.area === 'frozen' 
-            ? '<span class="area-badge area-frozen">❄️ Frozen</span>' 
-            : '<span class="area-badge area-chiller">🌡️ Chiller</span>';
-        
-        const statusBadge = result.status === 'current'
-            ? '<span class="search-result-badge badge-current">📦 Masih Ada</span>'
-            : '<span class="search-result-badge badge-out">📤 Sudah Keluar</span>';
-        
-        const highlightName = highlightText(result.item.nama, query);
-        
-        // ✅ Info lokasi + user untuk barang yang masih ada
-        let detailInfo = '';
-        if (result.status === 'current') {
-            detailInfo = `
-                <div style="margin-top:6px;font-size:0.8rem;color:#64748b;">
-                    📍 Section: ${result.section} | Baris: ${result.baris} | Slot: ${result.slot} | Keranjang: ${result.keranjangNo}
-                </div>
-                <div style="margin-top:2px;font-size:0.75rem;color:#475569;">
-                    👤 Ditambah oleh: <strong>${result.item.addedBy || 'Tidak diketahui'}</strong>
-                    ${result.item.tglMasuk ? `| 📅 ${new Date(result.item.tglMasuk).toLocaleDateString('id-ID')}` : ''}
-                </div>`;
-        } else {
-            // ✅ Info untuk barang yang sudah keluar
-            detailInfo = `
-                <div style="margin-top:6px;font-size:0.8rem;color:#64748b;">
-                    📤 Keluar dari Keranjang: ${result.keranjangNo} | Section: ${result.section}
-                    <br>📅 Keluar: ${new Date(result.timestamp).toLocaleDateString('id-ID')}
-                </div>
-                <div style="margin-top:2px;font-size:0.75rem;color:#475569;">
-                    👤 Dikeluarkan oleh: <strong>${result.user || 'Tidak diketahui'}</strong>
-                </div>`;
-        }
-        
-        // ✅ Info expiry
-        const expiryInfo = result.item.expDate ? `
-            <div style="margin-top:4px;font-size:0.75rem;color:${new Date(result.item.expDate) < new Date() ? '#ef4444' : '#64748b'};">
-                ⏰ Exp: ${new Date(result.item.expDate).toLocaleDateString('id-ID')}
-                ${new Date(result.item.expDate) < new Date() ? ' ⚠️ EXPIRED' : ''}
-            </div>` : '';
-        
-        const estOutInfo = result.item.estOutDate ? `
-            <div style="margin-top:2px;font-size:0.75rem;color:${new Date(result.item.estOutDate) < new Date() ? '#ef4444' : '#64748b'};">
-                📅 Est. Keluar: ${new Date(result.item.estOutDate).toLocaleDateString('id-ID')}
-                ${new Date(result.item.estOutDate) < new Date() ? ' ⚠️ LEWAT' : ''}
-            </div>` : '';
-        
-        html += `
-            <div class="search-result-item ${result.status}">
-                <div class="search-result-header">
-                    <div>${areaBadge}${statusBadge}</div>
-                    <div style="text-align:right;"><small style="color:#64748b;">${result.item.jenis || '-'}</small></div>
-                </div>
-                <div style="margin-bottom:4px;">
-                    <strong style="font-size:1rem;">${highlightName}</strong>
-                    <span style="margin-left:8px;color:#64748b;">Qty: ${result.item.qty}</span>
-                </div>
-                ${detailInfo}
-                ${expiryInfo}
-                ${estOutInfo}
-                ${result.status === 'current' ? `
-                    <button class="btn btn-sm btn-outline" style="margin-top:8px;" 
-                            onclick="navigateToBasket(${result.keranjangNo},'${result.area}')">
-                        📍 Lihat Keranjang
-                    </button>` : ''}
-            </div>`;
-    });
-    
-    resultsContainer.innerHTML = html;
-}
-
-        function collectSearchResults(area, query, results) {
-    const baskets = appData[area].baskets;
-    const transactions = appData[area].transactions;
-    
-    // Cari di keranjang yang masih ada
-    for (const [keranjangNo, basket] of Object.entries(baskets)) {
-        if (basket.items && basket.items.length > 0) {
-            basket.items.forEach(item => {
-                if (item.nama && item.nama.toLowerCase().includes(query)) {
-                    results.push({
-                        area: area,
-                        status: 'current',
-                        item: item, // ✅ Sudah include addedBy, tglMasuk
-                        keranjangNo: parseInt(keranjangNo),
-                        section: basket.section,
-                        baris: basket.baris,
-                        slot: basket.slot
-                    });
-                }
-            });
-        }
-    }
-    
-    // Cari di transaksi keluar
-    const seenOutItems = new Set();
-    transactions.forEach(trans => {
-        if (trans.type === 'out' && trans.detail && trans.detail.nama && trans.detail.nama.toLowerCase().includes(query)) {
-            const key = `${trans.detail.nama}_${trans.detail.qty}_${trans.timestamp}`;
-            if (!seenOutItems.has(key)) {
-                seenOutItems.add(key);
-                results.push({
-                    area: area,
-                    status: 'out',
-                    item: {
-                        nama: trans.detail.nama,
-                        qty: trans.detail.qty,
-                        jenis: trans.detail.jenis || '-',
-                        expDate: trans.detail.expDate,
-                        estOutDate: trans.detail.estOutDate
-                    },
-                    keranjangNo: trans.detail.keranjang || '-',
-                    section: trans.detail.section || '-',
-                    timestamp: trans.timestamp,
-                    user: trans.user // ✅ Tambah user yang mengeluarkan
-                });
-            }
-        }
-    });
-}
-
-        function highlightText(text, query) {
-            if (!text || !query) return text || '';
-            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
-            return text.replace(regex, '<span class="search-highlight">$1</span>');
-        }
-
-        function navigateToBasket(keranjangNo, area) {
-            if (currentArea !== area) {
-                currentArea = area;
-                document.getElementById('areaSelect').value = area;
-                document.getElementById('areaTitle').textContent = area==='frozen'?'Frozen':'Chiller';
-            }
-            currentTab = 'dashboard';
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            const dashboardTab = document.querySelector('.tab-btn[data-tab="dashboard"]');
-            if (dashboardTab) dashboardTab.classList.add('active');
-            renderDashboard();
-            setTimeout(() => { showBasketDetail(keranjangNo); }, 200);
-        }
+        function renderSearch(){container.innerHTML=`<div class="search-container"><h3>🔍 Cari Barang</h3><div class="filter-row"><input type="date" id="searchDateFrom" onchange="performSearch()" placeholder="Exp dari"><input type="date" id="searchDateTo" onchange="performSearch()" placeholder="Exp sampai"><select id="searchStatus" onchange="performSearch()"><option value="">Semua Status</option><option value="expired">⚠️ Expired</option><option value="active">✅ Aktif</option><option value="out">📤 Sudah Keluar</option></select></div><div class="search-input-wrapper"><input type="text" id="searchInput" placeholder="Cari nama barang..." oninput="performSearch()" autocomplete="off"><span class="search-icon"><i class="fas fa-search"></i></span></div><div id="searchResults"><div class="empty-state">Ketik untuk mencari</div></div></div>`;setTimeout(()=>{const si=document.getElementById('searchInput');if(si)si.focus();},100);}
+        function performSearch(){const q=document.getElementById('searchInput')?.value.trim().toLowerCase(),rc=document.getElementById('searchResults'),sf=document.getElementById('searchStatus')?.value,df=document.getElementById('searchDateFrom')?.value,dt=document.getElementById('searchDateTo')?.value;if(!q||q.length<2){rc.innerHTML='<div class="empty-state">Ketik minimal 2 karakter</div>';return;}const ar=[];collectSearchResults('frozen',q,ar);collectSearchResults('chiller',q,ar);let fl=ar;if(sf==='expired')fl=fl.filter(r=>r.item.expDate&&new Date(r.item.expDate)<new Date());else if(sf==='active')fl=fl.filter(r=>r.status==='current');else if(sf==='out')fl=fl.filter(r=>r.status==='out');if(df)fl=fl.filter(r=>r.item.expDate&&new Date(r.item.expDate)>=new Date(df));if(dt)fl=fl.filter(r=>r.item.expDate&&new Date(r.item.expDate)<=new Date(dt));if(fl.length===0){rc.innerHTML=`<div class="empty-state">Tidak ditemukan "${q}"</div>`;return;}const ci=fl.filter(r=>r.status==='current'),oi=fl.filter(r=>r.status==='out');let h=`<div class="search-stats"><div class="search-stat"><div class="count">${fl.length}</div><div class="label">Total</div></div><div class="search-stat"><div class="count" style="color:#10b981;">${ci.length}</div><div class="label">Masih Ada</div></div><div class="search-stat"><div class="count" style="color:#ef4444;">${oi.length}</div><div class="label">Keluar</div></div></div>`;fl.forEach(r=>{const ab=r.area==='frozen'?'<span class="area-badge area-frozen">❄️ Frozen</span>':'<span class="area-badge area-chiller">🌡️ Chiller</span>';const sb=r.status==='current'?'<span class="search-result-badge badge-current">📦 Masih Ada</span>':'<span class="search-result-badge badge-out">📤 Sudah Keluar</span>';const hn=highlightText(r.item.nama,q);let di='';if(r.status==='current'){di=`<div style="margin-top:6px;font-size:0.8rem;color:#64748b;">📍 Section: ${r.section} | Baris: ${r.baris} | Slot: ${r.slot} | Keranjang: ${r.keranjangNo}</div><div style="margin-top:2px;font-size:0.75rem;color:#475569;">👤 Ditambah oleh: <strong>${r.item.addedBy||'Tidak diketahui'}</strong>${r.item.tglMasuk?` | 📅 ${new Date(r.item.tglMasuk).toLocaleDateString('id-ID')}`:''}</div>`;}else{di=`<div style="margin-top:6px;font-size:0.8rem;color:#64748b;">📤 Keluar dari Keranjang: ${r.keranjangNo} | Section: ${r.section}<br>📅 Keluar: ${new Date(r.timestamp).toLocaleDateString('id-ID')}</div><div style="margin-top:2px;font-size:0.75rem;color:#475569;">👤 Dikeluarkan oleh: <strong>${r.user||'Tidak diketahui'}</strong></div>`;}const ei=r.item.expDate?`<div style="margin-top:4px;font-size:0.75rem;color:${new Date(r.item.expDate)<new Date()?'#ef4444':'#64748b'};">⏰ Exp: ${new Date(r.item.expDate).toLocaleDateString('id-ID')}${new Date(r.item.expDate)<new Date()?' ⚠️ EXPIRED':''}</div>`:'';const esi=r.item.estOutDate?`<div style="margin-top:2px;font-size:0.75rem;color:${new Date(r.item.estOutDate)<new Date()?'#ef4444':'#64748b'};">📅 Est. Keluar: ${new Date(r.item.estOutDate).toLocaleDateString('id-ID')}${new Date(r.item.estOutDate)<new Date()?' ⚠️ LEWAT':''}</div>`:'';h+=`<div class="search-result-item ${r.status}"><div class="search-result-header"><div>${ab}${sb}</div><div><small>${r.item.jenis||'-'}</small></div></div><div><strong>${hn}</strong> <span style="color:#64748b;">Qty: ${r.item.qty}</span></div>${di}${ei}${esi}${r.status==='current'?`<button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="navigateToBasket(${r.keranjangNo},'${r.area}')">📍 Lihat Keranjang</button>`:''}</div>`;});rc.innerHTML=h;}
+        function collectSearchResults(area,q,results){const bsk=appData[area].baskets,trx=appData[area].transactions;for(const[kn,b]of Object.entries(bsk)){if(b.items&&b.items.length>0){b.items.forEach(it=>{if(it.nama&&it.nama.toLowerCase().includes(q)){results.push({area,status:'current',item:it,keranjangNo:parseInt(kn),section:b.section,baris:b.baris,slot:b.slot});}});}}const so=new Set();trx.forEach(t=>{if(t.type==='out'&&t.detail&&t.detail.nama&&t.detail.nama.toLowerCase().includes(q)){const key=`${t.detail.nama}_${t.detail.qty}_${t.timestamp}`;if(!so.has(key)){so.add(key);results.push({area,status:'out',item:{nama:t.detail.nama,qty:t.detail.qty,jenis:t.detail.jenis||'-',expDate:t.detail.expDate,estOutDate:t.detail.estOutDate},keranjangNo:t.detail.keranjang||'-',section:t.detail.section||'-',timestamp:t.timestamp,user:t.user});}}});}
+        function highlightText(t,q){if(!t||!q)return t||'';const r=new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');return t.replace(r,'<span class="search-highlight">$1</span>');}
+        function navigateToBasket(kn,area){if(currentArea!==area){currentArea=area;document.getElementById('areaSelect').value=area;document.getElementById('areaTitle').textContent=area==='frozen'?'Frozen':'Chiller';}currentTab='dashboard';document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));const dt=document.querySelector('.tab-btn[data-tab="dashboard"]');if(dt)dt.classList.add('active');renderDashboard();setTimeout(()=>{showBasketDetail(kn);},200);}
 
         // ==================== HISTORY ====================
         function renderHistory() {
@@ -1574,13 +306,10 @@ function executeFullOut(no, idx, item) {
         }
         
         const detail = t.detail || {};
-        
-        // ✅ Info user yang jelas
         const userInfo = t.user 
             ? `<span style="font-size:0.7rem;color:#64748b;">👤 ${t.user}</span>`
             : '';
         
-        // ✅ Info tambahan berdasarkan tipe
         let extraInfo = '';
         if (t.type === 'in') {
             extraInfo = `ditambahkan ke Keranjang <strong>${detail.keranjang || '-'}</strong> | Section: ${detail.section || '-'}`;
@@ -1620,190 +349,25 @@ function executeFullOut(no, idx, item) {
                 <i class="fas fa-download"></i> Excel
             </button>
         </div>
-        
-        <!-- ✅ Legend dengan info user -->
-        <div style="display:flex;gap:12px;margin-bottom:12px;font-size:0.75rem;flex-wrap:wrap;">
-            <span><span class="history-badge badge-in">MASUK</span> = Tambah barang</span>
-            <span><span class="history-badge badge-move">PINDAH BARANG</span> = Pindah 1 item</span>
-            <span><span class="history-badge" style="background:#ede9fe;color:#5b21b6;">PINDAH KERANJANG</span> = Pindah semua isi</span>
-            <span><span class="history-badge badge-out">KELUAR</span> = Keluarkan barang</span>
-            <span><span class="history-badge badge-edit">EDIT EST</span> = Edit estimasi</span>
-        </div>
-        
         ${list || '<div class="empty-state">Belum ada aktivitas</div>'}
     </div>`;
 }
 
         // ==================== REKAP ====================
-        function renderRekap() {
-            const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-            const trx = currentTransactions();
-            const nowYear = new Date().getFullYear();
-            const yearsSet = new Set(trx.map(t => new Date(t.timestamp).getFullYear()));
-            const years = [...yearsSet].sort((a,b)=>b-a);
-            const selYear = parseInt(document.getElementById('rekapYearFilter')?.value || nowYear);
-            let totalIn = 0, totalOut = 0;
-            trx.forEach(t => t.type==='in'?totalIn++:totalOut++);
-            const statBoxes = `<div class="stat-grid"><div class="stat-box"><div class="val">${totalIn}</div><div class="lbl">Total Masuk</div></div><div class="stat-box out"><div class="val">${totalOut}</div><div class="lbl">Total Keluar</div></div></div>`;
-            const modeTabs = `<div class="rekap-tabs"><button class="rekap-tab ${rekapMode==='bulanan'?'active':''}" onclick="rekapMode='bulanan';renderRekap()">📅 Bulanan</button><button class="rekap-tab ${rekapMode==='tahunan'?'active':''}" onclick="rekapMode='tahunan';renderRekap()">📆 Tahunan</button></div>`;
-            if (rekapMode === 'bulanan') {
-                const monthData = {};
-                trx.forEach(t => {
-                    const d = new Date(t.timestamp);
-                    if (d.getFullYear() !== selYear) return;
-                    const m = d.getMonth();
-                    if (!monthData[m]) monthData[m] = { in:0, out:0, bySection:{} };
-                    monthData[m][t.type]++;
-                    const sec = t.detail.section || '-';
-                    if (!monthData[m].bySection[sec]) monthData[m].bySection[sec] = { in:0, out:0 };
-                    monthData[m].bySection[sec][t.type]++;
-                });
-                let rows = '';
-                for (let m=0; m<12; m++) {
-                    const md = monthData[m];
-                    if (!md) continue;
-                    const badges = Object.entries(md.bySection).map(([s,v]) => `<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');
-                    rows += `<tr><td><strong>${BULAN[m]} ${selYear}</strong></td><td style="color:var(--primary);">+${md.in}</td><td style="color:var(--danger);">-${md.out}</td><td>${md.in-md.out>=0?'+':''}${md.in-md.out}</td><td>${badges}</td></tr>`;
-                }
-                if (!rows) rows = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">Tidak ada data tahun ${selYear}</td></tr>`;
-                const yearOpts = years.map(y => `<option value="${y}" ${y===selYear?'selected':''}>${y}</option>`).join('') || `<option value="${nowYear}">${nowYear}</option>`;
-                container.innerHTML = `<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${statBoxes}${modeTabs}<div class="filter-row"><label>Tahun: <select id="rekapYearFilter" onchange="renderRekap()">${yearOpts}</select></label><button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button></div><div style="overflow-x:auto;"><table class="rekap-table"><thead><tr><th>Bulan</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-            } else {
-                const yearData = {};
-                trx.forEach(t => {
-                    const y = new Date(t.timestamp).getFullYear();
-                    if (!yearData[y]) yearData[y] = { in:0, out:0, bySection:{} };
-                    yearData[y][t.type]++;
-                    const sec = t.detail.section || '-';
-                    if (!yearData[y].bySection[sec]) yearData[y].bySection[sec] = { in:0, out:0 };
-                    yearData[y].bySection[sec][t.type]++;
-                });
-                let rows = '';
-                [...Object.keys(yearData)].sort((a,b)=>b-a).forEach(y => {
-                    const yd = yearData[y];
-                    const badges = Object.entries(yd.bySection).map(([s,v]) => `<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');
-                    rows += `<tr><td><strong>${y}</strong></td><td style="color:var(--primary);">+${yd.in}</td><td style="color:var(--danger);">-${yd.out}</td><td>${yd.in-yd.out>=0?'+':''}${yd.in-yd.out}</td><td>${badges}</td></tr>`;
-                });
-                if (!rows) rows = `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">Belum ada data</td></tr>`;
-                container.innerHTML = `<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${statBoxes}${modeTabs}<div class="filter-row"><button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button></div><div style="overflow-x:auto;"><table class="rekap-table"><thead><tr><th>Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-            }
-        }
-
-        function downloadExcel() {
-            const allTrx = [...appData.frozen.transactions.map(t=>({...t,area:'Frozen'})), ...appData.chiller.transactions.map(t=>({...t,area:'Chiller'}))];
-            allTrx.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            if (!allTrx.length) return showToast('Tidak ada data');
-            let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Riwayat Lengkap</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Area</th><th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th><th>Jenis Brg</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est Out</th></tr>`;
-            allTrx.forEach(t => {
-                const d = t.detail;
-                h += `<tr><td>${t.area}</td><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type==='in'?'Masuk':t.type==='move'?'Pindah':t.type==='edit'?'Edit Estimasi':'Keluar'}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`;
-            });
-            h += '</table></body></html>';
-            _dlBlob(h, `riwayat_lengkap_${new Date().toISOString().split('T')[0]}.xls`);
-        }
-
-        function downloadRekapExcel() {
-            const trx = currentTransactions();
-            if (!trx.length) return showToast('Tidak ada data');
-            let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Rekap — ${currentArea.toUpperCase()}</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Periode</th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>`;
-            const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-            const monthData = {};
-            trx.forEach(t => {
-                const d = new Date(t.timestamp);
-                const key = rekapMode==='bulanan'?`${BULAN[d.getMonth()]} ${d.getFullYear()}`:`${d.getFullYear()}`;
-                if (!monthData[key]) monthData[key] = { in:0, out:0 };
-                monthData[key][t.type]++;
-            });
-            Object.entries(monthData).forEach(([key, v]) => {
-                h += `<tr><td>${key}</td><td>+${v.in}</td><td>-${v.out}</td><td>${v.in-v.out>=0?'+':''}${v.in-v.out}</td></tr>`;
-            });
-            h += '</table></body></html>';
-            _dlBlob(h, `rekap_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);
-        }
-
-        function _dlBlob(html, filename) {
-            const blob = new Blob([html], { type:'application/vnd.ms-excel;charset=utf-8;' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
-        }
+        function renderRekap(){const BULAN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],trx=currentTransactions(),ny=new Date().getFullYear(),ys=new Set(trx.map(t=>new Date(t.timestamp).getFullYear())),years=[...ys].sort((a,b)=>b-a),sy=parseInt(document.getElementById('rekapYearFilter')?.value||ny);let ti=0,to=0;trx.forEach(t=>t.type==='in'?ti++:to++);const sb=`<div class="stat-grid"><div class="stat-box"><div class="val">${ti}</div><div class="lbl">Total Masuk</div></div><div class="stat-box out"><div class="val">${to}</div><div class="lbl">Total Keluar</div></div></div>`,mt=`<div class="rekap-tabs"><button class="rekap-tab ${rekapMode==='bulanan'?'active':''}" onclick="rekapMode='bulanan';renderRekap()">📅 Bulanan</button><button class="rekap-tab ${rekapMode==='tahunan'?'active':''}" onclick="rekapMode='tahunan';renderRekap()">📆 Tahunan</button></div>`;if(rekapMode==='bulanan'){const md={};trx.forEach(t=>{const d=new Date(t.timestamp);if(d.getFullYear()!==sy)return;const m=d.getMonth();if(!md[m])md[m]={in:0,out:0,bySection:{}};md[m][t.type]++;const sec=t.detail.section||'-';if(!md[m].bySection[sec])md[m].bySection[sec]={in:0,out:0};md[m].bySection[sec][t.type]++;});let rows='';for(let m=0;m<12;m++){const d=md[m];if(!d)continue;const badges=Object.entries(d.bySection).map(([s,v])=>`<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');rows+=`<tr><td><strong>${BULAN[m]} ${sy}</strong></td><td style="color:var(--primary);">+${d.in}</td><td style="color:var(--danger);">-${d.out}</td><td>${d.in-d.out>=0?'+':''}${d.in-d.out}</td><td>${badges}</td></tr>`;}if(!rows)rows=`<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">Tidak ada data tahun ${sy}</td></tr>`;const yo=years.map(y=>`<option value="${y}" ${y===sy?'selected':''}>${y}</option>`).join('')||`<option value="${ny}">${ny}</option>`;container.innerHTML=`<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${sb}${mt}<div class="filter-row"><label>Tahun: <select id="rekapYearFilter" onchange="renderRekap()">${yo}</select></label><button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button></div><div style="overflow-x:auto;"><table class="rekap-table"><thead><tr><th>Bulan</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;}else{const yd={};trx.forEach(t=>{const y=new Date(t.timestamp).getFullYear();if(!yd[y])yd[y]={in:0,out:0,bySection:{}};yd[y][t.type]++;const sec=t.detail.section||'-';if(!yd[y].bySection[sec])yd[y].bySection[sec]={in:0,out:0};yd[y].bySection[sec][t.type]++;});let rows='';[...Object.keys(yd)].sort((a,b)=>b-a).forEach(y=>{const d=yd[y];const badges=Object.entries(d.bySection).map(([s,v])=>`<span class="section-badge">${s}: +${v.in} -${v.out}</span>`).join('');rows+=`<tr><td><strong>${y}</strong></td><td style="color:var(--primary);">+${d.in}</td><td style="color:var(--danger);">-${d.out}</td><td>${d.in-d.out>=0?'+':''}${d.in-d.out}</td><td>${badges}</td></tr>`;});if(!rows)rows='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">Belum ada data</td></tr>';container.innerHTML=`<div class="card"><h3>📊 Rekap — ${currentArea.toUpperCase()}</h3>${sb}${mt}<div class="filter-row"><button class="btn btn-sm btn-outline" onclick="downloadRekapExcel()"><i class="fas fa-download"></i> Excel</button></div><div style="overflow-x:auto;"><table class="rekap-table"><thead><tr><th>Tahun</th><th>Masuk</th><th>Keluar</th><th>Selisih</th><th>Per Section</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;}}
+        function downloadExcel(){const at=[...appData.frozen.transactions.map(t=>({...t,area:'Frozen'})),...appData.chiller.transactions.map(t=>({...t,area:'Chiller'}))];at.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));if(!at.length)return showToast('Tidak ada data');let h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Riwayat Lengkap</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Area</th><th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th><th>Jenis Brg</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est Out</th></tr>';at.forEach(t=>{const d=t.detail;h+=`<tr><td>${t.area}</td><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type==='in'?'Masuk':t.type==='move'?'Pindah':t.type==='edit'?'Edit Estimasi':'Keluar'}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`;});h+='</table></body></html>';_dlBlob(h,`riwayat_lengkap_${new Date().toISOString().split('T')[0]}.xls`);}
+        function downloadRekapExcel(){const trx=currentTransactions();if(!trx.length)return showToast('Tidak ada data');let h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Rekap — '+currentArea.toUpperCase()+'</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Periode</th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>';const BULAN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],md={};trx.forEach(t=>{const d=new Date(t.timestamp),k=rekapMode==='bulanan'?`${BULAN[d.getMonth()]} ${d.getFullYear()}`:`${d.getFullYear()}`;if(!md[k])md[k]={in:0,out:0};md[k][t.type]++;});Object.entries(md).forEach(([k,v])=>{h+=`<tr><td>${k}</td><td>+${v.in}</td><td>-${v.out}</td><td>${v.in-v.out>=0?'+':''}${v.in-v.out}</td></tr>`;});h+='</table></body></html>';_dlBlob(h,`rekap_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);}
+        function _dlBlob(html,fn){const b=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;a.click();}
 
         // ==================== MANAGE ====================
-        function renderManageBaskets() {
-            if (!isAdmin()) {
-                container.innerHTML = '<div class="card"><h3>⚙️ Atur Nomor Keranjang</h3><p style="color:#ef4444;font-weight:600;">🔒 Hanya admin.</p></div>';
-                return;
-            }
-            let html = '<div class="card"><h3>⚙️ Atur Slot Keranjang</h3>';
-            for (const [section, barisObj] of Object.entries(currentSections())) {
-                html += `<div style="margin-bottom:20px;"><strong>📍 ${section}</strong>`;
-                for (const [baris, slots] of Object.entries(barisObj)) {
-                    html += `<div style="margin-left:8px;margin-bottom:10px;"><span class="baris-label">📌 Baris ${baris}</span>`;
-                    for (let i = 0; i < 5; i++) {
-                        const no = slots[i];
-                        if (no) {
-                            const cnt = itemCount(no);
-                            html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;"><span class="chip">Slot ${i+1}: ${no} (${cnt}/${getBasketCapacity(no)}) <span style="cursor:pointer;color:red;margin-left:4px;" onclick="clearSlot('${section}','${baris}',${i})">✕</span></span></div>`;
-                        } else {
-                            html += `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;"><span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span><input type="number" id="inp_${section}_${baris}_${i}" placeholder="No" style="width:80px;padding:4px;"><button class="btn btn-sm btn-primary" onclick="fillSlot('${section}','${baris}',${i})">Isi</button></div>`;
-                        }
-                    }
-                    html += `</div>`;
-                }
-                html += `<div><button class="btn btn-sm btn-outline" onclick="addBaris('${section}')">➕ Tambah Baris Baru</button></div></div>`;
-            }
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        window.clearSlot = function(section, baris, idx) {
-            if (!isAdmin()) return;
-            const slots = currentSections()[section]?.[baris];
-            if (!slots || !slots[idx]) return;
-            const no = slots[idx];
-            if (confirm(`Hapus keranjang ${no} dari Slot ${idx+1}? Isi keranjang akan tetap ada.`)) {
-                slots[idx] = null;
-                saveToFirestore();
-                showToast('Slot dikosongkan.');
-                renderManageBaskets();
-            }
-        };
-
-        window.fillSlot = function(section, baris, idx) {
-            if (!isAdmin()) return;
-            const inp = document.getElementById(`inp_${section}_${baris}_${idx}`);
-            const val = parseInt(inp?.value);
-            if (!val) return showToast('Masukkan nomor.');
-            for (const [sec, barisObj] of Object.entries(currentSections())) {
-                for (const sl of Object.values(barisObj)) {
-                    if (sl.includes(val)) return showToast(`Nomor ${val} sudah digunakan di ${sec}.`);
-                }
-            }
-            currentSections()[section][baris][idx] = val;
-            saveToFirestore();
-            showToast('Slot diisi.');
-            renderManageBaskets();
-        };
-
-        function addBaris(section) {
-            if (!isAdmin()) return;
-            const sections = currentSections();
-            const barisObj = sections[section];
-            const nextBaris = String.fromCharCode(65 + Object.keys(barisObj).length);
-            barisObj[nextBaris] = [null,null,null,null,null];
-            saveToFirestore();
-            showToast(`Baris ${nextBaris} ditambahkan.`);
-            renderManageBaskets();
-        }
+        function renderManageBaskets(){if(!isAdmin()){container.innerHTML='<div class="card"><h3>⚙️ Atur Nomor Keranjang</h3><p style="color:#ef4444;font-weight:600;">🔒 Hanya admin.</p></div>';return;}let h='<div class="card"><h3>⚙️ Atur Slot Keranjang</h3>';for(const[sn,bo]of Object.entries(currentSections())){h+=`<div style="margin-bottom:20px;"><strong>📍 ${sn}</strong>`;for(const[br,sl]of Object.entries(bo)){h+=`<div style="margin-left:8px;margin-bottom:10px;"><span class="baris-label">📌 Baris ${br}</span>`;for(let i=0;i<5;i++){const no=sl[i];if(no){const c=itemCount(no);h+=`<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;"><span class="chip">Slot ${i+1}: ${no} (${c}/${getBasketCapacity(no)}) <span style="cursor:pointer;color:red;margin-left:4px;" onclick="clearSlot('${sn}','${br}',${i})">✕</span></span></div>`;}else{h+=`<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;"><span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span><input type="number" id="inp_${sn}_${br}_${i}" placeholder="No" style="width:80px;padding:4px;"><button class="btn btn-sm btn-primary" onclick="fillSlot('${sn}','${br}',${i})">Isi</button></div>`;}}h+='</div>';}h+=`<div><button class="btn btn-sm btn-outline" onclick="addBaris('${sn}')">➕ Tambah Baris Baru</button></div></div>`;}h+='</div>';container.innerHTML=h;}
+        window.clearSlot=function(s,b,i){if(!isAdmin())return;const sl=currentSections()[s]?.[b];if(!sl||!sl[i])return;const no=sl[i];if(confirm(`Hapus keranjang ${no} dari Slot ${i+1}?`)){sl[i]=null;saveToFirestore();showToast('Slot dikosongkan.');renderManageBaskets();}};
+        window.fillSlot=function(s,b,i){if(!isAdmin())return;const inp=document.getElementById(`inp_${s}_${b}_${i}`),v=parseInt(inp?.value);if(!v)return showToast('Masukkan nomor.');for(const[sk,bo]of Object.entries(currentSections())){for(const sl of Object.values(bo)){if(sl.includes(v))return showToast(`Nomor ${v} sudah digunakan di ${sk}.`);}}currentSections()[s][b][i]=v;saveToFirestore();showToast('Slot diisi.');renderManageBaskets();};
+        function addBaris(s){if(!isAdmin())return;const sec=currentSections(),bo=sec[s],nb=String.fromCharCode(65+Object.keys(bo).length);bo[nb]=[null,null,null,null,null];saveToFirestore();showToast(`Baris ${nb} ditambahkan.`);renderManageBaskets();}
 
         // ==================== INIT ====================
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentTab = this.dataset.tab;
-                renderCurrentTab();
-            });
-        });
-        document.getElementById('areaSelect').value = currentArea;
+        document.querySelectorAll('.tab-btn').forEach(b=>{b.addEventListener('click',function(){document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));this.classList.add('active');currentTab=this.dataset.tab;renderCurrentTab();});});
+        document.getElementById('areaSelect').value=currentArea;
     </script>
 </body>
 </html>
