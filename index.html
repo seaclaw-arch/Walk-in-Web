@@ -389,15 +389,16 @@
         }
 
         function logTransaction(type, detail) {
-            currentTransactions().unshift({
-                id: Date.now(),
-                timestamp: new Date().toISOString(),
-                type, detail,
-                user: auth.currentUser?.email || 'unknown'
-            });
-            if (currentTransactions().length > 500) currentTransactions().pop();
-            saveToFirestore();
-        }
+    currentTransactions().unshift({
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        type, 
+        detail,
+        user: auth.currentUser?.email || 'unknown' // ✅ User otomatis tercatat
+    });
+    if (currentTransactions().length > 500) currentTransactions().pop();
+    saveToFirestore();
+}
 
         function isAdmin() {
             const user = auth.currentUser;
@@ -606,52 +607,78 @@
         }
 
         // ==================== BASKET DETAIL ====================
-        function showBasketDetail(no, moveItemIdx = null) {
-            const basket = currentBaskets()[no];
-            const count = itemCount(no);
-            const capacity = getBasketCapacity(no);
-            const now = new Date();
-            let itemsHtml = basket && basket.items.length ?
-                basket.items.map((item, idx) => {
-                    let cls = '', lbl = '';
-                    if (item.expDate && new Date(item.expDate) < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
-                    else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
-                    const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
-                    return `<div class="item-row ${cls}">
-                        <div style="flex:1;">
-                            <strong>${item.nama}</strong> <span style="font-size:1rem;font-weight:700;color:var(--primary);">(${item.qty})</span>${lbl}
-                            <br><small>${item.jenis||''} | Masuk: ${item.tglMasuk?new Date(item.tglMasuk).toLocaleDateString('id-ID'):'-'}
-                            ${item.expDate?' | Exp: '+new Date(item.expDate).toLocaleDateString('id-ID'):''}
-                            ${item.estOutDate?' | Est.Keluar: '+new Date(item.estOutDate).toLocaleDateString('id-ID'):''}</small>
-                        </div>
-                        <div class="item-actions">
-                            <button class="action-btn move-btn" data-tooltip="Pindah Barang" onclick="event.stopPropagation();showBasketDetail(${no},${idx})"><i class="fas fa-exchange-alt"></i></button>
-                            <button class="action-btn edit-btn" data-tooltip="Edit Est. Keluar" onclick="event.stopPropagation();editEstOutDate(${no},${idx})"><i class="fas fa-calendar-alt"></i></button>
-                            <button class="action-btn out-btn" data-tooltip="Keluarkan Barang" onclick="keluarkanItem(${no},${idx})"><i class="fas fa-sign-out-alt"></i></button>
-                        </div>
-                        ${moveFormHtml}
-                    </div>`;
-                }).join('') : '<div class="empty-state">Keranjang kosong</div>';
-            container.innerHTML = `<div class="card">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                    <div><h3 style="display:inline;">Keranjang ${no}</h3>${basket ? `<span style="font-size:0.8rem;color:#64748b;margin-left:8px;">📍 ${basket.section} Baris ${basket.baris} Slot ${basket.slot}</span>` : ''}</div>
-                    <div style="display:flex;gap:8px;">
-                        <button class="btn btn-outline btn-sm" onclick="renderDashboard()"><i class="fas fa-arrow-left"></i> Denah</button>
-                        <button class="btn btn-sm" style="background:#10b981;color:white;" onclick="quickAddToBasket(${no})"><i class="fas fa-plus"></i> Tambah Barang</button>
-                        <button class="basket-move-btn" onclick="showMoveBasketForm(${no})"><i class="fas fa-truck"></i> Pindah Keranjang</button>
-                    </div>
+       function showBasketDetail(no, moveItemIdx = null) {
+    const basket = currentBaskets()[no];
+    const count = itemCount(no);
+    const capacity = getBasketCapacity(no);
+    const now = new Date();
+    
+    let itemsHtml = basket && basket.items.length ?
+        basket.items.map((item, idx) => {
+            let cls = '', lbl = '';
+            if (item.expDate && new Date(item.expDate) < now) { cls = 'expired'; lbl = ' ⚠️ EXP'; }
+            else if (item.estOutDate && new Date(item.estOutDate) < now) { cls = 'expired'; lbl = ' ⚠️ EST LEWAT'; }
+            const moveFormHtml = (moveItemIdx === idx) ? renderMoveForm(no, idx) : '';
+            
+            // ✅ Tampilkan user yang memasukkan
+            const userInfo = item.addedBy 
+                ? `<br><small style="color:#64748b;">👤 Ditambah: ${item.addedBy} | ${item.tglMasuk ? new Date(item.tglMasuk).toLocaleDateString('id-ID') : '-'}</small>`
+                : `<br><small style="color:#64748b;">📅 Masuk: ${item.tglMasuk ? new Date(item.tglMasuk).toLocaleDateString('id-ID') : '-'}</small>`;
+            
+            // ✅ Tampilkan riwayat perpindahan jika ada
+            const moveHistory = item.moveHistory && item.moveHistory.length > 0
+                ? `<br><small style="color:#8b5cf6;">🔄 Riwayat Pindah: ${item.moveHistory.map(m => `${m.user || '?'} (${new Date(m.timestamp).toLocaleDateString('id-ID')})`).join(' → ')}</small>`
+                : '';
+            
+            return `<div class="item-row ${cls}">
+                <div style="flex:1;">
+                    <strong>${item.nama}</strong> 
+                    <span style="font-size:1rem;font-weight:700;color:var(--primary);">(${item.qty})</span>${lbl}
+                    <br><small>${item.jenis||''} | Exp: ${item.expDate ? new Date(item.expDate).toLocaleDateString('id-ID') : '-'}
+                    ${item.estOutDate ? ' | Est.Keluar: ' + new Date(item.estOutDate).toLocaleDateString('id-ID') : ''}</small>
+                    ${userInfo}
+                    ${moveHistory}
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <p style="margin:0;">Total item: <strong>${count}/${capacity}</strong></p>
-                    <div style="display:flex;gap:12px;font-size:0.7rem;color:#64748b;">
-                        <span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> = Pindah</span>
-                        <span><i class="fas fa-calendar-alt" style="color:#f59e0b;"></i> = Est</span>
-                        <span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> = Keluar</span>
-                    </div>
+                <div class="item-actions">
+                    <button class="action-btn move-btn" data-tooltip="Pindah Barang" onclick="event.stopPropagation();showBasketDetail(${no},${idx})"><i class="fas fa-exchange-alt"></i></button>
+                    <button class="action-btn edit-btn" data-tooltip="Edit Est. Keluar" onclick="event.stopPropagation();editEstOutDate(${no},${idx})"><i class="fas fa-calendar-alt"></i></button>
+                    <button class="action-btn out-btn" data-tooltip="Keluarkan Barang" onclick="keluarkanItem(${no},${idx})"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
-                ${itemsHtml}
+                ${moveFormHtml}
             </div>`;
-        }
+        }).join('') : '<div class="empty-state">Keranjang kosong</div>';
+
+    container.innerHTML = `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div>
+                <h3 style="display:inline;">🧺 Keranjang ${no}</h3>
+                ${basket ? `<span style="font-size:0.8rem;color:#64748b;margin-left:8px;">📍 ${basket.section} Baris ${basket.baris} Slot ${basket.slot}</span>` : ''}
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="renderDashboard()"><i class="fas fa-arrow-left"></i> Denah</button>
+                <button class="btn btn-sm" style="background:#10b981;color:white;" onclick="quickAddToBasket(${no})"><i class="fas fa-plus"></i> Tambah Barang</button>
+                <button class="basket-move-btn" onclick="showMoveBasketForm(${no})"><i class="fas fa-truck"></i> Pindah Keranjang</button>
+            </div>
+        </div>
+        
+        <!-- ✅ Info user yang terakhir memodifikasi keranjang -->
+        ${basket?.lastModifiedBy ? `
+        <div style="background:#f0f4ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:0.75rem;color:#475569;">
+            👤 Terakhir diubah: <strong>${basket.lastModifiedBy}</strong> 
+            pada ${basket.lastModifiedAt ? new Date(basket.lastModifiedAt).toLocaleString('id-ID') : '-'}
+        </div>` : ''}
+        
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <p style="margin:0;">Total item: <strong>${count}/${capacity}</strong></p>
+            <div style="display:flex;gap:12px;font-size:0.7rem;color:#64748b;">
+                <span><i class="fas fa-exchange-alt" style="color:#8b5cf6;"></i> Pindah</span>
+                <span><i class="fas fa-calendar-alt" style="color:#f59e0b;"></i> Est</span>
+                <span><i class="fas fa-sign-out-alt" style="color:#ef4444;"></i> Keluar</span>
+            </div>
+        </div>
+        ${itemsHtml}
+    </div>`;
+}
 
         // ==================== QUICK ADD ====================
         function quickAddToBasket(no) {
@@ -1205,7 +1232,124 @@
             saveToFirestore();
             showToast('✅ Barang masuk ke keranjang ' + no);
             setTimeout(() => renderInputForm(), 100);
-        }
+        const currentUser = auth.currentUser?.email || 'unknown';
+    
+    const item = { 
+        nama, qty, jenis, 
+        tglMasuk: new Date().toISOString(),
+        addedBy: currentUser // ✅ Simpan siapa yang menambah
+    };
+    if (expDate) item.expDate = expDate;
+    if (estOutDate) item.estOutDate = estOutDate;
+    
+    currentBaskets()[no].items.push(item);
+    
+    // ✅ Update last modified info di basket
+    currentBaskets()[no].lastModifiedBy = currentUser;
+    currentBaskets()[no].lastModifiedAt = new Date().toISOString();
+    
+    logTransaction('in', { 
+        nama, qty, jenis, 
+        keranjang: no, section, baris, 
+        expDate, estOutDate,
+        addedBy: currentUser // ✅ Double record di transaksi
+    });
+    
+    saveToFirestore();
+    showToast('✅ Barang masuk ke keranjang ' + no);
+    setTimeout(() => renderInputForm(), 100);
+}
+
+// ✅ submitQuickAdd()
+function submitQuickAdd(e) {
+    // ... existing code ...
+    const currentUser = auth.currentUser?.email || 'unknown';
+    
+    const item = { 
+        nama, qty, jenis, 
+        tglMasuk: new Date().toISOString(),
+        addedBy: currentUser // ✅ Simpan user
+    };
+    if (expDate) item.expDate = expDate;
+    if (estOutDate) item.estOutDate = estOutDate;
+    
+    basket.items.push(item);
+    basket.lastModifiedBy = currentUser;
+    basket.lastModifiedAt = new Date().toISOString();
+    
+    logTransaction('in', { 
+        nama, qty, jenis, 
+        keranjang: target.no, section: target.section, baris: target.baris, 
+        expDate, estOutDate 
+    });
+    // logTransaction sudah otomatis mencatat user
+    
+    saveToFirestore();
+    showToast(`✅ ${nama} ditambahkan ke keranjang ${target.no}`);
+    setTimeout(() => showBasketDetail(target.no), 300);
+}
+
+// ✅ pindahkanItem()
+function pindahkanItem(fromNo, fromIdx) {
+    // ... existing code ...
+    const currentUser = auth.currentUser?.email || 'unknown';
+    
+    const item = fromBasket.items[fromIdx];
+    
+    // ✅ Catat riwayat perpindahan
+    item.moveHistory = item.moveHistory || [];
+    item.moveHistory.push({
+        from: `Keranjang ${fromNo}`,
+        to: `Keranjang ${toNo}`,
+        timestamp: new Date().toISOString(),
+        user: currentUser
+    });
+    
+    // ... pindahkan item ...
+    
+    // ✅ Update last modified
+    if (currentBaskets()[fromNo]) {
+        currentBaskets()[fromNo].lastModifiedBy = currentUser;
+        currentBaskets()[fromNo].lastModifiedAt = new Date().toISOString();
+    }
+    if (currentBaskets()[toNo]) {
+        currentBaskets()[toNo].lastModifiedBy = currentUser;
+        currentBaskets()[toNo].lastModifiedAt = new Date().toISOString();
+    }
+    
+    logTransaction('move', { 
+        nama: item.nama, qty: item.qty, jenis: item.jenis, 
+        dari: fromNo, ke: toNo, section: toSection 
+    });
+    
+    saveToFirestore();
+    showToast('✅ Barang dipindahkan ke ' + toNo);
+    showBasketDetail(fromNo);
+}
+
+// ✅ executeFullOut() & executePartialOut()
+function executeFullOut(no, idx, item) {
+    const basket = currentBaskets()[no];
+    if (!basket) return;
+    const currentUser = auth.currentUser?.email || 'unknown';
+    
+    basket.items.splice(idx, 1);
+    if (basket.items.length === 0) removeEmptyBasketNumber(no);
+    else {
+        basket.lastModifiedBy = currentUser;
+        basket.lastModifiedAt = new Date().toISOString();
+    }
+    
+    logTransaction('out', { 
+        nama: item.nama, qty: item.qty, jenis: item.jenis, 
+        keranjang: no, section: basket.section 
+    });
+    // logTransaction sudah otomatis mencatat user
+    
+    saveToFirestore();
+    showToast(`✅ ${item.nama} dikeluarkan`);
+    showBasketDetail(no);
+}
 
         // ==================== SEARCH ====================
         function renderSearch() {
@@ -1231,78 +1375,164 @@
         }
 
         function performSearch() {
-            const query = document.getElementById('searchInput')?.value.trim().toLowerCase();
-            const resultsContainer = document.getElementById('searchResults');
-            const statusFilter = document.getElementById('searchStatus')?.value;
-            const dateFrom = document.getElementById('searchDateFrom')?.value;
-            const dateTo = document.getElementById('searchDateTo')?.value;
-            if (!query || query.length < 2) {
-                resultsContainer.innerHTML = '<div class="empty-state">Ketik minimal 2 karakter untuk mencari</div>';
-                return;
-            }
-            const allResults = [];
-            collectSearchResults('frozen', query, allResults);
-            collectSearchResults('chiller', query, allResults);
-            let filtered = allResults;
-            if (statusFilter === 'expired') filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) < new Date());
-            else if (statusFilter === 'active') filtered = filtered.filter(r => r.status === 'current');
-            else if (statusFilter === 'out') filtered = filtered.filter(r => r.status === 'out');
-            if (dateFrom) filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) >= new Date(dateFrom));
-            if (dateTo) filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) <= new Date(dateTo));
-            if (filtered.length === 0) {
-                resultsContainer.innerHTML = `<div class="empty-state"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:8px;"></i>Tidak ditemukan barang dengan nama "${query}"</div>`;
-                return;
-            }
-            const currentItems = filtered.filter(r => r.status === 'current');
-            const outItems = filtered.filter(r => r.status === 'out');
-            let html = `
-                <div class="search-stats">
-                    <div class="search-stat"><div class="count">${filtered.length}</div><div class="label">Total</div></div>
-                    <div class="search-stat"><div class="count" style="color:#10b981;">${currentItems.length}</div><div class="label">Masih Ada</div></div>
-                    <div class="search-stat"><div class="count" style="color:#ef4444;">${outItems.length}</div><div class="label">Keluar</div></div>
+    const query = document.getElementById('searchInput')?.value.trim().toLowerCase();
+    const resultsContainer = document.getElementById('searchResults');
+    const statusFilter = document.getElementById('searchStatus')?.value;
+    const dateFrom = document.getElementById('searchDateFrom')?.value;
+    const dateTo = document.getElementById('searchDateTo')?.value;
+    
+    if (!query || query.length < 2) {
+        resultsContainer.innerHTML = '<div class="empty-state">Ketik minimal 2 karakter untuk mencari</div>';
+        return;
+    }
+
+    const allResults = [];
+    collectSearchResults('frozen', query, allResults);
+    collectSearchResults('chiller', query, allResults);
+    
+    // Filter...
+    let filtered = allResults;
+    if (statusFilter === 'expired') filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) < new Date());
+    else if (statusFilter === 'active') filtered = filtered.filter(r => r.status === 'current');
+    else if (statusFilter === 'out') filtered = filtered.filter(r => r.status === 'out');
+    if (dateFrom) filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) >= new Date(dateFrom));
+    if (dateTo) filtered = filtered.filter(r => r.item.expDate && new Date(r.item.expDate) <= new Date(dateTo));
+    
+    if (filtered.length === 0) {
+        resultsContainer.innerHTML = `<div class="empty-state">Tidak ditemukan barang dengan nama "${query}"</div>`;
+        return;
+    }
+    
+    const currentItems = filtered.filter(r => r.status === 'current');
+    const outItems = filtered.filter(r => r.status === 'out');
+    
+    let html = `
+        <div class="search-stats">
+            <div class="search-stat"><div class="count">${filtered.length}</div><div class="label">Total</div></div>
+            <div class="search-stat"><div class="count" style="color:#10b981;">${currentItems.length}</div><div class="label">Masih Ada</div></div>
+            <div class="search-stat"><div class="count" style="color:#ef4444;">${outItems.length}</div><div class="label">Keluar</div></div>
+        </div>`;
+    
+    filtered.forEach(result => {
+        const areaBadge = result.area === 'frozen' 
+            ? '<span class="area-badge area-frozen">❄️ Frozen</span>' 
+            : '<span class="area-badge area-chiller">🌡️ Chiller</span>';
+        
+        const statusBadge = result.status === 'current'
+            ? '<span class="search-result-badge badge-current">📦 Masih Ada</span>'
+            : '<span class="search-result-badge badge-out">📤 Sudah Keluar</span>';
+        
+        const highlightName = highlightText(result.item.nama, query);
+        
+        // ✅ Info lokasi + user untuk barang yang masih ada
+        let detailInfo = '';
+        if (result.status === 'current') {
+            detailInfo = `
+                <div style="margin-top:6px;font-size:0.8rem;color:#64748b;">
+                    📍 Section: ${result.section} | Baris: ${result.baris} | Slot: ${result.slot} | Keranjang: ${result.keranjangNo}
+                </div>
+                <div style="margin-top:2px;font-size:0.75rem;color:#475569;">
+                    👤 Ditambah oleh: <strong>${result.item.addedBy || 'Tidak diketahui'}</strong>
+                    ${result.item.tglMasuk ? `| 📅 ${new Date(result.item.tglMasuk).toLocaleDateString('id-ID')}` : ''}
                 </div>`;
-            filtered.forEach(result => {
-                const areaBadge = result.area === 'frozen' ? '<span class="area-badge area-frozen">❄️ Frozen</span>' : '<span class="area-badge area-chiller">🌡️ Chiller</span>';
-                const statusBadge = result.status === 'current' ? '<span class="search-result-badge badge-current">📦 Masih Ada</span>' : '<span class="search-result-badge badge-out">📤 Sudah Keluar</span>';
-                const highlightName = highlightText(result.item.nama, query);
-                let locationInfo = result.status === 'current' ?
-                    `<div style="margin-top:6px;font-size:0.8rem;color:#64748b;">📍 Section: ${result.section} | Baris: ${result.baris} | Slot: ${result.slot} | Keranjang: ${result.keranjangNo}</div>` :
-                    `<div style="margin-top:6px;font-size:0.8rem;color:#64748b;">📤 Keluar dari Keranjang: ${result.keranjangNo} | Section: ${result.section}<br>📅 Keluar: ${new Date(result.timestamp).toLocaleDateString('id-ID')}</div>`;
-                html += `<div class="search-result-item ${result.status}">
-                    <div class="search-result-header"><div>${areaBadge}${statusBadge}</div><div><small>${result.item.jenis||'-'}</small></div></div>
-                    <div><strong>${highlightName}</strong> <span style="color:#64748b;">Qty: ${result.item.qty}</span></div>
-                    ${locationInfo}
-                    ${result.item.expDate ? `<div style="margin-top:4px;font-size:0.75rem;color:${new Date(result.item.expDate)<new Date()?'#ef4444':'#64748b'};">⏰ Exp: ${new Date(result.item.expDate).toLocaleDateString('id-ID')}${new Date(result.item.expDate)<new Date()?' ⚠️ EXPIRED':''}</div>` : ''}
-                    ${result.item.estOutDate ? `<div style="margin-top:2px;font-size:0.75rem;color:${new Date(result.item.estOutDate)<new Date()?'#ef4444':'#64748b'};">📅 Est. Keluar: ${new Date(result.item.estOutDate).toLocaleDateString('id-ID')}${new Date(result.item.estOutDate)<new Date()?' ⚠️ LEWAT':''}</div>` : ''}
-                    ${result.status === 'current' ? `<button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="navigateToBasket(${result.keranjangNo},'${result.area}')">📍 Lihat Keranjang</button>` : ''}
+        } else {
+            // ✅ Info untuk barang yang sudah keluar
+            detailInfo = `
+                <div style="margin-top:6px;font-size:0.8rem;color:#64748b;">
+                    📤 Keluar dari Keranjang: ${result.keranjangNo} | Section: ${result.section}
+                    <br>📅 Keluar: ${new Date(result.timestamp).toLocaleDateString('id-ID')}
+                </div>
+                <div style="margin-top:2px;font-size:0.75rem;color:#475569;">
+                    👤 Dikeluarkan oleh: <strong>${result.user || 'Tidak diketahui'}</strong>
                 </div>`;
-            });
-            resultsContainer.innerHTML = html;
         }
+        
+        // ✅ Info expiry
+        const expiryInfo = result.item.expDate ? `
+            <div style="margin-top:4px;font-size:0.75rem;color:${new Date(result.item.expDate) < new Date() ? '#ef4444' : '#64748b'};">
+                ⏰ Exp: ${new Date(result.item.expDate).toLocaleDateString('id-ID')}
+                ${new Date(result.item.expDate) < new Date() ? ' ⚠️ EXPIRED' : ''}
+            </div>` : '';
+        
+        const estOutInfo = result.item.estOutDate ? `
+            <div style="margin-top:2px;font-size:0.75rem;color:${new Date(result.item.estOutDate) < new Date() ? '#ef4444' : '#64748b'};">
+                📅 Est. Keluar: ${new Date(result.item.estOutDate).toLocaleDateString('id-ID')}
+                ${new Date(result.item.estOutDate) < new Date() ? ' ⚠️ LEWAT' : ''}
+            </div>` : '';
+        
+        html += `
+            <div class="search-result-item ${result.status}">
+                <div class="search-result-header">
+                    <div>${areaBadge}${statusBadge}</div>
+                    <div style="text-align:right;"><small style="color:#64748b;">${result.item.jenis || '-'}</small></div>
+                </div>
+                <div style="margin-bottom:4px;">
+                    <strong style="font-size:1rem;">${highlightName}</strong>
+                    <span style="margin-left:8px;color:#64748b;">Qty: ${result.item.qty}</span>
+                </div>
+                ${detailInfo}
+                ${expiryInfo}
+                ${estOutInfo}
+                ${result.status === 'current' ? `
+                    <button class="btn btn-sm btn-outline" style="margin-top:8px;" 
+                            onclick="navigateToBasket(${result.keranjangNo},'${result.area}')">
+                        📍 Lihat Keranjang
+                    </button>` : ''}
+            </div>`;
+    });
+    
+    resultsContainer.innerHTML = html;
+}
 
         function collectSearchResults(area, query, results) {
-            const baskets = appData[area].baskets;
-            const transactions = appData[area].transactions;
-            for (const [keranjangNo, basket] of Object.entries(baskets)) {
-                if (basket.items && basket.items.length > 0) {
-                    basket.items.forEach(item => {
-                        if (item.nama && item.nama.toLowerCase().includes(query)) {
-                            results.push({ area, status:'current', item, keranjangNo:parseInt(keranjangNo), section:basket.section, baris:basket.baris, slot:basket.slot });
-                        }
+    const baskets = appData[area].baskets;
+    const transactions = appData[area].transactions;
+    
+    // Cari di keranjang yang masih ada
+    for (const [keranjangNo, basket] of Object.entries(baskets)) {
+        if (basket.items && basket.items.length > 0) {
+            basket.items.forEach(item => {
+                if (item.nama && item.nama.toLowerCase().includes(query)) {
+                    results.push({
+                        area: area,
+                        status: 'current',
+                        item: item, // ✅ Sudah include addedBy, tglMasuk
+                        keranjangNo: parseInt(keranjangNo),
+                        section: basket.section,
+                        baris: basket.baris,
+                        slot: basket.slot
                     });
-                }
-            }
-            const seenOutItems = new Set();
-            transactions.forEach(trans => {
-                if (trans.type === 'out' && trans.detail && trans.detail.nama && trans.detail.nama.toLowerCase().includes(query)) {
-                    const key = `${trans.detail.nama}_${trans.detail.qty}_${trans.timestamp}`;
-                    if (!seenOutItems.has(key)) {
-                        seenOutItems.add(key);
-                        results.push({ area, status:'out', item:{ nama:trans.detail.nama, qty:trans.detail.qty, jenis:trans.detail.jenis||'-', expDate:trans.detail.expDate, estOutDate:trans.detail.estOutDate }, keranjangNo:trans.detail.keranjang||'-', section:trans.detail.section||'-', timestamp:trans.timestamp });
-                    }
                 }
             });
         }
+    }
+    
+    // Cari di transaksi keluar
+    const seenOutItems = new Set();
+    transactions.forEach(trans => {
+        if (trans.type === 'out' && trans.detail && trans.detail.nama && trans.detail.nama.toLowerCase().includes(query)) {
+            const key = `${trans.detail.nama}_${trans.detail.qty}_${trans.timestamp}`;
+            if (!seenOutItems.has(key)) {
+                seenOutItems.add(key);
+                results.push({
+                    area: area,
+                    status: 'out',
+                    item: {
+                        nama: trans.detail.nama,
+                        qty: trans.detail.qty,
+                        jenis: trans.detail.jenis || '-',
+                        expDate: trans.detail.expDate,
+                        estOutDate: trans.detail.estOutDate
+                    },
+                    keranjangNo: trans.detail.keranjang || '-',
+                    section: trans.detail.section || '-',
+                    timestamp: trans.timestamp,
+                    user: trans.user // ✅ Tambah user yang mengeluarkan
+                });
+            }
+        }
+    });
+}
 
         function highlightText(text, query) {
             if (!text || !query) return text || '';
@@ -1326,35 +1556,83 @@
 
         // ==================== HISTORY ====================
         function renderHistory() {
-            const list = currentTransactions().slice(0, 100).map(t => {
-                let typeClass = '', badgeClass = '', icon = '', typeLabel = '';
-                if (t.type === 'in') { typeClass='type-in'; badgeClass='badge-in'; icon='📥'; typeLabel='MASUK'; }
-                else if (t.type === 'move') { typeClass='type-move'; badgeClass='badge-move'; icon='🔄'; typeLabel = t.detail?.jenis==='KERANJANG'?'PINDAH KERANJANG':'PINDAH BARANG'; }
-                else if (t.type === 'edit') { typeClass='type-edit'; badgeClass='badge-edit'; icon='✏️'; typeLabel='EDIT EST'; }
-                else { typeClass='type-out'; badgeClass='badge-out'; icon='📤'; typeLabel='KELUAR'; }
-                const detail = t.detail || {};
-                return `<div class="history-item ${typeClass}">
-                    <div style="font-size:1.5rem;">${icon}</div>
-                    <div style="flex:1;">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
-                            <span class="history-badge ${badgeClass}">${typeLabel}</span>
-                            <small>${new Date(t.timestamp).toLocaleString('id-ID')}</small>
-                        </div>
-                        <strong>${detail.nama||'-'}</strong> — ${detail.qty||'-'} (${detail.jenis||'-'})
-                        ${t.type==='move'?` | ${detail.dari} → ${detail.ke}`:t.type==='edit'?` | Est: ${detail.oldEstOutDate} → ${detail.newEstOutDate}`:` | Keranjang: ${detail.keranjang||'-'}`}
-                        ${detail.partial?'<br><small style="color:#f59e0b;">⚠️ Keluar sebagian</small>':''}
-                    </div>
-                </div>`;
-            }).join('');
-            container.innerHTML = `<div class="card">
-                <div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📋 Riwayat</h3><button class="btn btn-sm btn-outline" onclick="downloadExcel()"><i class="fas fa-download"></i> Excel</button></div>
-                <div style="display:flex;gap:12px;margin-bottom:12px;font-size:0.75rem;">
-                    <span><span class="history-badge badge-move">PINDAH BARANG</span> = Pindah 1 item</span>
-                    <span><span class="history-badge" style="background:#ede9fe;color:#5b21b6;">PINDAH KERANJANG</span> = Pindah semua isi</span>
-                </div>
-                ${list||'<div class="empty-state">Belum ada aktivitas</div>'}
-            </div>`;
+    const list = currentTransactions().slice(0, 100).map(t => {
+        let typeClass = '', badgeClass = '', icon = '', typeLabel = '';
+        
+        if (t.type === 'in') { 
+            typeClass = 'type-in'; badgeClass = 'badge-in'; icon = '📥'; typeLabel = 'MASUK'; 
         }
+        else if (t.type === 'move') { 
+            typeClass = 'type-move'; badgeClass = 'badge-move'; icon = '🔄'; 
+            typeLabel = t.detail?.jenis === 'KERANJANG' ? 'PINDAH KERANJANG' : 'PINDAH BARANG';
+        }
+        else if (t.type === 'edit') { 
+            typeClass = 'type-edit'; badgeClass = 'badge-edit'; icon = '✏️'; typeLabel = 'EDIT EST'; 
+        }
+        else { 
+            typeClass = 'type-out'; badgeClass = 'badge-out'; icon = '📤'; typeLabel = 'KELUAR'; 
+        }
+        
+        const detail = t.detail || {};
+        
+        // ✅ Info user yang jelas
+        const userInfo = t.user 
+            ? `<span style="font-size:0.7rem;color:#64748b;">👤 ${t.user}</span>`
+            : '';
+        
+        // ✅ Info tambahan berdasarkan tipe
+        let extraInfo = '';
+        if (t.type === 'in') {
+            extraInfo = `ditambahkan ke Keranjang <strong>${detail.keranjang || '-'}</strong> | Section: ${detail.section || '-'}`;
+        } else if (t.type === 'move') {
+            extraInfo = `dari <strong>${detail.dari || '-'}</strong> → <strong>${detail.ke || '-'}</strong>`;
+        } else if (t.type === 'edit') {
+            extraInfo = `Est: ${detail.oldEstOutDate || '-'} → <strong>${detail.newEstOutDate || '-'}</strong>`;
+        } else if (t.type === 'out') {
+            extraInfo = `dari Keranjang <strong>${detail.keranjang || '-'}</strong> | Section: ${detail.section || '-'}`;
+            if (detail.partial) extraInfo += ' <span style="color:#f59e0b;">⚠️ Sebagian</span>';
+        }
+        
+        return `<div class="history-item ${typeClass}">
+            <div style="font-size:1.5rem;flex-shrink:0;">${icon}</div>
+            <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <div>
+                        <span class="history-badge ${badgeClass}">${typeLabel}</span>
+                        ${userInfo}
+                    </div>
+                    <small style="color:#64748b;">${new Date(t.timestamp).toLocaleString('id-ID')}</small>
+                </div>
+                <div style="margin-top:4px;">
+                    <strong>${detail.nama || '-'}</strong> — ${detail.qty || '-'} (${detail.jenis || '-'})
+                </div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">
+                    ${extraInfo}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+    
+    container.innerHTML = `<div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+            <h3>📋 Riwayat Aktivitas</h3>
+            <button class="btn btn-sm btn-outline" onclick="downloadExcel()">
+                <i class="fas fa-download"></i> Excel
+            </button>
+        </div>
+        
+        <!-- ✅ Legend dengan info user -->
+        <div style="display:flex;gap:12px;margin-bottom:12px;font-size:0.75rem;flex-wrap:wrap;">
+            <span><span class="history-badge badge-in">MASUK</span> = Tambah barang</span>
+            <span><span class="history-badge badge-move">PINDAH BARANG</span> = Pindah 1 item</span>
+            <span><span class="history-badge" style="background:#ede9fe;color:#5b21b6;">PINDAH KERANJANG</span> = Pindah semua isi</span>
+            <span><span class="history-badge badge-out">KELUAR</span> = Keluarkan barang</span>
+            <span><span class="history-badge badge-edit">EDIT EST</span> = Edit estimasi</span>
+        </div>
+        
+        ${list || '<div class="empty-state">Belum ada aktivitas</div>'}
+    </div>`;
+}
 
         // ==================== REKAP ====================
         function renderRekap() {
