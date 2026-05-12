@@ -498,20 +498,22 @@
         }
 
         function getAreaStats() {
-            const baskets = currentBaskets();
-            let totalItems = 0, totalExpired = 0, totalEstLewat = 0;
-            let totalKeranjang = Object.keys(baskets).length, totalKeranjangPenuh = 0;
-            for (const [no, basket] of Object.entries(baskets)) {
-                const items = basket.items || [];
-                totalItems += items.length;
-                if (items.length >= getBasketCapacity(no)) totalKeranjangPenuh++;
-                items.forEach(item => {
-                    if (item.expDate && new Date(item.expDate) < new Date()) totalExpired++;
-                    if (item.estOutDate && new Date(item.estOutDate) < new Date()) totalEstLewat++;
-                });
-            }
-            return { totalItems, totalExpired, totalEstLewat, totalKeranjang, totalKeranjangPenuh };
-        }
+    const baskets = currentBaskets();
+    let totalItems = 0, totalExpired = 0, totalEstLewat = 0, totalPenuh = 0;
+    
+    for (const [no, basket] of Object.entries(baskets)) {
+        const items = basket.items || [];
+        totalItems += items.length;
+        if (items.length >= getBasketCapacity(no)) totalPenuh++;
+        items.forEach(item => {
+            if (item.expDate && new Date(item.expDate) < new Date()) totalExpired++;
+            if (item.estOutDate && new Date(item.estOutDate) < new Date()) totalEstLewat++;
+        });
+    }
+    
+    // Hanya return jumlah, tanpa total keranjang
+    return { totalItems, totalExpired, totalEstLewat, totalPenuh };
+}
 
         // ==================== DASHBOARD ====================
         function renderDashboard() {
@@ -525,11 +527,21 @@
             container.innerHTML = `
             <div class="card" style="padding:12px;">
                 <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-                    <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:0.75rem;">📦 ${stats.totalItems} item</span>
-                    <span style="background:${stats.totalExpired>0?'#fee2e2':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">☠️ ${stats.totalExpired} expired</span>
-                    <span style="background:${stats.totalEstLewat>0?'#fff7ed':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">⏳ ${stats.totalEstLewat} est lewat</span>
-                    <span style="background:${stats.totalKeranjangPenuh>0?'#fffbeb':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">🚫 ${stats.totalKeranjangPenuh}/${stats.totalKeranjang} penuh</span>
-                </div>
+    <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
+        📦 ${stats.totalItems} item
+    </span>
+    <span style="background:${stats.totalExpired>0?'#fee2e2':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
+        ☠️ ${stats.totalExpired} expired
+    </span>
+    <span style="background:${stats.totalEstLewat>0?'#fff7ed':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
+        ⏳ ${stats.totalEstLewat} est lewat
+    </span>
+    <!-- ✅ HANYA tampilkan jumlah keranjang penuh, bukan X/Y -->
+    ${stats.totalPenuh > 0 ? `
+    <span style="background:#fffbeb; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
+        🚫 ${stats.totalPenuh} keranjang penuh
+    </span>` : ''}
+</div>
                 <div class="fp-room-title">❄️ Denah Walk-in Frozen</div>
                 <div class="fp-room" style="background:#e8f4f8;">
                     <div style="display:grid; grid-template-columns:110px 110px 110px 110px 110px; gap:8px; width:fit-content; margin:0 auto;">
@@ -558,13 +570,22 @@
             const adminBtn = isAdmin() ? `<button class="reset-btn" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> 🗑️ Hapus Semua Data</button>` : '';
             const bottomSecs = ['IMP','RTL','NPL','MTPP','RDQ','MI'];
             container.innerHTML = `
-            <div class="card" style="padding:12px;">
-                <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-                    <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:0.75rem;">📦 ${stats.totalItems} item</span>
-                    <span style="background:${stats.totalExpired>0?'#fee2e2':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">☠️ ${stats.totalExpired} expired</span>
-                    <span style="background:${stats.totalEstLewat>0?'#fff7ed':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">⏳ ${stats.totalEstLewat} est lewat</span>
-                    <span style="background:${stats.totalKeranjangPenuh>0?'#fffbeb':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">🚫 ${stats.totalKeranjangPenuh}/${stats.totalKeranjang} penuh</span>
-                </div>
+            <<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+    <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
+        📦 ${stats.totalItems} item
+    </span>
+    <span style="background:${stats.totalExpired>0?'#fee2e2':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
+        ☠️ ${stats.totalExpired} expired
+    </span>
+    <span style="background:${stats.totalEstLewat>0?'#fff7ed':'#f0fdf4'}; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
+        ⏳ ${stats.totalEstLewat} est lewat
+    </span>
+    <!-- ✅ HANYA tampilkan jumlah keranjang penuh, bukan X/Y -->
+    ${stats.totalPenuh > 0 ? `
+    <span style="background:#fffbeb; padding:4px 12px; border-radius:20px; font-size:0.75rem;">
+        🚫 ${stats.totalPenuh} keranjang penuh
+    </span>` : ''}
+</div>
                 <div class="fp-room-title">🌡️ Denah Walk-in Chiller</div>
                 <div class="fp-room" style="background:#f0fdf4;">
                     <div class="chl-plan">
