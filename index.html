@@ -164,6 +164,7 @@
             <button class="tab-btn" data-tab="search">🔍 Cari</button>
             <button class="tab-btn" data-tab="history">📋 Riwayat</button>
             <button class="tab-btn" data-tab="rekap">📊 Rekap</button>
+            <button class="tab-btn" data-tab="reminder">⏰ Reminder</button>
             <button class="tab-btn" data-tab="manage">⚙️ Atur</button>
         </div>
         <div class="container" id="appContainer"></div>
@@ -219,7 +220,7 @@
         function logTransaction(type,detail){currentTransactions().unshift({id:Date.now(),timestamp:new Date().toISOString(),type,detail,user:auth.currentUser?.email||'unknown'});if(currentTransactions().length>500)currentTransactions().pop();saveToFirestore();}
         function isAdmin(){const u=auth.currentUser;return u&&u.providerData.some(p=>p.providerId==='google.com')&&ADMIN_EMAILS.includes(u.email);}
         async function resetAllData(){if(!isAdmin()){showToast('⚠️ Hanya admin.');return;}if(!confirm('⚠️ Hapus SEMUA data?'))return;if(!confirm('⚠️ Data akan hilang permanen. Yakin?'))return;await db.collection('shared').doc('data').set({frozen:{sections:getDefaultSections('frozen'),baskets:{},transactions:[]},chiller:{sections:getDefaultSections('chiller'),baskets:{},transactions:[]}});showToast('✅ Data direset.');}
-        function renderCurrentTab(){try{switch(currentTab){case'dashboard':renderDashboard();break;case'in':renderInputForm();break;case'search':renderSearch();break;case'history':renderHistory();break;case'rekap':renderRekap();break;case'manage':renderManageBaskets();break;}}catch(e){console.error(e);container.innerHTML='<div class="card"><div class="empty-state">Error. Refresh halaman.</div></div>';}}
+        function renderCurrentTab(){try{switch(currentTab){case'dashboard':renderDashboard();break;case'in':renderInputForm();break;case'search':renderSearch();break;case'history':renderHistory();break;case'rekap':renderRekap();break;case 'reminder': renderReminder(); break;case'manage':renderManageBaskets();break;}}catch(e){console.error(e);container.innerHTML='<div class="card"><div class="empty-state">Error. Refresh halaman.</div></div>';}}
 
         // ==================== FEFO ====================
         function cekFEFO(no,idx){const items=currentBaskets()[no]?.items||[],sel=items[idx];if(!sel||!sel.expDate)return true;const se=new Date(sel.expDate).getTime(),now=Date.now();const ea=items.filter((it,i)=>i!==idx&&it.expDate).filter(it=>new Date(it.expDate).getTime()<se&&new Date(it.expDate).getTime()>now).sort((a,b)=>new Date(a.expDate)-new Date(b.expDate));if(ea.length>0){showToast(`⚠️ FEFO: "${ea[0].nama}" expired ${new Date(ea[0].expDate).toLocaleDateString('id-ID')} lebih dulu!`);return false;}return true;}
@@ -358,6 +359,309 @@
         function downloadExcel(){const at=[...appData.frozen.transactions.map(t=>({...t,area:'Frozen'})),...appData.chiller.transactions.map(t=>({...t,area:'Chiller'}))];at.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));if(!at.length)return showToast('Tidak ada data');let h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Riwayat Lengkap</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Area</th><th>Tanggal</th><th>Jenis</th><th>Item</th><th>Jumlah</th><th>Jenis Brg</th><th>Keranjang</th><th>Section</th><th>User</th><th>Exp</th><th>Est Out</th></tr>';at.forEach(t=>{const d=t.detail;h+=`<tr><td>${t.area}</td><td>${new Date(t.timestamp).toLocaleString('id-ID')}</td><td>${t.type==='in'?'Masuk':t.type==='move'?'Pindah':t.type==='edit'?'Edit Estimasi':'Keluar'}</td><td>${d.nama||''}</td><td>${d.qty||''}</td><td>${d.jenis||''}</td><td>${d.keranjang||d.dari||''}</td><td>${d.section||''}</td><td>${t.user}</td><td>${d.expDate||''}</td><td>${d.newEstOutDate||d.estOutDate||''}</td></tr>`;});h+='</table></body></html>';_dlBlob(h,`riwayat_lengkap_${new Date().toISOString().split('T')[0]}.xls`);}
         function downloadRekapExcel(){const trx=currentTransactions();if(!trx.length)return showToast('Tidak ada data');let h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><h2>Rekap — '+currentArea.toUpperCase()+'</h2><table border="1"><tr style="background:#2563eb;color:white;"><th>Periode</th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>';const BULAN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],md={};trx.forEach(t=>{const d=new Date(t.timestamp),k=rekapMode==='bulanan'?`${BULAN[d.getMonth()]} ${d.getFullYear()}`:`${d.getFullYear()}`;if(!md[k])md[k]={in:0,out:0};md[k][t.type]++;});Object.entries(md).forEach(([k,v])=>{h+=`<tr><td>${k}</td><td>+${v.in}</td><td>-${v.out}</td><td>${v.in-v.out>=0?'+':''}${v.in-v.out}</td></tr>`;});h+='</table></body></html>';_dlBlob(h,`rekap_${currentArea}_${new Date().toISOString().split('T')[0]}.xls`);}
         function _dlBlob(html,fn){const b=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;a.click();}
+        
+        // ==================== REMINDER BROADCAST ====================
+function renderReminder() {
+    // Kumpulkan semua barang expired & est lewat dari kedua area
+    const allAlerts = [];
+    
+    for (const area of ['frozen', 'chiller']) {
+        const baskets = appData[area].baskets;
+        for (const [no, basket] of Object.entries(baskets)) {
+            const items = basket.items || [];
+            items.forEach(item => {
+                const isExpired = item.expDate && new Date(item.expDate) < new Date();
+                const isEstLewat = item.estOutDate && new Date(item.estOutDate) < new Date();
+                
+                if (isExpired || isEstLewat) {
+                    allAlerts.push({
+                        area: area,
+                        keranjang: parseInt(no),
+                        section: basket.section,
+                        baris: basket.baris,
+                        slot: basket.slot,
+                        nama: item.nama,
+                        qty: item.qty,
+                        jenis: item.jenis || '-',
+                        expDate: item.expDate || null,
+                        estOutDate: item.estOutDate || null,
+                        addedBy: item.addedBy || 'Tidak diketahui',
+                        isExpired: isExpired,
+                        isEstLewat: isEstLewat,
+                        tglMasuk: item.tglMasuk || null
+                    });
+                }
+            });
+        }
+    }
+    
+    if (allAlerts.length === 0) {
+        container.innerHTML = `
+            <div class="card" style="text-align:center;padding:40px;">
+                <div style="font-size:3rem;margin-bottom:16px;">✅</div>
+                <h3>Semua Aman!</h3>
+                <p style="color:#64748b;">Tidak ada barang expired atau estimasi lewat.</p>
+            </div>`;
+        return;
+    }
+    
+    // Kelompokkan berdasarkan user (addedBy)
+    const groupedByUser = {};
+    allAlerts.forEach(item => {
+        const user = item.addedBy;
+        if (!groupedByUser[user]) groupedByUser[user] = [];
+        groupedByUser[user].push(item);
+    });
+    
+    // Hitung statistik
+    const totalExpired = allAlerts.filter(i => i.isExpired).length;
+    const totalEstLewat = allAlerts.filter(i => i.isEstLewat).length;
+    const totalUsers = Object.keys(groupedByUser).length;
+    
+    // Build HTML
+    let html = `
+    <div class="card" style="padding:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3>⏰ Reminder Broadcast WA</h3>
+            <button class="btn btn-sm" style="background:#25D366;color:white;" onclick="copyAllReminders()">
+                <i class="fab fa-whatsapp"></i> Copy Semua
+            </button>
+        </div>
+        
+        <!-- Statistik -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+            <span style="background:#fee2e2;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;">
+                ☠️ ${totalExpired} Expired
+            </span>
+            <span style="background:#fff7ed;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;">
+                ⏳ ${totalEstLewat} Est Lewat
+            </span>
+            <span style="background:#ede9fe;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;">
+                👤 ${totalUsers} User
+            </span>
+            <span style="background:#dbeafe;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;">
+                📦 ${allAlerts.length} Total Item
+            </span>
+        </div>
+        
+        <!-- Info Broadcast -->
+        <div style="background:#dcf8c6;border-left:4px solid #25D366;border-radius:8px;padding:12px;margin-bottom:16px;">
+            <strong style="color:#075e54;"><i class="fab fa-whatsapp"></i> Format Broadcast WA:</strong>
+            <p style="margin:4px 0 0 0;font-size:0.8rem;color:#075e54;">
+                Copy teks di bawah → Paste ke WhatsApp → Kirim ke user terkait
+            </p>
+        </div>
+    `;
+    
+    // Render per user
+    for (const [user, items] of Object.entries(groupedByUser)) {
+        // Kelompokkan per user: expired vs est lewat
+        const expiredItems = items.filter(i => i.isExpired);
+        const estLewatItems = items.filter(i => i.isEstLewat && !i.isExpired);
+        
+        html += `
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div>
+                    <strong style="font-size:1rem;">👤 ${user}</strong>
+                    <span style="font-size:0.75rem;color:#64748b;margin-left:8px;">
+                        ${items.length} item bermasalah
+                    </span>
+                </div>
+                <button class="btn btn-sm" style="background:#25D366;color:white;" 
+                        onclick="copyUserReminder('${user.replace(/'/g,"\\'")}')">
+                    <i class="fab fa-whatsapp"></i> Copy
+                </button>
+            </div>
+            
+            <div id="reminder-${user.replace(/[^a-zA-Z0-9]/g,'_')}" style="background:#f8fafc;border-radius:8px;padding:12px;font-size:0.85rem;line-height:1.6;">
+                <div style="margin-bottom:8px;">
+                    <strong>📋 REMINDER STOK GUDANG</strong><br>
+                    <span style="color:#64748b;">Kepada: ${user}</span><br>
+                    <span style="color:#64748b;">Tanggal: ${new Date().toLocaleDateString('id-ID')}</span>
+                </div>
+                <div style="border-top:1px solid #e2e8f0;padding-top:8px;">`;
+        
+        // Barang EXPIRED
+        if (expiredItems.length > 0) {
+            html += `<div style="margin-bottom:8px;">
+                <strong style="color:#ef4444;">☠️ EXPIRED (${expiredItems.length}):</strong><br>`;
+            expiredItems.forEach(it => {
+                const areaIcon = it.area === 'frozen' ? '❄️' : '🌡️';
+                html += `• ${areaIcon} <strong>${it.nama}</strong> (${it.qty}) - ${it.jenis}<br>`;
+                html += `  📍 ${it.section} Brs ${it.baris} Slt ${it.slot} | Krjg ${it.keranjang}<br>`;
+                html += `  ⏰ Exp: ${new Date(it.expDate).toLocaleDateString('id-ID')}<br>`;
+            });
+            html += `</div>`;
+        }
+        
+        // Barang EST LEWAT
+        if (estLewatItems.length > 0) {
+            html += `<div style="margin-bottom:8px;">
+                <strong style="color:#f97316;">⏳ EST LEWAT (${estLewatItems.length}):</strong><br>`;
+            estLewatItems.forEach(it => {
+                const areaIcon = it.area === 'frozen' ? '❄️' : '🌡️';
+                html += `• ${areaIcon} <strong>${it.nama}</strong> (${it.qty}) - ${it.jenis}<br>`;
+                html += `  📍 ${it.section} Brs ${it.baris} Slt ${it.slot} | Krjg ${it.keranjang}<br>`;
+                html += `  📅 Est: ${new Date(it.estOutDate).toLocaleDateString('id-ID')}<br>`;
+            });
+            html += `</div>`;
+        }
+        
+        html += `
+                    <div style="border-top:1px solid #e2e8f0;padding-top:8px;color:#64748b;font-size:0.75rem;">
+                        ⚠️ Mohon segera dicek dan dikeluarkan/dipindahkan.<br>
+                        📞 Info: Gudang Walk-in
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+    
+    html += `
+        <!-- Tombol Copy Semua -->
+        <button class="btn" style="width:100%;background:#25D366;color:white;font-size:1rem;padding:14px;" 
+                onclick="copyAllReminders()">
+            <i class="fab fa-whatsapp"></i> Copy Semua Reminder untuk Broadcast
+        </button>
+        
+        <button class="btn btn-outline" style="width:100%;margin-top:8px;" 
+                onclick="exportReminderCSV()">
+            <i class="fas fa-download"></i> Download CSV
+        </button>
+    </div>`;
+    
+    container.innerHTML = html;
+    
+    // Simpan data untuk fungsi copy
+    window._reminderData = { groupedByUser, allAlerts };
+}
+        // Copy reminder untuk satu user
+function copyUserReminder(user) {
+    const data = window._reminderData;
+    if (!data) return;
+    
+    const items = data.groupedByUser[user];
+    if (!items) return;
+    
+    const expiredItems = items.filter(i => i.isExpired);
+    const estLewatItems = items.filter(i => i.isEstLewat && !i.isExpired);
+    
+    let text = `📋 *REMINDER STOK GUDANG*\n`;
+    text += `Kepada: *${user}*\n`;
+    text += `Tanggal: ${new Date().toLocaleDateString('id-ID')}\n\n`;
+    
+    if (expiredItems.length > 0) {
+        text += `☠️ *EXPIRED (${expiredItems.length}):*\n`;
+        expiredItems.forEach(it => {
+            const areaIcon = it.area === 'frozen' ? '❄️' : '🌡️';
+            text += `• ${areaIcon} ${it.nama} (${it.qty}) - ${it.jenis}\n`;
+            text += `  📍 ${it.section} Brs ${it.baris} Slt ${it.slot} | Krjg ${it.keranjang}\n`;
+            text += `  ⏰ Exp: ${new Date(it.expDate).toLocaleDateString('id-ID')}\n`;
+        });
+        text += `\n`;
+    }
+    
+    if (estLewatItems.length > 0) {
+        text += `⏳ *EST LEWAT (${estLewatItems.length}):*\n`;
+        estLewatItems.forEach(it => {
+            const areaIcon = it.area === 'frozen' ? '❄️' : '🌡️';
+            text += `• ${areaIcon} ${it.nama} (${it.qty}) - ${it.jenis}\n`;
+            text += `  📍 ${it.section} Brs ${it.baris} Slt ${it.slot} | Krjg ${it.keranjang}\n`;
+            text += `  📅 Est: ${new Date(it.estOutDate).toLocaleDateString('id-ID')}\n`;
+        });
+        text += `\n`;
+    }
+    
+    text += `⚠️ Mohon segera dicek dan dikeluarkan/dipindahkan.\n`;
+    text += `📞 Info: Gudang Walk-in`;
+    
+    copyToClipboard(text);
+    showToast('✅ Reminder untuk ' + user + ' dicopy!');
+}
+
+// Copy semua reminder
+function copyAllReminders() {
+    const data = window._reminderData;
+    if (!data) return;
+    
+    let text = `📋 *REMINDER STOK GUDANG - BROADCAST*\n`;
+    text += `Tanggal: ${new Date().toLocaleDateString('id-ID')}\n`;
+    text += `Total: ${data.allAlerts.length} item bermasalah\n`;
+    text += `${'─'.repeat(30)}\n\n`;
+    
+    for (const [user, items] of Object.entries(data.groupedByUser)) {
+        const expiredItems = items.filter(i => i.isExpired);
+        const estLewatItems = items.filter(i => i.isEstLewat && !i.isExpired);
+        
+        text += `👤 *${user}* (${items.length} item)\n`;
+        text += `${'─'.repeat(30)}\n`;
+        
+        if (expiredItems.length > 0) {
+            text += `☠️ EXPIRED: ${expiredItems.map(i => `${i.nama}(${i.qty})`).join(', ')}\n`;
+        }
+        if (estLewatItems.length > 0) {
+            text += `⏳ EST LEWAT: ${estLewatItems.map(i => `${i.nama}(${i.qty})`).join(', ')}\n`;
+        }
+        text += `\n`;
+    }
+    
+    text += `⚠️ Mohon segera dicek.\n📞 Info: Gudang Walk-in`;
+    
+    copyToClipboard(text);
+    showToast('✅ Semua reminder dicopy! Siap broadcast ke WhatsApp.');
+}
+
+// Fungsi copy ke clipboard
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            console.log('✅ Copied to clipboard');
+        }).catch(err => {
+            console.error('Clipboard error:', err);
+            fallbackCopy(text);
+        });
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+    } catch (err) {
+        showToast('❌ Gagal copy. Silakan copy manual.');
+    }
+    document.body.removeChild(textarea);
+}
+
+// Export CSV
+function exportReminderCSV() {
+    const data = window._reminderData;
+    if (!data) return;
+    
+    let csv = 'User,Area,Nama,Qty,Jenis,Section,Baris,Slot,Keranjang,Status,Exp Date,Est Out Date,Tgl Masuk\n';
+    
+    for (const [user, items] of Object.entries(data.groupedByUser)) {
+        items.forEach(it => {
+            const status = it.isExpired ? 'EXPIRED' : 'EST LEWAT';
+            csv += `"${user}","${it.area==='frozen'?'Frozen':'Chiller'}","${it.nama}","${it.qty}","${it.jenis}","${it.section}","${it.baris}","${it.slot}","${it.keranjang}","${status}","${it.expDate||''}","${it.estOutDate||''}","${it.tglMasuk||''}"\n`;
+        });
+    }
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `reminder_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    showToast('✅ CSV terdownload!');
+}
 
         // ==================== MANAGE ====================
         function renderManageBaskets(){if(!isAdmin()){container.innerHTML='<div class="card"><h3>⚙️ Atur Nomor Keranjang</h3><p style="color:#ef4444;font-weight:600;">🔒 Hanya admin.</p></div>';return;}let h='<div class="card"><h3>⚙️ Atur Slot Keranjang</h3>';for(const[sn,bo]of Object.entries(currentSections())){h+=`<div style="margin-bottom:20px;"><strong>📍 ${sn}</strong>`;for(const[br,sl]of Object.entries(bo)){h+=`<div style="margin-left:8px;margin-bottom:10px;"><span class="baris-label">📌 Baris ${br}</span>`;for(let i=0;i<5;i++){const no=sl[i];if(no){const c=itemCount(no);h+=`<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;"><span class="chip">Slot ${i+1}: ${no} (${c}/${getBasketCapacity(no)}) <span style="cursor:pointer;color:red;margin-left:4px;" onclick="clearSlot('${sn}','${br}',${i})">✕</span></span></div>`;}else{h+=`<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;"><span class="chip" style="background:#f1f5f9;border:1px dashed #cbd5e1;">Slot ${i+1}: kosong</span><input type="number" id="inp_${sn}_${br}_${i}" placeholder="No" style="width:80px;padding:4px;"><button class="btn btn-sm btn-primary" onclick="fillSlot('${sn}','${br}',${i})">Isi</button></div>`;}}h+='</div>';}h+=`<div><button class="btn btn-sm btn-outline" onclick="addBaris('${sn}')">➕ Tambah Baris Baru</button></div></div>`;}h+='</div>';container.innerHTML=h;}
